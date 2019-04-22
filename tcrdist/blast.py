@@ -82,6 +82,99 @@ def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
                                         extended_cdr3,
                                         return_all_good_hits = False,
                                         max_bit_score_delta_for_good_hits = 50 ):
+    """
+    This is draft post-hoc draft documentation based on my reading of the function. It may not be correct.
+
+    PSUEDOCODE:
+
+        {optional}
+        RETURNS: [genes, evalues, status, {all_good_hits_with_scores}]
+
+
+    This function works on a single sequence so is part of a loop through rows of the input file
+
+    1. creates a temporary blast .fa file
+    2. USE BLAST TO PRODUCE [top_hits]
+        if blast_seq is longer than 20, then:
+    First for V
+        2a. get appropriate (chain, gene specific ) blast database : get_blast_nucseq_database( organism, ab, "V")
+        2b. send system cmd to execute blast of query = "blastmp.fa" against chain, gene specific DB
+        2c. get hits, hitscores with parse_blast_alignments() and  get_all_hits_with_evalues_and_scores()
+        2d. subset to all "good" hits based on bit_score delta cut-offs
+        2f. ??? Figure our the score gap to teh next-non equivalent ??
+    Then for J:
+        do the exact same as for V, but difference is definition of old_rep_map ?
+            (V: cdr3s_human.all_loopseq_representative[organism]
+            vs. J: cdr3s_human.all_jseq_representative[organism])
+
+        At the end of the step 2, [ top_hits ] is checked for 2 entries,
+    3. COMPLICATED SET OF STEPS ??? I am just giong to describe for V gene but it applies to both
+        3a. get a representative V gene (old versus new step ??? )
+        3b. define nucleotide sequence of the top hit from DICT: all_fasta {organism}{chain}{gene}{molecule}{hit_id}
+        3c. define protein sequence of the top hit (V-only) from the DICT: all_fasta {organism}{chain}{gene}{molecule}{hit_id}
+        3d. define the hitseq_frame of the top hit from the DICT: all_offsets {organism}{chain}{gene}{hit_id}
+                all_offsets, all_fasta = getFASTAOffsets(all_genes) is simply called above !!!!
+        3e. Check that v_hit and j_hit are on the same h_strand
+        3f. if h_strand = -1  reverse_q2hmap() is called  and blast_seq is reverse complimented
+
+        There is an attribute of  v_hit.q2hmap ? that does something important
+            inspect v_hit which comes from hits , which comes from parse_blast_alignments( )
+
+        ... There is some code here that will need to be explained by Andrew or Phil
+
+        Construct a protein seqeuence alignment between transation of blast_seq and ?
+
+    GOAL is to get blast_seq and q_vframe to next block of code
+
+    4. USING translation.get_translation()
+        qseq (amino acid sequence)
+        codons (list of nucleotide seqs)
+
+    5. Using parse_cdr3.parse_cdr3()
+        get:
+        cdr3 - cdrseq
+        v_mm - v_match_counts
+        j_mm - j_match_counts,
+        errors -
+        cdr3 - cdrseq
+
+
+    Some Checks for "#" in blast_seq
+
+    genes:  (v_gene, v_rep, v_mm, j_gene, j_rep, j_mm, cdr3)
+        v_gene CAME FROM v_hit.hit_id
+        v_rep CAME FROM v_rep = all_genes[organism][v_gene].rep
+        v_mm  CAME FROM parse_cdr3.parse_cdr3()
+        j_gene CAME FROM j_hit.hit_id
+        j_rep j_rep = all_genes[organism][j_gene].rep
+        j_mm = CAME FROM parse_cdr3.parse_cdr3()
+        cdr = CAME FROM parse_cdr3.parse_cdr3()
+
+    evalues : []
+    status  : []
+
+
+
+
+
+
+
+    :param organism: string ('human' or 'mouse')
+    :param ab: string (alpha, beta, gamma, delta)
+    :param blast_seq: string (nucleotide sequence)
+    :param info: string ()
+    :param nocleanup: boolean ()
+    :param hide_nucseq: boolean ()
+    :param extended_cdr3: bolean ()
+    :param return_all_good_hits: boolean ()
+    :param max_bit_score_delta_for_good_hits: int ()
+
+    :return genes: ?
+    :return evalues: ?
+    :return status: list
+    :return all_good_hits_with_scores {optionally returned} ! only returned if  return_all_good_hits = TRUE
+    code would ideally return this a under all inputs, NULL if return_all_good_hits = FALSE)!
+    """
 
     if not op.exists('./tmp'):
         os.mkdir('./tmp')
@@ -590,3 +683,68 @@ def get_qualstring( cdr3seqtag, nucseq_in, quals_in ):
             offset = pos+1
         pos = bestpos
     return '.'.join( [ '%d'%x for x in quals[pos:pos+len(cdr3nucseq)] ] )
+
+
+### DUMMY FUNCTIONS BELOW HERE FOR DEBUGGING ONLY
+
+def parse_blast_alignments_dummy( blastfile, evalue_threshold, identity_threshold ):
+    ## THIS WILL NOT WORK FOR PSIBLAST
+
+    data = open( blastfile, 'r' )
+
+    line = data.readline()
+    while line and not is_new_query_id_line( line ): line = data.readline()
+
+    hits = {}
+    while line:
+        assert is_new_query_id_line( line )
+
+        query_id = line.split()[1]
+        hits[ query_id ] = []
+
+        ## read to the start of the alignments
+        line = data.readline()
+        while line and not is_new_hit_id_line( line ) and not is_new_query_id_line( line ): line = data.readline()
+
+        if not is_new_hit_id_line( line ): continue ## no hits
+
+        while line:
+            assert is_new_hit_id_line( line )
+
+            hit_id = line.split()[0][1:]
+
+            ## read to the first match for this hit
+            while line and not is_new_match_line( line ): line = data.readline()
+
+            while line:
+                assert is_new_match_line( line )
+                print("MATCH:")
+                print(line)
+
+                hitlines = [ line ]
+
+                line = data.readline()
+                while line and \
+                        not is_new_match_line( line ) and \
+                        not is_new_hit_id_line( line ) and \
+                        not is_new_query_id_line( line ):
+                    hitlines.append( line )
+                    line = data.readline()
+                
+                print("hitlines:")
+                print(hitlines)
+
+                ## now in a new match
+                m = BlastMatch( hitlines, query_id, hit_id )
+
+                if m.evalue <= evalue_threshold and m.identities >= identity_threshold:
+                    hits[ query_id ].append( m )
+
+                if not is_new_match_line( line ): break
+            if not is_new_hit_id_line( line ): break
+        if not is_new_query_id_line( line ):
+            assert not line
+            break
+    data.close()
+
+    return hits

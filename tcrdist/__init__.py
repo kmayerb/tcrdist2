@@ -8,13 +8,16 @@ logging.basicConfig(filename='tcrdist.log',
 logger = logging.getLogger('__init__.py')
 logger.debug('Begining package imports')
 
+from .hello import *
+from .processing import processNT, computeProbs, samplerProb
+from tcr_sampler import alpha_cdr3_protseq_probability, beta_cdr3_protseq_probability
 from . import processing
-from . import utils
+from . import util # changed from utils to util to match tcrdist
 from . import plotting
 from .objects import TCRClone, TCRChain
 from . import datasets
 from . import distances
-from . import embedding
+# from . import embedding  (ImportError: libgfortran.so.1 on linux but not on windows, environmental diff?)
 
 __all__ = ['processing',
            'utils',

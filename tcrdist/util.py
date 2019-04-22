@@ -1,5 +1,5 @@
-from scipy.cluster import hierarchy
-from scipy.spatial import distance
+# from scipy.cluster import hierarchy # scipy.cluster is not yet in tcrdist folder
+# from scipy.spatial import distance
 import logging
 
 from .all_genes import all_genes
