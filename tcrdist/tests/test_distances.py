@@ -11,6 +11,9 @@ matplotlib.use('Agg')
 
 import tcrdist as td
 
+tempSkip = pytest.mark.skip(reason="Temporarily skipping for efficiency.")
+
+@tempSkip
 def exampleBetaChains():
     lines = """TRBV18*01 CASSPRHGISPLHF
     TRBV19*01,TRBV19*02 CASSPGGVTEAFF
@@ -39,16 +42,18 @@ datasetsPath = op.join(td.__path__[0], 'datasets')
 
 tempSkip = pytest.mark.skip(reason="Temporarily skipping for efficiency.")
 
-#@tempSkip
+@tempSkip
 def test_human_vregion():
     """Getting lots of NA distances..."""
     pwDf = td.distances.computeVRegionDistances('human')
     assert np.all(pwDf.index == pwDf.columns)
 
+@tempSkip
 def test_mouse_vregion():
     pwDf = td.distances.computeVRegionDistances('mouse')
     assert np.all(pwDf.index == pwDf.columns)
-    
+
+@tempSkip
 def test_chain():
     tcrs = exampleBetaChains()
     pwmat = np.zeros((len(tcrs), len(tcrs)))
@@ -56,18 +61,21 @@ def test_chain():
         if j <= i:
             pwmat[i,j] = td.distances.basicDistance('B', tcrs[i], tcrs[j])
             pwmat[j,i] = pwmat[i,j]
-    
+
+@tempSkip
 def test_compute_paired_chain_distance():
     psDf = td.datasets.loadPSData('test_human_pairseqs')
     d = td.distances.basicDistance('AB', psDf.iloc[0], psDf.iloc[-1])
 
+@tempSkip
 def test_compute_clones_distance():
     psDf = td.datasets.loadPSData('test_human_pairseqs')
     probDf = td.processing.computeProbs(psDf)
     psDf = psDf.join(probDf)
     clonesDf = td.processing.identifyClones(psDf)
     d = td.distances.basicDistance('AB', clonesDf.iloc[0], clonesDf.iloc[-1])
-    
+
+@tempSkip
 def test_compute_all_distances():
     psDf = td.datasets.loadPSData('test_human_pairseqs')
     probDf = td.processing.computeProbs(psDf)
@@ -78,6 +86,7 @@ def test_compute_all_distances():
     assert pwDf.shape[0] == pwDf.shape[1]
     assert pwDf.shape[0] == clonesDf.shape[0]
 
+@tempSkip
 def test_nbr_dist():
     psDf = td.datasets.loadPSData('test_human_pairseqs')
     psDf = psDf.set_index('TCRID')
@@ -112,6 +121,7 @@ def test_nbr_dist():
                                 params=params)
     assert d == d2
 
+@tempSkip
 def test_embedding():
     psDf = td.datasets.loadPSData('test_human_pairseqs')
     psDf = psDf.set_index('TCRID')

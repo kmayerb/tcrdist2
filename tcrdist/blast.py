@@ -84,7 +84,7 @@ def get_blast_nucseq_database( organism, chain, region ):
 def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
                                         nocleanup, hide_nucseq,
                                         extended_cdr3,
-                                        use_parasail = True,
+                                        use_parasail = False,
                                         try_parasail = True,
                                         return_all_good_hits = False,
                                         max_bit_score_delta_for_good_hits = 50 ):
@@ -114,7 +114,7 @@ def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
     """
 
     if not use_parasail: # ORGINAL FUNCTIONALITY
-        print("USING ORIGINAL BLAST IMPLEMENTATION") # REMOVE AFTER TESTS
+        # print("USING ORIGINAL BLAST IMPLEMENTATION") # REMOVE AFTER TESTS
         if not op.exists('./tmp'):
             os.mkdir('./tmp')
         handle, blast_tmpfile = tempfile.mkstemp(suffix='.fa', prefix='blasttmp', dir='./tmp')
@@ -186,8 +186,8 @@ def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
                     top_hits.append( top_hit )
                 else:
                     status.append('no_{}{}_blast_hits'.format(vj,ab))
-        print("Top BLAST Hit V: ", top_hits[0].hit_id)
-        print("Top BLAST Hit J: ", top_hits[1].hit_id)
+        # print("Top BLAST Hit V: ", top_hits[0].hit_id) # REMOVE AFTER TESTS
+        # print("Top BLAST Hit J: ", top_hits[1].hit_id) # REMOVE AFTER TESTS
 
     if try_parasail or use_parasail: # for now you have option to try parasail but use blast top hits
         print("NEW PARASAIL IMPLEMENTATION RUN AS WELL")         # REMOVE AFTER TESTS
@@ -222,9 +222,9 @@ def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
                 sail._all_good_hits_with_scores(hits_scores = sr['hits_scores'],
                                                 max_bit_score_delta_for_good_hits= max_bit_score_delta_for_good_hits)
 
-        print("Top PARASAIL Hit V: ", s_top_hits[0].hit_id) # REMOVE AFTER TESTS
-        print("Top PARASAIL Hit J: ", s_top_hits[1].hit_id) # REMOVE AFTER TESTS
-        print("-----")                                      # REMOVE AFTER TESTS
+        #print("Top PARASAIL Hit V: ", s_top_hits[0].hit_id) # REMOVE AFTER TESTS
+        #print("Top PARASAIL Hit J: ", s_top_hits[1].hit_id) # REMOVE AFTER TESTS
+        #print("-----")                                      # REMOVE AFTER TESTS
 
 
         if use_parasail: # if use_parasail == True in args, the blast results will not be produced

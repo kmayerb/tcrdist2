@@ -18,7 +18,6 @@ from .objects import TCRClone, TCRChain
 from . import datasets
 from . import distances
 from .all_genes import all_genes
-from .get_all_genes import all_genes_inspect
 from .sail import *
 
 # from . import embedding  (ImportError: libgfortran.so.1 on linux but not on windows, environmental diff?)
