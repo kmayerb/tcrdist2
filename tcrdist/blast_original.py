@@ -1,3 +1,4 @@
+import parasail as ps
 from glob import glob
 import tempfile
 import logging
@@ -13,9 +14,6 @@ from .translation import get_translation
 """Both these imports are for calling two different versions of parse_cdr3??"""
 from . import cdr3s_human
 from . import parse_cdr3
-
-from . import sail
-import parasail as ps
 
 logger = logging.getLogger('blast.py')
 
@@ -80,12 +78,238 @@ def get_blast_nucseq_database( organism, chain, region ):
             exit()
     return fastafile
 
+def dna_reverse_complement(string):
+    '''
+    provides reverse compliment of a DNA string
+
+    comp_map taken from scikit-bio
+
+    :example:
+    >> dna_reverse_complement("ATG")
+    CAT
+    '''
+    comp_map = {
+        'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G', 'Y': 'R', 'R': 'Y',
+        'S': 'S', 'W': 'W', 'K': 'M', 'M': 'K', 'B': 'V', 'D': 'H',
+        'H': 'D', 'V': 'B', 'N': 'N',
+        'a': 't', 't': 'a', 'g': 'c', 'c': 'g', 'y': 'r', 'r': 'y',
+        's': 's', 'w': 'w', 'k': 'm', 'm': 'k', 'b': 'v', 'd': 'h',
+        'h': 'd', 'v': 'b', 'n': 'n', "-" : "-"}
+    complement = "".join(([comp_map[nuc] for nuc in string]))
+    return (complement[::-1])
+
+
+def _q_start(query_seq, q_seq):
+    """
+    returns the starting pytyon string index of query alignment (q_seq) in the query_sequence (query_seq)
+
+    :param query_seq: string full query sequence
+    :param q_seq: string alignment sequence (may contain gaps as "-")
+    :return:
+    :example:
+    >>_q_start(query_seq = "ATGATG", q_seq = "ATG")
+    0
+    >>_q_start(query_seq = "ATGATG", q_seq = "GATG")
+    2
+    >>_q_start(query_seq="ATGATG", q_seq="GA-TG")
+    2
+    """
+    q_seq = q_seq.replace("-", "") # remove gaps to get index for original sequence
+    q_start = query_seq.find(q_seq)
+    return(q_start)
+
+def _q_stop(query_seq, q_seq):
+    """
+    returns the ending python string index of query alignment (q_seq) in the query sequence (query_seq)
+
+    :param query_seq: string
+    :param q_seq: string
+    :return: integer
+    """
+    q_seq = q_seq.replace("-" , "")
+    q_start = query_seq.find(q_seq)
+    q_stop  = q_start + len(q_seq) - 1
+    return(q_stop)
+
+def _h_start(hit_seq, h_seq, h_strand):
+    """
+    returns the ending python string index of query alignment (h_seq) in the hit reference  sequence (hit_seq)
+
+    :param hit_seq:
+    :param h_seq:
+    :param h_strand:
+    :return: integer
+    """
+    h_seq = h_seq.replace("_", "")
+    h_len = len(h_seq)
+    if 1 == h_strand:
+        h_start = hit_seq.find(h_seq)
+    elif h_strand == -1:
+        rc_h_seq = dna_reverse_complement(h_seq)      # when strand -1 , reverse_comp of h_seq gets back to reference direction
+        rc_hit_seq = dna_reverse_complement(hit_seq)  # rc -> gets original reference in database
+        h_start = rc_hit_seq.find(rc_h_seq)           # find where the alignment starts on reference
+        h_start = h_start + h_len - 1                 # but becuase, h_start is at the end of the alignment
+    else:
+        raise ValueError('h_strand must be 1 or -1')
+    return(h_start)
+
+def _h_stop(hit_seq, h_seq, h_strand):
+    """
+    returns the ending python string index of query alignment (h_seq) in the hit reference  sequence (hit_seq)
+
+    :param hit_seq:
+    :param h_seq:
+    :param h_strand:
+    :return: integer
+
+    """
+    h_seq = h_seq.replace("_", "")
+    h_len = len(h_seq)
+    if h_strand == 1:
+        h_start = hit_seq.find(h_seq)
+        h_stop = h_start + h_len - 1
+    elif h_strand == -1:
+        rc_h_seq = dna_reverse_complement(h_seq)
+        rc_hit_seq = dna_reverse_complement(hit_seq)
+        h_stop = rc_hit_seq.find(rc_h_seq)
+    else:
+        raise ValueError('h_strand must be 1 or -1')
+    return(h_stop)
+
+
+def _get_ids_by_org_chain_region(organism,
+                                 chain,
+                                 region,
+                                 d):
+    '''
+    returns ids in dictionary (all_genes) matching chain and region
+
+    :param: organism ('human', 'mouse')
+    :param: chain string ('A','B')
+    :param: region string ('J', 'V')
+    :param: d dictionary containing tcrdist.opjects.TCR_Gene
+
+    :returns: ids list of strings
+
+    :example:
+    >>> _get_ids_by_org_chain_region(organism = 'human',
+                                 chain = 'A',
+                                 region = 'J',
+                                 d = all_genes)[0:5]
+    ['TRAJ15*01', 'TRAJ15*02', 'TRAJ35*01', 'TRAJ50*01', 'TRAJ24*01']
+    '''
+    ids = []
+    for (id, g) in d[organism].iteritems():
+        if g.chain == chain and g.region == region:
+            ids.append(id)
+    return (ids)
+
+
+def _get_sequence_tuples_from_ids(ids,
+                                  organism,
+                                  d):
+    '''
+    returns list of tuples (id, nucseq, strand) from a  list of ids
+
+
+    :param: ids list of ids (e.g 'TRAJ15*01')
+    :param: organism string ('human', 'mouse')
+    :param: d ditionary (all_genes)
+
+    :return: tuple (id, nucseq, strand)
+        strand = -1 for reverse complement
+
+    :example:
+    >>> _get_sequence_tuples_from_ids(ids = ['TRAJ15*01'])
+    [('TRAJ15*01',
+  'ccaaccaggcaggaactgctctgatctttgggaagggaaccaccttatcagtgagttcca',
+  1),
+ ('TRAJ15*01',
+  'tggaactcactgataaggtggttcccttcccaaagatcagagcagttcctgcctggttgg',
+  -1)]
+    '''
+    return ([(id, d[organism][id].nucseq, 1) for id in ids] +
+            [(id, dna_reverse_complement(d[organism][id].nucseq), -1) for id in ids])
+
+
+
+
+def _create_q2hmap(q_seq, h_seq, q_start, h_start, q_strand=1, h_strand=1):
+    '''
+    create a query to hit map
+
+    produce the query (q) to hit (h) mapping position in the
+    primary query sequence to the position of aligned nucleotide
+    in the primary hit reference sequence
+
+    The result is a dictionary mapping the original query sequence to aligned positions in the reference.
+    This is made difficult by the potential for gaps in either sides of the pairwise alignment.
+
+    Here is a toy example of an alignment of two sequences with a gap
+
+    POS(10)          1         2
+    POS(1) 012345678901234567890123  # this is zero indexed position in the orginal sequence
+                >                 <
+    QRY:   GGGGGCAAAAAAATTGGAAAAAAA  # This is the actual sequence
+    QRY A:      CAAAAAAA-TTGGAAAAAAA # SW Alignment
+    HIT A:      CAAAAAAATTTGGAAAAAAA
+    HIT:      TTCAAAAAAATTTGGAAAAAAA # This is the hit sequence
+    POS(10)             1         2
+    POS(1)    0123456789012345678901  # this is zero indexed position in the hit sequence
+                >                  <
+
+    :param: q_seq    string of the query hit alignment
+    :param: h_seq    string of the hit alignment nucleotide
+    :param: q_start  integer start index on the query primary seqeuence
+    :param: h_start  integer start index on the hit primary sequence
+    :param: q_strand integer (1 or -1)
+    :param: h_strand integer (1 or -1)
+
+    :return: q2hmap dictionary
+
+    :example:
+    >>> _create_q2hmap(q_seq = 'CAAAAAAA-TTGGAAAAAAA', h_seq = 'CAAAAAAATTTGGAAAAAAA', q_start = 5 , h_start = 2 , q_strand = 1, h_strand = 1)
+    {5: (2, 'C'),
+     6: (3, 'A'),
+     7: (4, 'A'),
+     8: (5, 'A'),
+     9: (6, 'A'),
+     10: (7, 'A'),
+     11: (8, 'A'),
+     12: (9, 'A'),
+     13: (11, 'T'),
+     14: (12, 'T'),
+     15: (13, 'G'),
+     16: (14, 'G'),
+     17: (15, 'A'),
+     18: (16, 'A'),
+     19: (17, 'A'),
+     20: (18, 'A'),
+     21: (19, 'A'),
+     22: (20, 'A'),
+     23: (21, 'A')}
+    '''
+    q2hmap = {}
+
+    i_q = 0  # starting counter for a
+    i_h = 0  # starting index b
+    gaps = '-'  # gap characters
+
+    for i, q in enumerate(q_seq):
+        h = h_seq[i]
+        if q not in gaps:
+            if h in gaps:
+                q2hmap[q_start + i_q] = (-1, '-')  # what to return if there is gap in the hit
+            else:
+                q2hmap[q_start + i_q] = (h_start + i_h, h)
+        if q not in gaps: i_q += q_strand
+        if h not in gaps: i_h += h_strand
+    return (q2hmap)
+
 
 def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
                                         nocleanup, hide_nucseq,
                                         extended_cdr3,
-                                        use_parasail = True,
-                                        try_parasail = True,
                                         return_all_good_hits = False,
                                         max_bit_score_delta_for_good_hits = 50 ):
     """
@@ -95,6 +319,75 @@ def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
 
         {optional}
         RETURNS: [genes, evalues, status, {all_good_hits_with_scores}]
+
+
+    This function works on a single sequence so is part of a loop through rows of the input file
+
+    1. creates a temporary blast .fa file
+    2. USE BLAST TO PRODUCE [top_hits]
+        if blast_seq is longer than 20, then:
+    First for V
+        2a. get appropriate (chain, gene specific ) blast database : get_blast_nucseq_database( organism, ab, "V")
+        2b. send system cmd to execute blast of query = "blastmp.fa" against chain, gene specific DB
+        2c. get hits, hitscores with parse_blast_alignments() and  get_all_hits_with_evalues_and_scores()
+        2d. subset to all "good" hits based on bit_score delta cut-offs
+        2f. ??? Figure our the score gap to teh next-non equivalent ??
+    Then for J:
+        do the exact same as for V, but difference is definition of old_rep_map ?
+            (V: cdr3s_human.all_loopseq_representative[organism]
+            vs. J: cdr3s_human.all_jseq_representative[organism])
+
+        At the end of the step 2, [ top_hits ] is checked for 2 entries,
+    3. COMPLICATED SET OF STEPS ??? I am just giong to describe for V gene but it applies to both
+        3a. get a representative V gene (old versus new step ??? )
+        3b. define nucleotide sequence of the top hit from DICT: all_fasta {organism}{chain}{gene}{molecule}{hit_id}
+        3c. define protein sequence of the top hit (V-only) from the DICT: all_fasta {organism}{chain}{gene}{molecule}{hit_id}
+        3d. define the hitseq_frame of the top hit from the DICT: all_offsets {organism}{chain}{gene}{hit_id}
+                all_offsets, all_fasta = getFASTAOffsets(all_genes) is simply called above !!!!
+        3e. Check that v_hit and j_hit are on the same h_strand
+        3f. if h_strand = -1  reverse_q2hmap() is called  and blast_seq is reverse complimented
+
+        There is an attribute of  v_hit.q2hmap ? that does something important
+            inspect v_hit which comes from hits , which comes from parse_blast_alignments( )
+
+        ... There is some code here that will need to be explained by Andrew or Phil
+
+        Construct a protein seqeuence alignment between transation of blast_seq and ?
+
+    GOAL is to get blast_seq and q_vframe to next block of code
+
+    4. USING translation.get_translation()
+        qseq (amino acid sequence)
+        codons (list of nucleotide seqs)
+
+    5. Using parse_cdr3.parse_cdr3()
+        get:
+        cdr3 - cdrseq
+        v_mm - v_match_counts
+        j_mm - j_match_counts,
+        errors -
+        cdr3 - cdrseq
+
+
+    Some Checks for "#" in blast_seq
+
+    genes:  (v_gene, v_rep, v_mm, j_gene, j_rep, j_mm, cdr3)
+        v_gene CAME FROM v_hit.hit_id
+        v_rep CAME FROM v_rep = all_genes[organism][v_gene].rep
+        v_mm  CAME FROM parse_cdr3.parse_cdr3()
+        j_gene CAME FROM j_hit.hit_id
+        j_rep j_rep = all_genes[organism][j_gene].rep
+        j_mm = CAME FROM parse_cdr3.parse_cdr3()
+        cdr = CAME FROM parse_cdr3.parse_cdr3()
+
+    evalues : []
+    status  : []
+
+
+
+
+
+
 
     :param organism: string ('human' or 'mouse')
     :param ab: string (alpha, beta, gamma, delta)
@@ -113,130 +406,78 @@ def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
     code would ideally return this a under all inputs, NULL if return_all_good_hits = FALSE)!
     """
 
-    if not use_parasail: # ORGINAL FUNCTIONALITY
-        print("USING ORIGINAL BLAST IMPLEMENTATION") # REMOVE AFTER TESTS
-        if not op.exists('./tmp'):
-            os.mkdir('./tmp')
-        handle, blast_tmpfile = tempfile.mkstemp(suffix='.fa', prefix='blasttmp', dir='./tmp')
-        os.close(handle)
+    if not op.exists('./tmp'):
+        os.mkdir('./tmp')
+    handle, blast_tmpfile = tempfile.mkstemp(suffix='.fa', prefix='blasttmp', dir='./tmp')
+    os.close(handle)
 
-        genes =  ( 'UNK', 'UNK', [100,0], 'UNK', 'UNK', [100,0], '-' )
+    genes =  ( 'UNK', 'UNK', [100,0], 'UNK', 'UNK', [100,0], '-' )
 
-        status = []
+    status = []
 
-        evalues = {'V'+ab:(1,0),'J'+ab:(1,0)}
+    evalues = {'V'+ab:(1,0),'J'+ab:(1,0)}
 
-        all_good_hits_with_scores = [[],[]]
+    all_good_hits_with_scores = [[],[]]
 
-        logger.debug('blast_seq: %s, %s, %s',info,ab,blast_seq)
+    logger.debug('blast_seq: %s, %s, %s',info,ab,blast_seq)
 
-        if len(blast_seq) <= 20:
-            status.append('short_{}_blast_seq_{}'.format(ab,len(blast_seq)))
-        else:
+    if len(blast_seq) <= 20:
+        status.append('short_{}_blast_seq_{}'.format(ab,len(blast_seq)))
+    else:
 
-            out = open(blast_tmpfile,'w')
-            out.write('>tmp\n%s\n'%blast_seq)
-            out.close()
+        out = open(blast_tmpfile,'w')
+        out.write('>tmp\n%s\n'%blast_seq)
+        out.close()
 
-            ## now blast against V and J
-            top_hits = []
-            for ivj,vj in enumerate('VJ'):
-                dbfile = get_blast_nucseq_database( organism, ab, vj ) # also ensures that it exists
-                assert op.exists(dbfile)
-                blastall_exe = path_to_blast_executables+'/blastall'
-                assert op.exists( blastall_exe )
-                cmd = '%s -F F -p blastn -i %s -d %s -v 100 -b 1 -o %s.blast'\
-                      %( blastall_exe, blast_tmpfile, dbfile, blast_tmpfile )
-                logger.debug('blast cmd: %s', cmd)
-                os.system(cmd)
+        ## now blast against V and J
+        top_hits = []
+        for ivj,vj in enumerate('VJ'):
+            dbfile = get_blast_nucseq_database( organism, ab, vj ) # also ensures that it exists
+            assert op.exists(dbfile)
+            blastall_exe = path_to_blast_executables+'/blastall'
+            assert op.exists( blastall_exe )
+            cmd = '%s -F F -p blastn -i %s -d %s -v 100 -b 1 -o %s.blast'\
+                  %( blastall_exe, blast_tmpfile, dbfile, blast_tmpfile )
+            logger.debug('blast cmd: %s', cmd)
+            os.system(cmd)
 
-                logger.debug('blast: %s, %s, %s',info,ab,vj)
-                logger.debug(''.join( open(blast_tmpfile+'.blast','r').readlines()))
+            logger.debug('blast: %s, %s, %s',info,ab,vj)
+            logger.debug(''.join( open(blast_tmpfile+'.blast','r').readlines()))
 
-                ## try parsing the results
-                evalue_threshold = 1e-1
-                identity_threshold = 20
-                hits = parse_blast_alignments( blast_tmpfile+'.blast', evalue_threshold, identity_threshold )
-                hits_scores = get_all_hits_with_evalues_and_scores( blast_tmpfile+'.blast' ) ## id,bitscore,evalue
-                #print(hits_scores)
-                ##############
-                if hits and hits[ hits.keys()[0]]:
+            ## try parsing the results
+            evalue_threshold = 1e-1
+            identity_threshold = 20
+            hits = parse_blast_alignments( blast_tmpfile+'.blast', evalue_threshold, identity_threshold )
+            hits_scores = get_all_hits_with_evalues_and_scores( blast_tmpfile+'.blast' ) ## id,bitscore,evalue
+            #print(hits_scores)
+            ##############
+            if hits and hits[ hits.keys()[0]]:
 
-                    top_hit = hits[ hits.keys()[0] ][0]
-                    top_id, top_bit_score, top_evalue = hits_scores[0]
+                top_hit = hits[ hits.keys()[0] ][0]
+                top_id, top_bit_score, top_evalue = hits_scores[0]
 
-                    all_good_hits_with_scores[ivj] \
-                        = [ x for x in hits_scores if top_bit_score-x[1] <= max_bit_score_delta_for_good_hits ]
+                all_good_hits_with_scores[ivj] \
+                    = [ x for x in hits_scores if top_bit_score-x[1] <= max_bit_score_delta_for_good_hits ]
 
-                    assert top_hit.hit_id == top_id
-                    ## figure out the score gap to the next non-equivalen
-                    bit_score_gap = top_bit_score
-                    if vj == 'V':
-                        old_rep_map = cdr3s_human.all_loopseq_representative[organism]
-                    else:
-                        old_rep_map = cdr3s_human.all_jseq_representative[organism]
-                    old_top_rep = old_rep_map[top_id]
-                    top_rep = all_genes[ organism ][top_id].rep
-                    assert old_top_rep == top_rep
-                    for ( id, bit_score, evalue ) in hits_scores[1:]:
-                        if all_genes[organism][id].rep != top_rep:
-                            bit_score_gap = top_bit_score - bit_score
-                            break
-                    evalues[vj+ab] = (top_hit.evalue, bit_score_gap)
-                    top_hits.append( top_hit )
+                assert top_hit.hit_id == top_id
+                ## figure out the score gap to the next non-equivalen
+                bit_score_gap = top_bit_score
+                if vj == 'V':
+                    old_rep_map = cdr3s_human.all_loopseq_representative[organism]
                 else:
-                    status.append('no_{}{}_blast_hits'.format(vj,ab))
-        print("Top BLAST Hit V: ", top_hits[0].hit_id)
-        print("Top BLAST Hit J: ", top_hits[1].hit_id)
+                    old_rep_map = cdr3s_human.all_jseq_representative[organism]
+                old_top_rep = old_rep_map[top_id]
+                top_rep = all_genes[ organism ][top_id].rep
+                assert old_top_rep == top_rep
+                for ( id, bit_score, evalue ) in hits_scores[1:]:
+                    if all_genes[organism][id].rep != top_rep:
+                        bit_score_gap = top_bit_score - bit_score
+                        break
+                evalues[vj+ab] = ( top_hit.evalue, bit_score_gap )
+                top_hits.append( top_hit )
+            else:
+                status.append('no_{}{}_blast_hits'.format(vj,ab))
 
-    if try_parasail or use_parasail: # for now you have option to try parasail but use blast top hits
-        print("NEW PARASAIL IMPLEMENTATION RUN AS WELL")         # REMOVE AFTER TESTS
-
-        # initialize variable that will replace blast implementation equivalents if use_parasail == True
-        s_status = []
-        s_evalues = {'V' + ab: (1, 0), 'J' + ab: (1, 0)}
-        s_genes = ('UNK', 'UNK', [100, 0], 'UNK', 'UNK', [100, 0], '-')
-        s_all_good_hits_with_scores = [[], []]
-        s_top_hits = []
-
-        for ivj, vj in enumerate('VJ'):
-
-            # sr - contains two important parts
-            #   {"hits":{'tmp': ParasailMatch.instance] , "hits_scores"=[(),()..()] }
-            #    sr['hits']["tmp"] - detailed ParasailMatch instance with information about best hit
-            #    sr['hits_scores'] - ranked (id, score, evalue) tupes
-            sr = sail._get_hit_parasail(vj = vj,
-                                        all_genes = all_genes,
-                                        organism = organism,
-                                        ab = ab,
-                                        blast_seq = blast_seq)
-
-            # append ParasailMatch instance for top scoring hit
-            s_top_hits.append(sr['hits']["tmp"])
-
-            # s_evalues, which is equivalent to evalues
-            s_evalues[vj + ab] = sail._evalues_score_gap_tuple(ranked_scores = sr['hits_scores'])
-
-            # populate s_all_good_hits_with_scores
-            s_all_good_hits_with_scores[ivj] = \
-                sail._all_good_hits_with_scores(hits_scores = sr['hits_scores'],
-                                                max_bit_score_delta_for_good_hits= max_bit_score_delta_for_good_hits)
-
-        print("Top PARASAIL Hit V: ", s_top_hits[0].hit_id) # REMOVE AFTER TESTS
-        print("Top PARASAIL Hit J: ", s_top_hits[1].hit_id) # REMOVE AFTER TESTS
-        print("-----")                                      # REMOVE AFTER TESTS
-
-
-        if use_parasail: # if use_parasail == True in args, the blast results will not be produced
-            # replace outputs of blast process with parasail equivalents
-            top_hits = s_top_hits
-            genes = s_genes
-            status = s_status
-            evalues = s_evalues
-            all_good_hits_with_scores = s_all_good_hits_with_scores
-
-
-        # CODE FROM THIS POINT IS NOT ALTERED FROM ORIGINAL BLAST IMPLEMENTATION
         if len(top_hits) == 2: ## hits in both v and j
 
             v_hit = top_hits[0]
@@ -278,21 +519,14 @@ def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
                 v_q2hmap = v_hit.q2hmap
                 j_q2hmap = j_hit.q2hmap
 
+                if v_hit.h_strand == -1:
+                    ## switch stuff around...
+                    ## have to mess with the alignment too
+                    v_q2hmap = reverse_q2hmap( blast_seq, v_nucseq, v_hit )
+                    j_q2hmap = reverse_q2hmap( blast_seq, j_nucseq, j_hit )
 
-                try:
-                    if v_hit.h_strand == -1:
-                        ## switch stuff around...
-                        ## have to mess with the alignment too
-                        v_q2hmap = reverse_q2hmap( blast_seq, v_nucseq, v_hit )
-                        j_q2hmap = reverse_q2hmap( blast_seq, j_nucseq, j_hit )
-
-                        blast_seq = logo_tools.reverse_complement( blast_seq )
-                        logger.debug('reverse-comp blast_seq: %s', ab)
-                except IndexError:
-                    print("PARASAIL INDEX ERROR WITH reverse_q2hmap()\n" + blast_seq + "\nIGNORING FOR NOW, BUT DID NOT OCCUR WITH BLAST")
-                except AssertionError:
-                    print("PARSAIL ASSERTION ERROR WITH reverse_q2hmap()\n" + blast_seq + "\nIGNORING FOR NOW, BUT DID NOT OCCUR WITH BLAST")
-
+                    blast_seq = logo_tools.reverse_complement( blast_seq )
+                    logger.debug('reverse-comp blast_seq: %s', ab)
 
 
                 q_vframes = {}

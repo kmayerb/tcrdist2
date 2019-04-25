@@ -1,3 +1,4 @@
+import parasail as ps
 from glob import glob
 import tempfile
 import logging
@@ -13,9 +14,6 @@ from .translation import get_translation
 """Both these imports are for calling two different versions of parse_cdr3??"""
 from . import cdr3s_human
 from . import parse_cdr3
-
-from . import sail
-import parasail as ps
 
 logger = logging.getLogger('blast.py')
 
@@ -80,14 +78,12 @@ def get_blast_nucseq_database( organism, chain, region ):
             exit()
     return fastafile
 
-
 def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
                                         nocleanup, hide_nucseq,
                                         extended_cdr3,
-                                        use_parasail = True,
-                                        try_parasail = True,
                                         return_all_good_hits = False,
-                                        max_bit_score_delta_for_good_hits = 50 ):
+                                        max_bit_score_delta_for_good_hits = 50,
+                                        use_parasail = True):
     """
     This is draft post-hoc documentation based on my reading of the function. It may not be correct.
 
@@ -95,6 +91,75 @@ def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
 
         {optional}
         RETURNS: [genes, evalues, status, {all_good_hits_with_scores}]
+
+
+    This function works on a single sequence so is part of a loop through rows of the input file
+
+    1. creates a temporary blast .fa file
+    2. USE BLAST TO PRODUCE [top_hits]
+        if blast_seq is longer than 20, then:
+    First for V
+        2a. get appropriate (chain, gene specific ) blast database : get_blast_nucseq_database( organism, ab, "V")
+        2b. send system cmd to execute blast of query = "blastmp.fa" against chain, gene specific DB
+        2c. get hits, hitscores with parse_blast_alignments() and  get_all_hits_with_evalues_and_scores()
+        2d. subset to all "good" hits based on bit_score delta cut-offs
+        2f. ??? Figure our the score gap to teh next-non equivalent ??
+    Then for J:
+        do the exact same as for V, but difference is definition of old_rep_map ?
+            (V: cdr3s_human.all_loopseq_representative[organism]
+            vs. J: cdr3s_human.all_jseq_representative[organism])
+
+        At the end of the step 2, [ top_hits ] is checked for 2 entries,
+    3. COMPLICATED SET OF STEPS ??? I am just giong to describe for V gene but it applies to both
+        3a. get a representative V gene (old versus new step ??? )
+        3b. define nucleotide sequence of the top hit from DICT: all_fasta {organism}{chain}{gene}{molecule}{hit_id}
+        3c. define protein sequence of the top hit (V-only) from the DICT: all_fasta {organism}{chain}{gene}{molecule}{hit_id}
+        3d. define the hitseq_frame of the top hit from the DICT: all_offsets {organism}{chain}{gene}{hit_id}
+                all_offsets, all_fasta = getFASTAOffsets(all_genes) is simply called above !!!!
+        3e. Check that v_hit and j_hit are on the same h_strand
+        3f. if h_strand = -1  reverse_q2hmap() is called  and blast_seq is reverse complimented
+
+        There is an attribute of  v_hit.q2hmap ? that does something important
+            inspect v_hit which comes from hits , which comes from parse_blast_alignments( )
+
+        ... There is some code here that will need to be explained by Andrew or Phil
+
+        Construct a protein seqeuence alignment between transation of blast_seq and ?
+
+    GOAL is to get blast_seq and q_vframe to next block of code
+
+    4. USING translation.get_translation()
+        qseq (amino acid sequence)
+        codons (list of nucleotide seqs)
+
+    5. Using parse_cdr3.parse_cdr3()
+        get:
+        cdr3 - cdrseq
+        v_mm - v_match_counts
+        j_mm - j_match_counts,
+        errors -
+        cdr3 - cdrseq
+
+
+    Some Checks for "#" in blast_seq
+
+    genes:  (v_gene, v_rep, v_mm, j_gene, j_rep, j_mm, cdr3)
+        v_gene CAME FROM v_hit.hit_id
+        v_rep CAME FROM v_rep = all_genes[organism][v_gene].rep
+        v_mm  CAME FROM parse_cdr3.parse_cdr3()
+        j_gene CAME FROM j_hit.hit_id
+        j_rep j_rep = all_genes[organism][j_gene].rep
+        j_mm = CAME FROM parse_cdr3.parse_cdr3()
+        cdr = CAME FROM parse_cdr3.parse_cdr3()
+
+    evalues : []
+    status  : []
+
+
+
+
+
+
 
     :param organism: string ('human' or 'mouse')
     :param ab: string (alpha, beta, gamma, delta)
@@ -113,130 +178,166 @@ def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
     code would ideally return this a under all inputs, NULL if return_all_good_hits = FALSE)!
     """
 
-    if not use_parasail: # ORGINAL FUNCTIONALITY
-        print("USING ORIGINAL BLAST IMPLEMENTATION") # REMOVE AFTER TESTS
-        if not op.exists('./tmp'):
-            os.mkdir('./tmp')
-        handle, blast_tmpfile = tempfile.mkstemp(suffix='.fa', prefix='blasttmp', dir='./tmp')
-        os.close(handle)
+    if not op.exists('./tmp'):
+        os.mkdir('./tmp')
+    handle, blast_tmpfile = tempfile.mkstemp(suffix='.fa', prefix='blasttmp', dir='./tmp')
+    os.close(handle)
 
-        genes =  ( 'UNK', 'UNK', [100,0], 'UNK', 'UNK', [100,0], '-' )
+    genes =  ( 'UNK', 'UNK', [100,0], 'UNK', 'UNK', [100,0], '-' )
 
-        status = []
+    status = []
 
-        evalues = {'V'+ab:(1,0),'J'+ab:(1,0)}
+    evalues = {'V'+ab:(1,0),'J'+ab:(1,0)}
 
-        all_good_hits_with_scores = [[],[]]
+    all_good_hits_with_scores = [[],[]]
 
-        logger.debug('blast_seq: %s, %s, %s',info,ab,blast_seq)
+    logger.debug('blast_seq: %s, %s, %s',info,ab,blast_seq)
 
-        if len(blast_seq) <= 20:
-            status.append('short_{}_blast_seq_{}'.format(ab,len(blast_seq)))
-        else:
+    if len(blast_seq) <= 20:
+        status.append('short_{}_blast_seq_{}'.format(ab,len(blast_seq)))
+    else:
 
-            out = open(blast_tmpfile,'w')
-            out.write('>tmp\n%s\n'%blast_seq)
-            out.close()
+        out = open(blast_tmpfile,'w')
+        out.write('>tmp\n%s\n'%blast_seq)
+        out.close()
 
-            ## now blast against V and J
-            top_hits = []
-            for ivj,vj in enumerate('VJ'):
-                dbfile = get_blast_nucseq_database( organism, ab, vj ) # also ensures that it exists
-                assert op.exists(dbfile)
-                blastall_exe = path_to_blast_executables+'/blastall'
-                assert op.exists( blastall_exe )
-                cmd = '%s -F F -p blastn -i %s -d %s -v 100 -b 1 -o %s.blast'\
-                      %( blastall_exe, blast_tmpfile, dbfile, blast_tmpfile )
-                logger.debug('blast cmd: %s', cmd)
-                os.system(cmd)
+        ## now blast against V and J
+        top_hits = []
+        for ivj,vj in enumerate('VJ'):
+            #######################
+            ### parasail version ##
+            #######################
+            ids = _get_ids_by_org_chain_region(organism=organism,
+                                               chain=ab,
+                                               region=vj,
+                                               d=all_genes)
 
-                logger.debug('blast: %s, %s, %s',info,ab,vj)
-                logger.debug(''.join( open(blast_tmpfile+'.blast','r').readlines()))
+            # seqs is a list of tuples
+            # 0: hit_id,
+            # 1: hit_seq (full length reference seq)
+            # 2: strand (-1 = rev comp)
+            seqs = _get_sequence_tuples_from_ids(ids=ids,
+                                                 organism=organism,
+                                                 d=all_genes)
+            scores = []
+            user_matrix = ps.matrix_create("ACGT", 3, -5)
+            for i in range(len(seqs)):
+                # smith-waterman alignment implemented using parasail
+                s = ps.sw_trace(s1=blast_seq,
+                                s2=seqs[i][1],
+                                extend=3,
+                                open=5,
+                                matrix= user_matrix)
+                scores.append({'score': s.score,
+                               'parasail_result': s,
+                               'query_seq': blast_seq,
+                               'hit_id': seqs[i][0],
+                               'hit_seq': seqs[i][1],
+                               'h_strand': seqs[i][2],
+                               'q_strand': 1}
+                              )
 
-                ## try parsing the results
-                evalue_threshold = 1e-1
-                identity_threshold = 20
-                hits = parse_blast_alignments( blast_tmpfile+'.blast', evalue_threshold, identity_threshold )
-                hits_scores = get_all_hits_with_evalues_and_scores( blast_tmpfile+'.blast' ) ## id,bitscore,evalue
-                #print(hits_scores)
-                ##############
-                if hits and hits[ hits.keys()[0]]:
+            # sort parasail results from highest to lowest alignment score
+            scores = sorted(scores, key=lambda x: x['score'], reverse=True)
 
-                    top_hit = hits[ hits.keys()[0] ][0]
-                    top_id, top_bit_score, top_evalue = hits_scores[0]
+            # add alignment start positions for the highest scoring alignment
+            scores[0]["parasail_result"].get_traceback()
+            scores[0]["q_seq"] = scores[0]["parasail_result"]._traceback.query
+            scores[0]["h_seq"] = scores[0]["parasail_result"]._traceback.ref
+            scores[0]["comp"] = scores[0]["parasail_result"]._traceback.comp
+            scores[0]["q_start"] = _q_start(q_seq = scores[0]["q_seq"],
+                                            query_seq = blast_seq)
 
-                    all_good_hits_with_scores[ivj] \
-                        = [ x for x in hits_scores if top_bit_score-x[1] <= max_bit_score_delta_for_good_hits ]
+            scores[0]["q_stop"] = _q_stop(q_seq = scores[0]["q_seq"],
+                                          query_seq = blast_seq)
 
-                    assert top_hit.hit_id == top_id
-                    ## figure out the score gap to the next non-equivalen
-                    bit_score_gap = top_bit_score
-                    if vj == 'V':
-                        old_rep_map = cdr3s_human.all_loopseq_representative[organism]
-                    else:
-                        old_rep_map = cdr3s_human.all_jseq_representative[organism]
-                    old_top_rep = old_rep_map[top_id]
-                    top_rep = all_genes[ organism ][top_id].rep
-                    assert old_top_rep == top_rep
-                    for ( id, bit_score, evalue ) in hits_scores[1:]:
-                        if all_genes[organism][id].rep != top_rep:
-                            bit_score_gap = top_bit_score - bit_score
-                            break
-                    evalues[vj+ab] = (top_hit.evalue, bit_score_gap)
-                    top_hits.append( top_hit )
+            scores[0]["h_start"] = _h_start(h_seq = scores[0]["h_seq"],
+                                            hit_seq = scores[0]["hit_seq"],
+                                            h_strand = scores[0]["h_strand"])
+
+            scores[0]["h_stop"] = _h_stop(h_seq = scores[0]["h_seq"],
+                                          hit_seq = scores[0]["hit_seq"],
+                                          h_strand = scores[0]["h_strand"])
+
+            # add q2hmap for the highest scoring alignment
+            q2hmap = _create_q2hmap(q_seq    = scores[0]["q_seq"],
+                                    h_seq    = scores[0]["h_seq"],
+                                    q_start  = scores[0]['q_start'],
+                                    h_start  = scores[0]['h_start'],
+                                    q_strand = scores[0]['q_strand'],
+                                    h_strand = scores[0]['h_strand'])
+
+            # bm2 is going to replace teh BlastMatch instance passed by parse_blast_alignments()
+            bm2 = ParasailMatch(query_id = "tmp",
+                              hit_id   = scores[0]['hit_id'])
+            bm2.evalue = "NA"  # float( evalue )
+            bm2.identities = 'NA'  # ident
+            bm2.frame = 'NA'
+            bm2.h_start   = scores[0]['h_start']  # hstart ## 0-indexed
+            bm2.h_stop    = scores[0]['h_stop']  # stop
+            bm2.h_strand  = scores[0]['h_strand']  # h_strand
+            bm2.h_align   = scores[0]['h_seq']
+            bm2.q_start   = scores[0]['h_start']
+            bm2.q_stop    = scores[0]['h_stop']
+            bm2.q_strand  = scores[0]['h_stop']
+            bm2.q_align   = scores[0]['q_seq']
+            bm2.middleseq = scores[0]['comp']
+            bm2.q2hmap    = q2hmap  # q2hmap ## 0-indexed numbering wrt to fullseq
+            bm2.valid     = "True" # IF WHAT?
+
+
+
+
+            #######################
+            ### BLAST VERSION #####
+            #######################
+
+            dbfile = get_blast_nucseq_database( organism, ab, vj ) # also ensures that it exists
+            assert op.exists(dbfile)
+            blastall_exe = path_to_blast_executables+'/blastall'
+            assert op.exists( blastall_exe )
+            cmd = '%s -F F -p blastn -i %s -d %s -v 100 -b 1 -o %s.blast'\
+                  %( blastall_exe, blast_tmpfile, dbfile, blast_tmpfile )
+            logger.debug('blast cmd: %s', cmd)
+            os.system(cmd)
+
+            logger.debug('blast: %s, %s, %s',info,ab,vj)
+            logger.debug(''.join( open(blast_tmpfile+'.blast','r').readlines()))
+
+            ## try parsing the results
+            evalue_threshold = 1e-1
+            identity_threshold = 20
+            hits = parse_blast_alignments( blast_tmpfile+'.blast', evalue_threshold, identity_threshold )
+            hits_scores = get_all_hits_with_evalues_and_scores( blast_tmpfile+'.blast' ) ## id,bitscore,evalue
+            #print(hits_scores)
+            ##############
+            if hits and hits[ hits.keys()[0]]:
+
+                top_hit = hits[ hits.keys()[0] ][0]
+                top_id, top_bit_score, top_evalue = hits_scores[0]
+
+                all_good_hits_with_scores[ivj] \
+                    = [ x for x in hits_scores if top_bit_score-x[1] <= max_bit_score_delta_for_good_hits ]
+
+                assert top_hit.hit_id == top_id
+                ## figure out the score gap to the next non-equivalen
+                bit_score_gap = top_bit_score
+                if vj == 'V':
+                    old_rep_map = cdr3s_human.all_loopseq_representative[organism]
                 else:
-                    status.append('no_{}{}_blast_hits'.format(vj,ab))
-        print("Top BLAST Hit V: ", top_hits[0].hit_id)
-        print("Top BLAST Hit J: ", top_hits[1].hit_id)
+                    old_rep_map = cdr3s_human.all_jseq_representative[organism]
+                old_top_rep = old_rep_map[top_id]
+                top_rep = all_genes[ organism ][top_id].rep
+                assert old_top_rep == top_rep
+                for ( id, bit_score, evalue ) in hits_scores[1:]:
+                    if all_genes[organism][id].rep != top_rep:
+                        bit_score_gap = top_bit_score - bit_score
+                        break
+                evalues[vj+ab] = ( top_hit.evalue, bit_score_gap )
+                top_hits.append( top_hit )
+            else:
+                status.append('no_{}{}_blast_hits'.format(vj,ab))
 
-    if try_parasail or use_parasail: # for now you have option to try parasail but use blast top hits
-        print("NEW PARASAIL IMPLEMENTATION RUN AS WELL")         # REMOVE AFTER TESTS
-
-        # initialize variable that will replace blast implementation equivalents if use_parasail == True
-        s_status = []
-        s_evalues = {'V' + ab: (1, 0), 'J' + ab: (1, 0)}
-        s_genes = ('UNK', 'UNK', [100, 0], 'UNK', 'UNK', [100, 0], '-')
-        s_all_good_hits_with_scores = [[], []]
-        s_top_hits = []
-
-        for ivj, vj in enumerate('VJ'):
-
-            # sr - contains two important parts
-            #   {"hits":{'tmp': ParasailMatch.instance] , "hits_scores"=[(),()..()] }
-            #    sr['hits']["tmp"] - detailed ParasailMatch instance with information about best hit
-            #    sr['hits_scores'] - ranked (id, score, evalue) tupes
-            sr = sail._get_hit_parasail(vj = vj,
-                                        all_genes = all_genes,
-                                        organism = organism,
-                                        ab = ab,
-                                        blast_seq = blast_seq)
-
-            # append ParasailMatch instance for top scoring hit
-            s_top_hits.append(sr['hits']["tmp"])
-
-            # s_evalues, which is equivalent to evalues
-            s_evalues[vj + ab] = sail._evalues_score_gap_tuple(ranked_scores = sr['hits_scores'])
-
-            # populate s_all_good_hits_with_scores
-            s_all_good_hits_with_scores[ivj] = \
-                sail._all_good_hits_with_scores(hits_scores = sr['hits_scores'],
-                                                max_bit_score_delta_for_good_hits= max_bit_score_delta_for_good_hits)
-
-        print("Top PARASAIL Hit V: ", s_top_hits[0].hit_id) # REMOVE AFTER TESTS
-        print("Top PARASAIL Hit J: ", s_top_hits[1].hit_id) # REMOVE AFTER TESTS
-        print("-----")                                      # REMOVE AFTER TESTS
-
-
-        if use_parasail: # if use_parasail == True in args, the blast results will not be produced
-            # replace outputs of blast process with parasail equivalents
-            top_hits = s_top_hits
-            genes = s_genes
-            status = s_status
-            evalues = s_evalues
-            all_good_hits_with_scores = s_all_good_hits_with_scores
-
-
-        # CODE FROM THIS POINT IS NOT ALTERED FROM ORIGINAL BLAST IMPLEMENTATION
         if len(top_hits) == 2: ## hits in both v and j
 
             v_hit = top_hits[0]
@@ -278,21 +379,14 @@ def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
                 v_q2hmap = v_hit.q2hmap
                 j_q2hmap = j_hit.q2hmap
 
+                if v_hit.h_strand == -1:
+                    ## switch stuff around...
+                    ## have to mess with the alignment too
+                    v_q2hmap = reverse_q2hmap( blast_seq, v_nucseq, v_hit )
+                    j_q2hmap = reverse_q2hmap( blast_seq, j_nucseq, j_hit )
 
-                try:
-                    if v_hit.h_strand == -1:
-                        ## switch stuff around...
-                        ## have to mess with the alignment too
-                        v_q2hmap = reverse_q2hmap( blast_seq, v_nucseq, v_hit )
-                        j_q2hmap = reverse_q2hmap( blast_seq, j_nucseq, j_hit )
-
-                        blast_seq = logo_tools.reverse_complement( blast_seq )
-                        logger.debug('reverse-comp blast_seq: %s', ab)
-                except IndexError:
-                    print("PARASAIL INDEX ERROR WITH reverse_q2hmap()\n" + blast_seq + "\nIGNORING FOR NOW, BUT DID NOT OCCUR WITH BLAST")
-                except AssertionError:
-                    print("PARSAIL ASSERTION ERROR WITH reverse_q2hmap()\n" + blast_seq + "\nIGNORING FOR NOW, BUT DID NOT OCCUR WITH BLAST")
-
+                    blast_seq = logo_tools.reverse_complement( blast_seq )
+                    logger.debug('reverse-comp blast_seq: %s', ab)
 
 
                 q_vframes = {}
@@ -652,7 +746,7 @@ def parse_blast_alignments( blastfile, evalue_threshold, identity_threshold ):
     #       print("-------hits["+str(i)+"]------------")
     #       print(hits['tmp'][i].__dict__)
     #       print("-------------------")
-    return hits
+    #return hits
 
 ## should be just a single query sequence
 def get_all_hits_with_evalues_and_scores( blastfile ):

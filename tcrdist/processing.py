@@ -297,7 +297,7 @@ def processNT(organism, chain, nuc, quals):
 
     quals = np.array(quals.split('.')).astype(int)
     res = blast.parse_unpaired_dna_sequence_blastn(organism, chain, nuc, info='',
-                                            nocleanup=False, hide_nucseq=False,
+                                            nocleanup=True, hide_nucseq=False,
                                             extended_cdr3=True,
                                             return_all_good_hits=True,
                                             max_bit_score_delta_for_good_hits=50)
