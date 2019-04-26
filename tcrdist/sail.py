@@ -32,7 +32,7 @@ def dna_reverse_complement(string):
     comp_map taken from scikit-bio
 
     :example:
-    >>dna_reverse_complement("ATG")
+    >>> dna_reverse_complement("ATG")
     CAT
     '''
     comp_map = {
@@ -54,11 +54,11 @@ def _q_start(query_seq, q_seq):
     :param q_seq: string alignment sequence (may contain gaps as "-")
     :return:
     :example:
-    >>_q_start(query_seq = "ATGATG", q_seq = "ATG")
+    >>> _q_start(query_seq = "ATGATG", q_seq = "ATG")
     0
-    >>_q_start(query_seq = "ATGATG", q_seq = "GATG")
+    >>> _q_start(query_seq = "ATGATG", q_seq = "GATG")
     2
-    >>_q_start(query_seq="ATGATG", q_seq="GA-TG")
+    >>> _q_start(query_seq="ATGATG", q_seq="GA-TG")
     2
     """
     q_seq = q_seq.replace("-", "") # remove gaps to get index for original sequence
@@ -139,7 +139,7 @@ def _get_ids_by_org_chain_region(organism,
     :returns: ids list of strings
 
     :example:
-    >>_get_ids_by_org_chain_region(organism = 'human',
+    >>> _get_ids_by_org_chain_region(organism = 'human',
                                  chain = 'A',
                                  region = 'J',
                                  d = all_genes)[0:5]
@@ -167,7 +167,7 @@ def _get_sequence_tuples_from_ids(ids,
         strand = -1 for reverse complement
 
     :example:
-    >>_get_sequence_tuples_from_ids(ids = ['TRAJ15*01'])
+    >>> _get_sequence_tuples_from_ids(ids = ['TRAJ15*01'])
     [('TRAJ15*01',
   'ccaaccaggcaggaactgctctgatctttgggaagggaaccaccttatcagtgagttcca',
   1),
@@ -426,26 +426,3 @@ def _get_hit_parasail(vj,
     return(results)
 
 
-
-
-
-if __name__ == "__main__":
-    # test_rev_comp
-    assert(dna_reverse_complement("ATG") == "CAT")
-    assert(dna_reverse_complement("cat") == "atg")
-    assert(dna_reverse_complement("cat-cat") == "atg-atg")
-    # test _q_start
-    assert(_q_start(query_seq = "ATGATG", q_seq = "ATG") == 0)
-    assert(_q_start(query_seq = "ATGATG", q_seq = "GATG") == 2)
-    assert(_q_start(query_seq="ATGATG", q_seq="GA-TG") == 2)
-    # test _q_end
-    assert(_q_stop(query_seq="ATGATG", q_seq="ATGA") == 3)
-    assert(_q_stop(query_seq="ATGATG", q_seq="GA-T") == 4)
-    # test _h_start
-    assert(_h_start(hit_seq="ATGATG", h_seq="ATGA", h_strand= 1) == 0)
-    assert(_h_start(hit_seq="ATGATG", h_seq="GATG", h_strand= 1) == 2)
-    # Position on the original given reverse compliment
-    assert(_h_start(hit_seq="AAACCG", h_seq="CG", h_strand= -1) == 1)
-    assert(_h_start(hit_seq="AAACCG", h_seq="CC", h_strand= -1) == 2)
-    assert(_h_stop(hit_seq="AAACCG", h_seq="CG", h_strand= -1) == 0)
-    assert(_h_stop(hit_seq="AAACCG", h_seq="CC", h_strand= -1) == 1)

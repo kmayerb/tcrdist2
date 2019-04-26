@@ -57,7 +57,7 @@ __all__ = ['processNT',
            'getTCRID']
 
 
-def readPairedSequences(organism, paired_seqs_file):
+def readPairedSequences(organism, paired_seqs_file, use_parasail = False, try_parasail = True):
     """Read a TSV of paired-chain TCR data.
     Can also accommodate unpaired data or cells with more than two chains
     (e.g. gamma1 and gamma2)
@@ -141,7 +141,12 @@ def readPairedSequences(organism, paired_seqs_file):
     out = []
     for c in chains:
         out.append(
-            raw.apply(lambda row: processNT(organism, c.upper(), row['%s_nucseq' % c], row['%s_quals' % c]).to_series(),
+            raw.apply(lambda row: processNT(organism=organism,
+                                            chain=c.upper(),
+                                            nuc=row['%s_nucseq' % c],
+                                            qual=row['%s_quals' % c],
+                                            use_parasail=use_parasail,
+                                            try_parasail=try_parasail).to_series(),
                       axis=1))
 
     otherCols = [c for c in raw.columns if c.find('nucseq') == -1 and c.find('quals') == -1]
@@ -277,7 +282,7 @@ def samplerProb(r, chain):
 ## -- ## copied directly from github (d9394fa9b7)
 
 
-def processNT(organism, chain, nuc, quals):
+def processNT(organism, chain, nuc, quals, use_parasail = False, try_parasail = True):
     """Process one nucleotide TCR sequence (any chain).
 
     Parameters
@@ -296,11 +301,17 @@ def processNT(organism, chain, nuc, quals):
     ch = chain.lower()
 
     quals = np.array(quals.split('.')).astype(int)
-    res = blast.parse_unpaired_dna_sequence_blastn(organism, chain, nuc, info='',
-                                            nocleanup=True, hide_nucseq=False,
-                                            extended_cdr3=True,
-                                            return_all_good_hits=True,
-                                            max_bit_score_delta_for_good_hits=50)
+    res = blast.parse_unpaired_dna_sequence_blastn(organism = organism,
+                                                   ab = chain,
+                                                   blast_seq = nuc,
+                                                   info='',
+                                                   try_parasail = try_parasail,
+                                                   use_parasail = use_parasail,
+                                                   nocleanup=True,
+                                                   hide_nucseq=False,
+                                                   extended_cdr3=True,
+                                                   return_all_good_hits=True,
+                                                   max_bit_score_delta_for_good_hits=50)
     genes,evalues,status,all_good_hits_with_scores = res
     labels = ['v%s_gene','v%s_rep', 'v%s_mm', 'j%s_gene', 'j%s_rep', 'j%s_mm', 'cdr3%s_plus']
     tmp = {g:v for g,v in zip([lab % ch for lab in labels], genes)}
