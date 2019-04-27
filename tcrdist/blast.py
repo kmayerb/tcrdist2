@@ -152,6 +152,8 @@ def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
                       %( blastall_exe, blast_tmpfile, dbfile, blast_tmpfile )
                 logger.debug('blast cmd: %s', cmd)
                 os.system(cmd)
+                if vj == "V":
+                    os.system("cp " + blast_tmpfile+'.blast' + " " + blast_tmpfile+'.blast.inspectV') # DEBUG ONLY
 
                 logger.debug('blast: %s, %s, %s',info,ab,vj)
                 logger.debug(''.join( open(blast_tmpfile+'.blast','r').readlines()))

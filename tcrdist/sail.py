@@ -87,9 +87,9 @@ def _h_start(hit_seq, h_seq, h_strand):
     :param h_strand:
     :return: integer
     """
-    h_seq = h_seq.replace("_", "")
+    h_seq = h_seq.replace("-", "")
     h_len = len(h_seq)
-    if 1 == h_strand:
+    if h_strand == 1:
         h_start = hit_seq.find(h_seq)
     elif h_strand == -1:
         rc_h_seq = dna_reverse_complement(h_seq)      # when strand -1 , reverse_comp of h_seq gets back to reference direction
@@ -98,6 +98,9 @@ def _h_start(hit_seq, h_seq, h_strand):
         h_start = h_start + h_len - 1                 # but becuase, h_start is at the end of the alignment
     else:
         raise ValueError('h_strand must be 1 or -1')
+    if h_start == -1:
+        raise ValueError("h_seq not found in hit_seq, likely that indicating that an invalid gap character was " \
+                         "used. Check that right version of parasail is being used and that gaps are represented as -)")
     return(h_start)
 
 def _h_stop(hit_seq, h_seq, h_strand):
@@ -347,13 +350,13 @@ def _get_hit_parasail(vj,
                                          organism=organism,
                                          d=all_genes)
     scores = []
-    user_matrix = ps.matrix_create("ACGT", 3, -5)
+    user_matrix = ps.matrix_create("ACGT", 1, -3) # -5
     for i in range(len(seqs)):
         # smith-waterman alignment implemented using parasail
         s = ps.sw_trace(s1=blast_seq,
                         s2=seqs[i][1],
-                        extend=3,
-                        open=5,
+                        extend=2, #3
+                        open=5, #5
                         matrix=user_matrix)
         scores.append({'score': s.score,
                        'parasail_result': s,
@@ -424,5 +427,3 @@ def _get_hit_parasail(vj,
         # hits_scores = get_all_hits_with_evalues_and_scores( blast_tmpfile+'.blast' ) ## id,bitscore,evalue
     results = {"hits" : {"tmp": bm2}, "hits_scores" : id_score_evalue}
     return(results)
-
-

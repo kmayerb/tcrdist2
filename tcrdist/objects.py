@@ -19,6 +19,9 @@ class DotDict(dict):
         return pd.Series(self).to_string()
     def to_series(self):
         return pd.Series(self)
+    def to_list(self):
+        return(list(self))
+
 
 class TCRClone(DotDict):
     """Object that contains all info for a single TCR clone.
