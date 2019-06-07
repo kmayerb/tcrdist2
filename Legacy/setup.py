@@ -7,7 +7,7 @@
 ## and contact pbradley@fredhutch.org for help trouble-shooting.
 ##
 ##
-from os import popen, system, chdir, mkdir
+from os import popen, system, chdir, mkdir, environ
 from os.path import exists, isdir, isfile
 from sys import stderr,exit,platform
 
@@ -23,11 +23,13 @@ it completes successfully.)
 
 Do you want to proceed? [Y/n] """
 
-ans = raw_input(msg)
+if environ.get('DOCKER_BUILD') == 'None':
 
-if ans and ans not in 'Yy':
-    print 'Setup aborted.'
-    exit()
+    ans = raw_input(msg)
+
+    if ans and ans not in 'Yy':
+        print 'Setup aborted.'
+        exit()
 
 
 old_directories = ['db','external','datasets','testing_ref']
@@ -43,16 +45,18 @@ It looks like you have some old directories from a previous setup.
 I need to remove db/ external/ datasets/ and testing_ref/
 
 Is that OK? [Y/n] """
-    ans = raw_input(msg)
 
-    if ans and ans not in 'Yy':
-        print 'Setup aborted.'
-        exit()
-    for d in old_directories:
-        if exists(d):
-            cmd = 'rm -rf '+d
-            print cmd
-            system(cmd)
+    if environ.get('DOCKER_BUILD') == 'None':
+        ans = raw_input(msg)
+
+        if ans and ans not in 'Yy':
+            print 'Setup aborted.'
+            exit()
+        for d in old_directories:
+            if exists(d):
+                cmd = 'rm -rf '+d
+                print cmd
+                system(cmd)
 
 # I don't know how reliable this is:
 mac_osx = ( platform.lower() == "darwin" )
@@ -137,7 +141,7 @@ if not isdir( blastdir ):
     if mac_osx:
         address = 'ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy/2.2.16/blast-2.2.16-universal-macosx.tar.gz'
     else:
-        address = 'ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy/2.2.16/blast-2.2.16-x64-linux.tar.gz'
+        address = 'ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.16/blast-2.2.16-x64-linux.tar.gz'
 
     tarfile = address.split('/')[-1]
     if not exists( tarfile ):
