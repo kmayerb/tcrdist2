@@ -9,8 +9,9 @@ RUN pip install scipy==0.16.0
 RUN pip install scikit-learn==0.17
 RUN pip install matplotlib==1.4.3
 
-#RUN git clone https://github.com/kmayerb/tcrdist2.git
 ADD Legacy /tcrdist2
 
 WORKDIR /tcrdist2
+# set the environment variable that we are working on a docker build
+ENV DOCKER_BUILD 1
 RUN python setup.py 

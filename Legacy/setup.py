@@ -7,9 +7,56 @@
 ## and contact pbradley@fredhutch.org for help trouble-shooting.
 ##
 ##
-from os import popen, system, chdir, mkdir
+from os import popen, system, chdir, mkdir, environ
 from os.path import exists, isdir, isfile
 from sys import stderr,exit,platform
+
+msg = """
+This script will download a set of compatible BLAST executables, parameter and
+database files used by the tcr-dist pipeline, and some TCR datasets for
+testing and analysis. It should be run in the main tcr-dist/ directory.
+
+Altogether, it will end up taking about 500 Megabytes of space.
+
+(To reduce this a bit you can delete the .tgz files in external/ after
+it completes successfully.)
+
+Do you want to proceed? [Y/n] """
+
+if environ.get('DOCKER_BUILD') == 'None':
+
+    ans = raw_input(msg)
+
+    if ans and ans not in 'Yy':
+        print 'Setup aborted.'
+        exit()
+
+
+old_directories = ['db','external','datasets','testing_ref']
+found_old_directory = False
+for d in old_directories:
+    if exists(d):
+        found_old_directory = True
+
+if found_old_directory:
+    msg = """
+It looks like you have some old directories from a previous setup.
+
+I need to remove db/ external/ datasets/ and testing_ref/
+
+Is that OK? [Y/n] """
+
+    if environ.get('DOCKER_BUILD') == 'None':
+        ans = raw_input(msg)
+
+        if ans and ans not in 'Yy':
+            print 'Setup aborted.'
+            exit()
+        for d in old_directories:
+            if exists(d):
+                cmd = 'rm -rf '+d
+                print cmd
+                system(cmd)
 
 # I don't know how reliable this is:
 mac_osx = ( platform.lower() == "darwin" )
