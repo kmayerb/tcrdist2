@@ -1,9 +1,9 @@
 # TCRdist pipeline, version 2.0.0 (DEVELOPMENT ONLY)
 
-**tcrdist2** is new API versionof TCRdist original developed by 
-Phil Bradley, Jeremy Crawford, and colleagues as part of
-[Dash et al (2017) in Nature](https://doi.org/10.1038/nature22383);  
-the original code replicating analysis in the manuscript can be found [here](https://github.com/phbradley/tcr-dist). 
+**tcrdist2** is new API version of TCRdist original developed by 
+Phil Bradley, Jeremy Crawford, and colleagues as part of analysis of T-cell receptor specificity in
+Dash et al. [Nature (2017) doi:10.1038/nature22383](https://doi.org/10.1038/nature22383). 
+The original code replicating analysis in the manuscript can be found [here](https://github.com/phbradley/tcr-dist). 
 
 ## Future Installation Methods
 
@@ -95,16 +95,3 @@ Sequence parsing relies on the BLAST suite, see info in `external/blast-2.2.16/`
 ---
 # UPDATES
 
-## Version 0.0.2 (09/21/2017):
-
-- New sequence database system that makes it easier to work with alternate gene sets
-
-- Preliminary support for gamma-delta TCRs: edit the `db_file` field of the `pipeline_params` dictionary
-stored in `basic.py`. (This is a temporary hack; likely will move to switching by command line flag sometime soon).
-
-- New `all_genes` dictionary in `all_genes.py` indexed by organism that holds information on all the genes; it's
-read from the `db_file` pointed to by `basic.py`.
-
-- With new minor updates to the probability model and default sequence database we're no longer trying to preserve
-exact numerical identity with the results from the paper. To get the classic results, you can check out the
-`version_001` branch on github.
