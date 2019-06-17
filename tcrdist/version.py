@@ -65,6 +65,6 @@ MAJOR = _version_major
 MINOR = _version_minor
 MICRO = _version_micro
 VERSION = __version__
-#INCLUDE_PACKAGE_DATA = True
+INCLUDE_PACKAGE_DATA = True
 PACKAGE_DATA = {'tcrdist': ['datasets/test_human_pairseqs.tsv', 'datasets/test_mouse_pairseqs.tsv']}#[pjoin('datasets', 'test_human_pairseqs.tsv'),pjoin('datasets', 'test_mouse_pairseqs.tsv'), pjoin('db', '*'), pjoin('external', '*')]}
 REQUIRES = ["numpy","pandas","scipy", "matplotlib","parasail"]
