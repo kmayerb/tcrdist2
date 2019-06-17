@@ -47,12 +47,12 @@ pip install -r requirements-dev.txt
 git clone https://github.com/kmayerb/tcrdist2.git
 ```
 
-### tcrdist2 is interactive!
+## tcrdist2 is interactive!
 
 Since tcrdist2 was designed to work with pandas DataFrames, you may find it useful to work 
 interactively with ipython or jupyterlab following the provided notebook [instructions_api.ipyn]()
 
-### Example 1: tcrdist2 on single receptor sequence
+## Example 1: tcrdist2 on single receptor sequence
 ```ipython
 In [1]: import tcrdist as td
 
@@ -93,7 +93,7 @@ probDf = td.processing.computeProbs(psDf)
 psDf = psDf.join(probDf)
 ```
 
-###  identifyClones()
+###  identifyClones
 ```python
 clonesDf = td.processing.identifyClones(psDf)                                         
 ```
