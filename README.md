@@ -8,7 +8,7 @@ The original code replicating analysis in the manuscript can be found [here](htt
 ## Future Installation Methods
 
 It is highly recommended that you develop and run tcrdist2 
-within a python virtual environment. Doing so isolates 
+within a [python virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/). Doing so isolates 
 the programs dependencies so installing legacy dependencies won't 
 interfere with any of your other python projects. 
 
