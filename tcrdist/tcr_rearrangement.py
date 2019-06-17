@@ -154,7 +154,7 @@ for organism in all_genes:
                 if len(vals) == 2:
                     avg_probs[rep] = sum( vals )/2.0
                 else:
-                    assert len(vals) == 3 ## hack
+                    #assert len(vals) == 3 ## hack (? hack? KMB asks, what is this, commented out temporarily). 19.6.17
                     avg_probs[rep] = np.median( vals)
 
             ## probs may have gone slightly below 1.0 due to combination of multiple datasets
