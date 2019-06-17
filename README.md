@@ -1,47 +1,106 @@
-# TCRdist pipeline, version 2.0.0 (DEVELOPMENT ONLY)
+# TCRdist pipeline, version 2.0.0
 
 **tcrdist2** is new API version of TCRdist original developed by 
 Phil Bradley, Jeremy Crawford, and colleagues as part of analysis of T-cell receptor specificity in
 Dash et al. [Nature (2017) doi:10.1038/nature22383](https://doi.org/10.1038/nature22383). 
 The original code replicating analysis in the manuscript can be found [here](https://github.com/phbradley/tcr-dist). 
 
-## Future Installation Methods
+## Installation Methods
 
 It is highly recommended that you develop and run tcrdist2 
 within a [python virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/). Doing so isolates 
 the programs dependencies so installing legacy dependencies won't 
 interfere with any of your other python projects. 
 
-### install tcrdist using python 2.7.11:
+### Install tcrdist using python 2.7.11:
+If just want to run tcrdist you can use the requirements.txt file.
 
 ```bash
 virtualenv venv
 source ./venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 pip install pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 ```
-
-### install test
+### Test the installation
 ```bash
-python 
-
+python -c 'import tcrdist as td; td.say_hello()'
 ```
 
+```
+> Hello: 'By recombination, random insertion, deletion and substitution, 
+> the small set of genes that encode the T-cell receptor has the potential 
+> to create between 10^15 and 10^20 TCR clonotypes ... 
+> However, the actual diversity of a persons TCR repertoire cannot possibly 
+> lie in this range. There are only an estimated 10^13 cells in the 
+> human body [3]' -- Laydon et al. 2015. PMC4528489
+```
 
+### Install the ful dev-env using python 2.7.11
+If you want to extend the functionality of tcrdist using the same environment that 
+we are currently using, you should configure your environment with the 
+requirements-dev.txt file.
 
-### To install the development environment for tcrdist2 using python 2.7.11
 ```bash
 virtualenv venv-dev
 source ./venv-dev/bin/activate
 pip install -r requirements-dev.txt
-pip list
+git clone https://github.com/kmayerb/tcrdist2.git
+```
+
+### tcrdist2 is interactive!
+
+Since tcrdist2 was designed to work with pandas DataFrames, you may find it useful to work 
+interactively with ipython or jupyterlab following the provided notebook [instructions_api.ipyn]()
+
+### Example 1: tcrdist2 on single receptor sequence
+```ipython
+In [1]: import tcrdist as td
+
+In [2]: import pandas as pd
+
+In [3]: betaNT = 'CGGGGGGGGTACCNTTGNTTAGGTCCTCTACACGGTTAACCTGGTCCCCGAACCGAAGG
+   ...: TCAATAGGGCCTGTATACTGCTGGCACAGAAGTACACAGCTGAGTCCCTGGGTTCTGAGGGCTGGATCT
+   ...: TCAGAGTGGAGTCANN'
+   ...: betaQuals = '12.12.12.12.12.22.9.8.6.6.6.8.3.0.3.10.3.0.3.10.10.11.20
+   ...: .25.30.37.37.29.27.14.14.15.27.30.41.47.36.50.50.50.42.42.57.57.43.47
+   ...: .53.47.47.47.47.47.47.50.54.57.57.57.68.68.68.68.68.68.68.68.68.68.68
+   ...: .68.68.68.68.68.57.57.57.57.59.59.59.57.57.57.57.57.57.57.57.59.57.68
+   ...: .68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.59.59
+   ...: .59.59.59.57.57.57.59.57.57.43.37.28.28.21.28.23.37.28.30.15.19.17.15
+   ...: .21.20.25.3.0.0'
+
+In [4]: chain = td.processing.processNT(organism = 'human', 
+   ...:                                 chain = 'B',
+   ...:                                 nuc = betaNT, 
+   ...:                                 quals = betaQuals, 
+   ...:                                 use_parasail = True)
+
+pd.DataFrame(chain)
+```
+
+## Example 2: tcrdist2 on a batch of sequences
+
+### readPairedSequences
+
+```python
+psDf = td.processing.readPairedSequences(paired_seqs_file = "tcrdist/datasets/test_human_pairseqs.tsv", 
+                                         organism = "human", use_parasail = True);
+```
+### computeProbs
+
+```python
+probDf = td.processing.computeProbs(psDf)
+psDf = psDf.join(probDf)
+```
+
+###  identifyClones()
+```python
+clonesDf = td.processing.identifyClones(psDf)                                         
 ```
 
 
 
-
-
-## A Note on Dependencies
+## More Information on Dependencies
 
 Following the instructions above and setting up a virtual environment should take care of ensuring the proper
 dependencies are available to tcrdist. Here is additional information on the tcrdist dependencies. 
@@ -59,7 +118,7 @@ New API dependencies include:
 - pandas=0.20.3 
 - parasail-python=1.1.16
 
-The development environment can be created rapidly in using the conda package manager. 
+If you prefer to use condas over pip, the development environment can be created rapidly in using the conda package manager. 
  
 On a macOS or linux machine:
 
