@@ -1,5 +1,5 @@
 # hello.py
-def say_hello(x=None):
+def say_hello():
 	"""
 	say hello
 
@@ -7,7 +7,6 @@ def say_hello(x=None):
 
 	Parameters
 	---------
-	x : string (defaults to None)
 
 	Returns
 	-------
@@ -19,14 +18,14 @@ def say_hello(x=None):
 
 	Example
 	--------
-	>>> say_hello("Mike")
-	"Hello Mike, tcrdist is being improved at Fred Hutch"
 	"""
-	if x is None:
-		greeting = "Hello User, tcrdist is being improved at Fred Hutch"
-	else:
-		greeting = "Hello {}, tcrdist is being improved at Fred Hutch".format(x)
-	return greeting
+
+	greeting = "Hello: 'By recombination, random insertion, deletion and substitution, " \
+			   "the small set of genes that encode the T-cell receptor has the potential to create " \
+			   "between 10^15 and 10^20 TCR clonotypes ... However, the actual diversity of a persons " \
+			   "TCR repertoire cannot possibly lie in this range. There are only an estimated 10^13 cells " \
+			   "in the human body [3]' -- Laydon et al. 2015. PMC4528489"
+	print(greeting)
 
 
 if __name__ == '__main__':

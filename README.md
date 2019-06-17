@@ -12,9 +12,7 @@ within a [python virtual environment](https://packaging.python.org/guides/instal
 the programs dependencies so installing legacy dependencies won't 
 interfere with any of your other python projects. 
 
-### tcrdist using python 2.7.11:
-
-WARNING: tcrdist is not quite ready for download yet, check back soon.
+### install tcrdist using python 2.7.11:
 
 ```bash
 virtualenv venv
@@ -23,7 +21,15 @@ pip install -r requirements.txt
 pip install pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 ```
 
-### To install the development env for tcrdist2 using python 2.7.11
+### install test
+```bash
+python 
+
+```
+
+
+
+### To install the development environment for tcrdist2 using python 2.7.11
 ```bash
 virtualenv venv-dev
 source ./venv-dev/bin/activate
@@ -31,7 +37,15 @@ pip install -r requirements-dev.txt
 pip list
 ```
 
-## Dependencies
+
+
+
+
+## A Note on Dependencies
+
+Following the instructions above and setting up a virtual environment should take care of ensuring the proper
+dependencies are available to tcrdist. Here is additional information on the tcrdist dependencies. 
+
 
 tcrdist2 retains the original core dependencies
  - python (2.7.11), 
