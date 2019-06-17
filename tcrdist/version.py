@@ -46,7 +46,7 @@ License
 "LICENSE" for information on the history of this software, terms & conditions
 for usage, and a DISCLAIMER OF ALL WARRANTIES.
 All trademarks referenced herein are property of their respective holders.
-Copyright (c) 2019--, Phil Bradley, Andrew Fiore-Gartland, Jeremy Crawford, Koshlan Mayer-Blackwell.
+Copyright (c) 2019--, Phillip Harlan Bradley, Jeremy Chase Crawford, Andrew Fiore-Gartland, and Koshlan Mayer-Blackwell.
 Fred Hutchinson Cancer Research Center.
 """
 
@@ -66,4 +66,4 @@ MINOR = _version_minor
 MICRO = _version_micro
 VERSION = __version__
 PACKAGE_DATA = {'tcrdist2': [pjoin('datasets', '*')]}
-REQUIRES = ["numpy","pandas","scipy", "scikit-learn", "matplotlib", "parasail"]
+REQUIRES = ["numpy","pandas","scipy", "matplotlib", "parasail"]
