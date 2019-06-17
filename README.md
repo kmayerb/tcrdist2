@@ -65,7 +65,7 @@ and put in the externals/ folder:
 tcrdist/external/blast-2.2.16/bin/
 blastall and formatdb are the required executables.
 
-TTODO: setup_blast.py will take care of this.
+TODO: setup_blast.py will take care of this.
 
 Full data set Files from the original paper can be found 
 [here](https://www.dropbox.com/s/kivfp27gbz2m2st/tcrdist_extras_v2.tgz), 
