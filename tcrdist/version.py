@@ -65,5 +65,5 @@ MAJOR = _version_major
 MINOR = _version_minor
 MICRO = _version_micro
 VERSION = __version__
-PACKAGE_DATA = {'tcrdist2': [pjoin('datasets', '*')]}
-REQUIRES = ["numpy","pandas","scipy", "matplotlib", "parasail"]
+PACKAGE_DATA = {'tcrdist': [pjoin('datasets', '*'), pjoin('db', '*'), pjoin('external', '*')]}
+REQUIRES = ["numpy","pandas","scipy", "matplotlib", "sklearn","parasail"]
