@@ -20,7 +20,7 @@ def say_hello(x=None):
 	Example
 	--------
 	>>> say_hello("Mike")
-	Hello Mike, the VIDD is part of Fred Hutch
+	"Hello Mike, tcrdist is being improved at Fred Hutch"
 	"""
 	if x is None:
 		greeting = "Hello User, tcrdist is being improved at Fred Hutch"

@@ -1,4 +1,6 @@
 from __future__ import print_function
+from .version import __version__
+
 import logging
 logging.basicConfig(filename='tcrdist.log',
                     level=logging.WARNING,
@@ -6,7 +8,7 @@ logging.basicConfig(filename='tcrdist.log',
                     datefmt='%m/%d/%Y %I:%M:%S %p',
                     filemode='w')
 logger = logging.getLogger('__init__.py')
-logger.debug('Begining package imports')
+logger.debug('Beginning package imports')
 
 from .hello import *
 from .processing import processNT, computeProbs, samplerProb

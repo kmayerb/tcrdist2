@@ -115,8 +115,8 @@ def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
 
     if not use_parasail: # ORGINAL FUNCTIONALITY
 
-        print(">>>> parse_unpaired_dna_sequence_blastn(use_parasail = F)")
-        print(">>>> USING THE ORIGINAL BLAST IMPLEMENTATION") # REMOVE AFTER TESTS
+        #print(">>>> parse_unpaired_dna_sequence_blastn(use_parasail = F)")
+        #print(">>>> USING THE ORIGINAL BLAST IMPLEMENTATION") # REMOVE AFTER TESTS
 
         if not op.exists('./tmp'):
             os.mkdir('./tmp')
@@ -196,11 +196,13 @@ def parse_unpaired_dna_sequence_blastn( organism, ab, blast_seq, info,
 
     if try_parasail or use_parasail: # for now you have option to try parasail but use blast top hits
         if (try_parasail and not use_parasail):                             # REMOVE AFTER TESTS
-            print(">>>> (try_parasail = T, use_parasail = F)")             # REMOVE AFTER TESTS
-            print(">>>> RUNNING PARASAIL IMPLEMENTATION IN BACKGROUND\n")          # REMOVE AFTER TESTS
+            pass
+            #print(">>>> (try_parasail = T, use_parasail = F)")             # REMOVE AFTER TESTS
+            #print(">>>> RUNNING PARASAIL IMPLEMENTATION IN BACKGROUND\n")          # REMOVE AFTER TESTS
         if (use_parasail):                                                  # REMOVE AFTER TESTS
-            print(">>>> parse_unpaired_dna_sequence_blastn(use_parasail = T)")
-            print(">>>> RESULTS BASED ON PARASAIL\n")  # REMOVE AFTER TESTS
+            pass
+            #print(">>>> parse_unpaired_dna_sequence_blastn(use_parasail = T)")
+            #print(">>>> RESULTS BASED ON PARASAIL\n")  # REMOVE AFTER TESTS
 
             # initialize variable that will replace blast implementation equivalents if use_parasail == True
         s_status = []

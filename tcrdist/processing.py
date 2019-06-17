@@ -57,7 +57,7 @@ __all__ = ['processNT',
            'getTCRID']
 
 
-def readPairedSequences(organism, paired_seqs_file, use_parasail = False, try_parasail = True):
+def readPairedSequences(organism, paired_seqs_file, use_parasail = True, try_parasail = True):
     """Read a TSV of paired-chain TCR data.
     Can also accommodate unpaired data or cells with more than two chains
     (e.g. gamma1 and gamma2)
@@ -133,6 +133,10 @@ def readPairedSequences(organism, paired_seqs_file, use_parasail = False, try_pa
          'TCRID
 
     """
+    if use_parasail:
+        print("RESULTS BASED ON PARASAIL\n")
+    else:
+        print("RESULTS BASED ON BLAST")
 
     raw = pd.read_csv(paired_seqs_file, delimiter='\t')
     """E.g. ['a', 'b']"""
@@ -282,7 +286,7 @@ def samplerProb(r, chain):
 ## -- ## copied directly from github (d9394fa9b7)
 
 
-def processNT(organism, chain, nuc, quals, use_parasail = False, try_parasail = True):
+def processNT(organism, chain, nuc, quals, use_parasail = True, try_parasail = True):
     """Process one nucleotide TCR sequence (any chain).
 
     Parameters
