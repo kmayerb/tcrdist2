@@ -103,6 +103,7 @@ for organism in [ 'mouse','human' ]:
     ## read the TR-V alignments
     align_file = op.join(fasta_dir, 'imgt_{}_TR_protein_sequences_with_gaps.fasta'.format(organism))
     logger.debug(align_file)
+    print(align_file)
     assert op.exists(align_file)
     align_fasta = {}
     tr_prefixes = ['TRBV','TRAV']
