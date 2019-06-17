@@ -1,0 +1,3 @@
+include tcrdist/db/*
+include tcrdist/datasets/*
+include tcrdist/external/*
