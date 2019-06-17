@@ -1,3 +1,4 @@
-include tcrdist/db/*
-include tcrdist/datasets/*
+include tcrdist/db/
+include tcrdist/datasets/test_human_pairseq.tsv
+include tcrdist/datasets/test_mouse_pairseq.tsv
 include tcrdist/external/*
