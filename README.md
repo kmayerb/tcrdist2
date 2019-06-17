@@ -13,11 +13,14 @@ the programs dependencies so installing legacy dependencies won't
 interfere with any of your other python projects. 
 
 ### tcrdist using python 2.7.11:
+
+WARNING: tcrdist is not quite ready for download yet, check back soon.
+
 ```bash
 virtualenv venv
 source ./venv/bin/activate
 pip install -r requirements.txt
-pip install git+https://github.com/kmayerb/--------.git@master
+pip install pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 ```
 
 ### To install the development env for tcrdist2 using python 2.7.11
