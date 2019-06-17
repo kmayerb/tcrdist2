@@ -70,7 +70,7 @@ PACKAGE_DATA = {'tcrdist': ['datasets/test_human_pairseqs.tsv',
                             'db/*',
                             'db/alphabeta_db.tsv_files/*',
                             'db/blast_dbs/*',
-                            'db/blast_dbs/fasta/*',
+                            'db/fasta/*',
                             'external/blargs/*',
                             'external/blast-2.2.16/bin/*',
                             'external/tablesorter/*']}
