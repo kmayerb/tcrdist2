@@ -65,5 +65,14 @@ MAJOR = _version_major
 MINOR = _version_minor
 MICRO = _version_micro
 VERSION = __version__
-PACKAGE_DATA = {'tcrdist': ['datasets/test_human_pairseqs.tsv', 'datasets/test_mouse_pairseqs.tsv']}#[pjoin('datasets', 'test_human_pairseqs.tsv'),pjoin('datasets', 'test_mouse_pairseqs.tsv'), pjoin('db', '*'), pjoin('external', '*')]}
+PACKAGE_DATA = {'tcrdist': ['datasets/test_human_pairseqs.tsv',
+                            'datasets/test_mouse_pairseqs.tsv',
+                            'db/*',
+                            'db/alphabeta_db.tsv_files/*',
+                            'db/blast_dbs/*',
+                            'db/blast_dbs/fasta/*',
+                            'external/blargs/*',
+                            'external/blast-2.2.16/bin/*',
+                            'external/tablesorter/*']}
+                            #]}#[pjoin('datasets', 'test_human_pairseqs.tsv'),pjoin('datasets', 'test_mouse_pairseqs.tsv'), pjoin('db', '*'), pjoin('external', '*')]}
 REQUIRES = ["numpy","pandas","scipy", "matplotlib","parasail"]
