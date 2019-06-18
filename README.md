@@ -4,7 +4,6 @@
 
 2019-06-17
 
-
 **tcrdist2** is new API-enabled version of the orginal TCRdist toolkit developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and colleagues as part of a T-cell receptor analysis in
 Dash et al. [Nature (2017) doi:10.1038/nature22383](https://doi.org/10.1038/nature22383).
 The original code for replicating analysis performed in the manuscript can be found [here](https://github.com/phbradley/tcr-dist).
@@ -46,23 +45,30 @@ You should see, the following:
 
 ### Optional: Install Blast Tools
 
-tcrdist use parasail for sequence alignment; however, some features can also
-be run using alignments from BLAST.
+tcrdist2 uses [parasail](https://github.com/jeffdaily/parasail-python)
+for sequence alignments; however, some features can also use sequence
+alignments from BLAST. BLAST version 2.2.16 can be optionally installed with
+the followings commands:
 
-You can optionally install blast tools from NCBI.
-
-After installing tcrdist2, if running macOSX:
+After installing tcrdist2, if working in a macOSX environment:
 ```bash
 python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'ncbi_osx');"
 ```
 
-After installing tcrdist2, if running linux:
+After installing tcrdist2, if working in a Linux environment:
 ```bash
 python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'ncbi_linux');"
 ```
 
-If NCBI links are broken, backup file can be accessed using download_from =  "dropbox_osx" or
-download_from = "dropbox_linux".
+NCBI can links can change without notice, so backup download links can be accessed
+by changing the download_from.
+
+```bash
+python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'dropbox_osx');"
+```
+```bash
+python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'dropbox_osx');"
+```
 
 ### Configure the full dev-env using python 2.7.11
 If you want to test or extend the functionality of **tcrdist2** using the same
