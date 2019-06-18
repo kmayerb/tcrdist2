@@ -1,21 +1,23 @@
 # TCRdist pipeline, version 2.0.0
 
+- 2019-06-17
+
 **tcrdist2** is new API version of TCRdist original developed by 
 Phillip Harlan Bradley, Jeremy Chase Crawford, and colleagues as part of analysis of T-cell receptor specificity in
 Dash et al. [Nature (2017) doi:10.1038/nature22383](https://doi.org/10.1038/nature22383). 
 The original code replicating analysis performed in the manuscript can be found [here](https://github.com/phbradley/tcr-dist). 
 
-## Installation Methods
+## Installation
 
-It is highly recommended that you run or (develop) tcrdist2 
+It is highly recommended that you run or (develop) **tcrdist2** 
 within a [python virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/). 
 Using a virtual env isolates the program's dependencies so that installing legacy versions 
 of python (2.7.11), numpy(1.10.1), scipy(0.16.0), scikit-learn(0.17.1), and matplotlib(1.4.3), 
 interfere with any of your other ongoing python projects. Setting up a virtual env takes less than 
 5 minutes using the commands below.
 
-### Install tcrdist using python 2.7.11:
-To configure our machine to run tcrdist using the correct dependencies,
+### Install tcrdist2 using python 2.7.11:
+To configure our machine to run **tcrdist2** using the correct dependencies,
 use the [*requirements.txt*](https://github.com/kmayerb/tcrdist2/blob/API2/requirements.txt) 
 file provided in the tcrdist2 github repository.
 
@@ -40,8 +42,8 @@ You should see, the following:
 > human body [3]' -- Laydon et al. 2015. PMC4528489
 ```
 
-### Install the full dev-env using python 2.7.11
-If you want to test or extend the functionality of tcrdist2 using the same 
+### Configure the full dev-env using python 2.7.11
+If you want to test or extend the functionality of **tcrdist2** using the same 
 development environment that we are currently using, 
 configure your environment with the 
 requirements-dev.txt file.
@@ -53,9 +55,9 @@ pip install -r requirements-dev.txt
 git clone https://github.com/kmayerb/tcrdist2.git
 ```
 
-## tcrdist2 is interactive!
+## Work with tcrdist2 interactively!
 
-tcrdist2 was designed to work with [Pandas](https://vimeo.com/59324550) DataFrames. 
+**tcrdist2** was designed to work with [Pandas](https://vimeo.com/59324550) DataFrames. 
 Therefore, you may find it useful to work interactively with ipython. 
 We are working on provided an ipython notebook with example instructions
 [instructions_api.ipyn](https://github.com/kmayerb/tcrdist2/blob/API2/instructions_api.ipynb)
@@ -113,7 +115,7 @@ clonesDf = td.processing.identifyClones(psDf)
 ## More Information on Dependencies
 
 Following the instructions above and setting up a virtual environment should take care of ensuring the proper
-dependencies are available to tcrdist.  In addition to original TCRdist dependencies we are making use of 
+dependencies are available to tcrdist.  In addition to original **TCRdist** dependencies, **tcrdist2**
 the following new dependencies:
 - futures=3.2.0 
 - pandas=0.20.3 
@@ -121,13 +123,13 @@ the following new dependencies:
 
 
 If you are familiar with dependencies management in condas, the
-a tcrdist2 development environment can be created rapidly in using the conda package manager. 
+a **tcrdist2** development environment can be created rapidly: 
  
 ```bash
 conda create --name tcrpy27osX python=2.7.11 scipy=0.16.0  matplotlib=1.4.3 numpy=1.10.1 futures=3.2.0 pandas=0.20.3 parasail-python=1.1.16 scikit-learn=0.17.1 jupyterlab jupyter
 ```
-The current dependencies can be found here [tcrpy27osX.yml](https://github.com/kmayerb/tcrdist2/blob/API2/tcrpy27osX.yml). 
-Recreating the conda env is a one-liner:
+The current dependencies can be found here [tcrpy27osX.yml](https://github.com/kmayerb/tcrdist2/blob/API2/tcrpy27osX.yml), so
+recreating the conda env is a one-liner:
 
 ```bash
 conda env create -n tcrpy27osX -f tcrpy27osX.yml
