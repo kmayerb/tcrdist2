@@ -4,10 +4,9 @@
 2019-06-17
 
 
-**tcrdist2** is new API version of TCRdist original developed by 
-Phillip Harlan Bradley, Jeremy Chase Crawford, and colleagues as part of analysis of T-cell receptor specificity in
+**tcrdist2** is new API-enabled version of the orginal TCRdist toolkit developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and colleagues as part of a T-cell receptor analysis in
 Dash et al. [Nature (2017) doi:10.1038/nature22383](https://doi.org/10.1038/nature22383). 
-The original code replicating analysis performed in the manuscript can be found [here](https://github.com/phbradley/tcr-dist). 
+The original code for replicating analysis performed in the manuscript can be found [here](https://github.com/phbradley/tcr-dist). 
 
 ## Installation
 
@@ -19,7 +18,7 @@ does not interfere with any of your other ongoing python projects. Setting up a 
 5 minutes using the commands below.
 
 ### Install tcrdist2 using python 2.7.11:
-To configure our machine to run **tcrdist2** using the correct dependencies,
+To configure your machine to run **tcrdist2** using the correct dependencies,
 use the [*requirements.txt*](https://github.com/kmayerb/tcrdist2/blob/API2/requirements.txt) 
 file provided in the tcrdist2 github repository.
 
