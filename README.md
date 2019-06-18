@@ -1,19 +1,21 @@
 # TCRdist pipeline, version 2.0.0
 
 **tcrdist2** is new API version of TCRdist original developed by 
-Phil Bradley, Jeremy Crawford, and colleagues as part of analysis of T-cell receptor specificity in
+Phillip Harlan Bradley, Jeremy Chase Crawford, and colleagues as part of analysis of T-cell receptor specificity in
 Dash et al. [Nature (2017) doi:10.1038/nature22383](https://doi.org/10.1038/nature22383). 
-The original code replicating analysis in the manuscript can be found [here](https://github.com/phbradley/tcr-dist). 
+The original code replicating analysis performed in the manuscript can be found [here](https://github.com/phbradley/tcr-dist). 
 
 ## Installation Methods
 
-It is highly recommended that you develop and run tcrdist2 
-within a [python virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/). Doing so isolates 
-the programs dependencies so installing legacy dependencies won't 
-interfere with any of your other python projects. 
+It is highly recommended that you run or (develop) tcrdist2 
+within a [python virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/). 
+Using a virtual env isolates the program's dependencies so that installing legacy versions of numpy won't 
+interfere with any of your other ongoing python projects.  
 
 ### Install tcrdist using python 2.7.11:
-If just want to run tcrdist you can use the requirements.txt file.
+To run tcrdist using the correct dependencies,
+use the *requirements.txt* file provided in the
+tcrdist2 github repository.
 
 ```bash
 virtualenv venv
@@ -25,7 +27,7 @@ pip install pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 ```bash
 python -c 'import tcrdist as td; td.say_hello()'
 ```
-
+You should see, the following:
 ```
 > Hello: 'By recombination, random insertion, deletion and substitution, 
 > the small set of genes that encode the T-cell receptor has the potential 
@@ -35,9 +37,10 @@ python -c 'import tcrdist as td; td.say_hello()'
 > human body [3]' -- Laydon et al. 2015. PMC4528489
 ```
 
-### Install the ful dev-env using python 2.7.11
-If you want to extend the functionality of tcrdist using the same environment that 
-we are currently using, you should configure your environment with the 
+### Install the full dev-env using python 2.7.11
+If you want to extend the functionality of tcrdist2 using the same 
+development environment that we are currently using, 
+configure your environment with the 
 requirements-dev.txt file.
 
 ```bash
@@ -52,7 +55,8 @@ git clone https://github.com/kmayerb/tcrdist2.git
 Since tcrdist2 was designed to work with pandas DataFrames, you may find it useful to work 
 interactively with ipython or jupyterlab following the provided notebook [instructions_api.ipyn]()
 
-## Example 1: tcrdist2 on single receptor sequence
+## Example 1: tcrdist2 on a single receptor sequence
+
 ```ipython
 In [1]: import tcrdist as td
 
@@ -84,7 +88,8 @@ pd.DataFrame(chain)
 
 ```python
 psDf = td.processing.readPairedSequences(paired_seqs_file = "tcrdist/datasets/test_human_pairseqs.tsv", 
-                                         organism = "human", use_parasail = True);
+                                         organism = "human", 
+                                         use_parasail = True);
 ```
 ### computeProbs
 
