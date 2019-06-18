@@ -9,13 +9,15 @@ The original code replicating analysis performed in the manuscript can be found 
 
 It is highly recommended that you run or (develop) tcrdist2 
 within a [python virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/). 
-Using a virtual env isolates the program's dependencies so that installing legacy versions of numpy won't 
-interfere with any of your other ongoing python projects.  
+Using a virtual env isolates the program's dependencies so that installing legacy versions 
+of python (2.7.11), numpy(1.10.1), scipy(0.16.0), scikit-learn(0.17.1), and matplotlib(1.4.3), 
+interfere with any of your other ongoing python projects. Setting up a virtual env takes less than 
+5 minutes using the commands below.
 
 ### Install tcrdist using python 2.7.11:
-To run tcrdist using the correct dependencies,
-use the *requirements.txt* file provided in the
-tcrdist2 github repository.
+To configure our machine to run tcrdist using the correct dependencies,
+use the [*requirements.txt*](https://github.com/kmayerb/tcrdist2/blob/API2/requirements.txt) 
+file provided in the tcrdist2 github repository.
 
 ```bash
 virtualenv venv
@@ -23,6 +25,7 @@ source ./venv/bin/activate
 pip install -r requirements-dev.txt
 pip install pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 ```
+
 ### Test the installation
 ```bash
 python -c 'import tcrdist as td; td.say_hello()'
@@ -38,7 +41,7 @@ You should see, the following:
 ```
 
 ### Install the full dev-env using python 2.7.11
-If you want to extend the functionality of tcrdist2 using the same 
+If you want to test or extend the functionality of tcrdist2 using the same 
 development environment that we are currently using, 
 configure your environment with the 
 requirements-dev.txt file.
@@ -52,8 +55,10 @@ git clone https://github.com/kmayerb/tcrdist2.git
 
 ## tcrdist2 is interactive!
 
-Since tcrdist2 was designed to work with pandas DataFrames, you may find it useful to work 
-interactively with ipython or jupyterlab following the provided notebook [instructions_api.ipyn]()
+tcrdist2 was designed to work with [Pandas](https://vimeo.com/59324550) DataFrames. 
+Therefore, you may find it useful to work interactively with ipython. 
+We are working on provided an ipython notebook with example instructions
+[instructions_api.ipyn](https://github.com/kmayerb/tcrdist2/blob/API2/instructions_api.ipynb)
 
 ## Example 1: tcrdist2 on a single receptor sequence
 
@@ -79,7 +84,7 @@ In [4]: chain = td.processing.processNT(organism = 'human',
    ...:                                 quals = betaQuals, 
    ...:                                 use_parasail = True)
 
-pd.DataFrame(chain)
+In [5]: pd.DataFrame(chain)
 ```
 
 ## Example 2: tcrdist2 on a batch of sequences
@@ -108,30 +113,25 @@ clonesDf = td.processing.identifyClones(psDf)
 ## More Information on Dependencies
 
 Following the instructions above and setting up a virtual environment should take care of ensuring the proper
-dependencies are available to tcrdist. Here is additional information on the tcrdist dependencies. 
-
-
-tcrdist2 retains the original core dependencies
- - python (2.7.11), 
- - numpy(1.10.1),
- - scipy(0.16.0), 
- - scikit-learn(0.17.1), 
- - matplotlib(1.4.3), 
-
-New API dependencies include:
+dependencies are available to tcrdist.  In addition to original TCRdist dependencies we are making use of 
+the following new dependencies:
 - futures=3.2.0 
 - pandas=0.20.3 
 - parasail-python=1.1.16
 
-If you prefer to use condas over pip, the development environment can be created rapidly in using the conda package manager. 
- 
-On a macOS or linux machine:
 
+If you are familiar with dependencies management in condas, the
+a tcrdist2 development environment can be created rapidly in using the conda package manager. 
+ 
 ```bash
 conda create --name tcrpy27osX python=2.7.11 scipy=0.16.0  matplotlib=1.4.3 numpy=1.10.1 futures=3.2.0 pandas=0.20.3 parasail-python=1.1.16 scikit-learn=0.17.1 jupyterlab jupyter
 ```
-The current dependencies can be found here (tcrpy27osX.yml) and (tcrpy27linux.yml). 
+The current dependencies can be found here [tcrpy27osX.yml](https://github.com/kmayerb/tcrdist2/blob/API2/tcrpy27osX.yml). 
+Recreating the conda env is a one-liner:
 
+```bash
+conda env create -n tcrpy27osX -f tcrpy27osX.yml
+```
 ## Blast Functionality and Data Files. 
 
 BLAST 2.2.16 does not come with tcrdist2, but some of its features make use of it.
@@ -141,7 +141,7 @@ or here for [linux](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPO
 and put in the externals/ folder: 
 
 tcrdist/external/blast-2.2.16/bin/
-blastall and formatdb are the required executables.
+blastall and formatdb are the only required executables.
 
 TODO: setup_blast.py will take care of this.
 
@@ -149,9 +149,7 @@ Full data set Files from the original paper can be found
 [here](https://www.dropbox.com/s/kivfp27gbz2m2st/tcrdist_extras_v2.tgz), 
 but are not included in the tcrdist2 installation.
 
-##  Installation
 
-tcrdist2 is not yet ready for installation.
 
 ---
 # Citing
@@ -175,4 +173,8 @@ Sequence parsing relies on the BLAST suite, see info in `external/blast-2.2.16/`
 
 ---
 # UPDATES
+
+tcrdist2 can be installed, but it is worth noting that tcrdist2 is undergoing heavy development in June 2019. 
+
+We anticipate a new release with expanded functionality and vizualization tools in July 2019. 
 
