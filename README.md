@@ -60,7 +60,7 @@ git clone https://github.com/kmayerb/tcrdist2.git
 
 **tcrdist2** was designed to work with [Pandas](https://vimeo.com/59324550) DataFrames. 
 Therefore, you may find it useful to work interactively with ipython. 
-We are working on provided an ipython notebook with example instructions
+We are working on providing an ipython notebook with example instructions
 [instructions_api.ipyn](https://github.com/kmayerb/tcrdist2/blob/API2/instructions_api.ipynb)
 
 ## Example 1: tcrdist2 on a single receptor sequence
