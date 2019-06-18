@@ -15,7 +15,7 @@ It is highly recommended that you run or (develop) **tcrdist2**
 within a [python virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/). 
 Using a virtual env isolates the program's dependencies so that installing legacy versions 
 of python (2.7.11), numpy(1.10.1), scipy(0.16.0), scikit-learn(0.17.1), and matplotlib(1.4.3), 
-interfere with any of your other ongoing python projects. Setting up a virtual env takes less than 
+does not interfere with any of your other ongoing python projects. Setting up a virtual env takes less than 
 5 minutes using the commands below.
 
 ### Install tcrdist2 using python 2.7.11:
@@ -26,7 +26,7 @@ file provided in the tcrdist2 github repository.
 ```bash
 virtualenv venv
 source ./venv/bin/activate
-pip install -r requirements-dev.txt
+pip install -r requirements.txt
 pip install pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 ```
 
