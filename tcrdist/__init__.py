@@ -21,6 +21,7 @@ from . import datasets
 from . import distances
 from .all_genes import all_genes
 from .sail import *
+from .setup_blast import install_blast_to_externals
 
 # from . import embedding  (ImportError: libgfortran.so.1 on linux but not on windows, environmental diff?)
 
