@@ -1,6 +1,8 @@
 # TCRdist pipeline, version 2.0.0
 
-- 2019-06-17
+
+2019-06-17
+
 
 **tcrdist2** is new API version of TCRdist original developed by 
 Phillip Harlan Bradley, Jeremy Chase Crawford, and colleagues as part of analysis of T-cell receptor specificity in
