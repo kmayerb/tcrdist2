@@ -27,7 +27,7 @@ file provided in the tcrdist2 github repository.
 virtualenv venv
 source ./venv/bin/activate
 pip install -r requirements.txt
-pip install pip install git+https://github.com/kmayerb/tcrdist2.git@API2
+pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 ```
 
 ### Test the installation
@@ -43,6 +43,26 @@ You should see, the following:
 > lie in this range. There are only an estimated 10^13 cells in the
 > human body [3]' -- Laydon et al. 2015. PMC4528489
 ```
+
+### Optional: Install Blast Tools
+
+tcrdist use parasail for sequence alignment; however, some features can also
+be run using alignments from BLAST.
+
+You can optionally install blast tools from NCBI.
+
+After installing tcrdist2, if running macOSX:
+```bash
+python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'ncbi_osx');"
+```
+
+After installing tcrdist2, if running linux:
+```bash
+python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'ncbi_linux');"
+```
+
+If NCBI links are broken, backup file can be accessed using download_from =  "dropbox_osx" or
+download_from = "dropbox_linux".
 
 ### Configure the full dev-env using python 2.7.11
 If you want to test or extend the functionality of **tcrdist2** using the same
