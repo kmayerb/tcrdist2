@@ -118,13 +118,13 @@ clonesDf = td.processing.identifyClones(psDf)
 
 Following the instructions above and setting up a virtual environment should take care of ensuring the proper
 dependencies are available to tcrdist.  In addition to original **TCRdist** dependencies, **tcrdist2**
-the following new dependencies:
+requires the following new dependencies:
 - futures=3.2.0 
 - pandas=0.20.3 
 - parasail-python=1.1.16
 
 
-If you are familiar with dependencies management in condas, the
+If you are familiar with dependency management in condas,
 a **tcrdist2** development environment can be created rapidly: 
  
 ```bash
