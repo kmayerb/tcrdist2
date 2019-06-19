@@ -29,8 +29,8 @@ def install_blast_to_externals(download_from):
         raise KeyError("the < download_from > arg passed to install_blast_to_externals \
         must be one of the following: ncbi_osx, ncbi_linux, dropbox_osx, dropbox_linux")
 
-    address_ncbi_osx = 'ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.16/blast-2.2.16-universal-macosx.tar.gz'
-    address_ncbi_linux = 'ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.16/blast-2.2.16-x64-linux.tar.gz'
+    address_ncbi_osx = 'https://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.16/blast-2.2.16-universal-macosx.tar.gz'
+    address_ncbi_linux = 'https://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.16/blast-2.2.16-x64-linux.tar.gz'
     address_dropbox_osx = 'https://www.dropbox.com/s/x3e8qs9pk5w6szq/blast-2.2.16-universal-macosx.tar.gz'
     address_dropbox_linux = 'https://www.dropbox.com/s/gurbwgcys6xcttm/blast-2.2.16-x64-linux.tar.gz'
 
