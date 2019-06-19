@@ -30,6 +30,7 @@ conda activate py27v
 virtualenv venv
 conda deactivate
 conda deactivate
+source ./venv/bin/activate
 pip install -r requirements.txt
 pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 ```
