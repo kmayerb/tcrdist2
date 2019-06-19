@@ -31,8 +31,8 @@ def install_blast_to_externals(download_from):
 
     address_ncbi_osx = 'https://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.16/blast-2.2.16-universal-macosx.tar.gz'
     address_ncbi_linux = 'https://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.16/blast-2.2.16-x64-linux.tar.gz'
-    address_dropbox_osx = 'https://www.dropbox.com/s/x3e8qs9pk5w6szq/blast-2.2.16-universal-macosx.tar.gz'
-    address_dropbox_linux = 'https://www.dropbox.com/s/gurbwgcys6xcttm/blast-2.2.16-x64-linux.tar.gz'
+    address_dropbox_osx = 'https://www.dropbox.com/s/x3e8qs9pk5w6szq/blast-2.2.16-universal-macosx.tar.gz?dl=1'
+    address_dropbox_linux = 'https://www.dropbox.com/s/gurbwgcys6xcttm/blast-2.2.16-x64-linux.tar.gz?dl=1'
 
     path_file = os.path.realpath(__file__)
     path = os.path.dirname(path_file)
