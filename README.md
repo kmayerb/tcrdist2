@@ -22,6 +22,20 @@ To configure your machine to run **tcrdist2** using the correct dependencies,
 use the [*requirements.txt*](https://github.com/kmayerb/tcrdist2/blob/API2/requirements.txt)
 file provided in the tcrdist2 github repository.
 
+If you don't have python 2.7.11 previously installed:
+
+```bash
+conda create -n py27v python=2.7.11 pip virtualenv
+conda activate py27v
+virtualenv venv
+conda deactivate
+conda deactivate
+pip install -r requirements.txt
+pip install git+https://github.com/kmayerb/tcrdist2.git@API2
+```
+
+With python 2.7.11, pip, vritualenv already installed:
+
 ```bash
 virtualenv venv
 source ./venv/bin/activate
@@ -61,11 +75,12 @@ python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(downl
 ```
 
 NCBI can links can change without notice, so backup download links can be accessed
-by changing the download_from.
+by changing the download_from argument:
 
 ```bash
 python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'dropbox_osx');"
 ```
+
 ```bash
 python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'dropbox_osx');"
 ```
