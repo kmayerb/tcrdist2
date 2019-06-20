@@ -1,4 +1,5 @@
 from tcrdist import sail  # sail contains external function for working with parasail
+from tcrdist import pairwise
 '''
 test_sail contains basic unit tests for the internal functions defined in sail.py
 
@@ -66,4 +67,3 @@ def test_all_good_hits_with_scores2():
 def test_all_good_hits_with_scores3():
     assert (sail._all_good_hits_with_scores([("a", 100, 0.01), ("b", 52, 0.01), ("c", 51, 0.01)], 10) == \
     [("a", 100, 0.01)])
-
