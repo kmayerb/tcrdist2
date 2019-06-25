@@ -1,6 +1,7 @@
 import parasail
+import multiprocessing
 from scipy.spatial import distance
-
+import parmap
 
 class SequencePair:
     """
@@ -173,8 +174,12 @@ def distance_wrapper(a,b):
     return(float(SequencePair(a, b).hamming_distance) )
 # NOTE THAT THE apply_pairwise distance function below can be used with any
 # function that accepts two strings
+def select_unique_sequences(sequences):
+    unique_seqs = list(dict.fromkeys(sequences)) # preserves order in python 3
+    return(unique_seqs)
 
-def apply_pairwise_distance(sequences, pairwise_distance_function = distance_wrapper):
+def apply_pairwise_distance(sequences,
+                            pairwise_distance_function = distance_wrapper):
     """
     Function apply_pairwise_distance takes a list of sequences,
     takes the unique set, and applies
@@ -188,8 +193,6 @@ def apply_pairwise_distance(sequences, pairwise_distance_function = distance_wra
     ----------
     sequences : list of strings
         list of amino acid strings
-    y : string
-        Amino acid string passed to arg s2 in parasail.sw_trace
     pairwise_distance_function: function
         pairwise distance function that takes strings as inputs
 
@@ -198,9 +201,9 @@ def apply_pairwise_distance(sequences, pairwise_distance_function = distance_wra
     storage : dictionary
         of form d[uniuqe_string1][unique_string2] = numeric result of the pairwise_distance_function
     """
-    # unique_seq is a list of unique sequences
-    unique_seqs = list(dict.fromkeys(sequences)) # preserves order in python 3
+
     # storage is a dictionary of dictionaries
+    unique_seqs = sequences
     storage = dict.fromkeys(unique_seqs)
     storage ={k:{} for k in storage.keys()}
 
@@ -271,4 +274,183 @@ def unpack_dd_to_kkv(dd):
             key2.append(j)
             value.append(dd[i][j])
     kkv = {"key1":key1,"key2":key2,"value":value}
+    return(kkv)
+
+
+
+
+def f(index):#= ["CAGQASQGNLIF","CAGQASQGNLIFA","CAGQASQGNLIAA","CAGQASQGNLIFAAA","CAGQASQGNLIFAAAAA", "CAGQASQGNLIFG"]):
+    # index is a tuple, first is the rows to loop over,
+    # second is the columns
+    index_p1 = index[0]
+    index_p2 = index[1]
+        # storage is a dictionary of dictionaries
+    unique_seqs_p1 =[unique_seqs[i] for i in index_p1]
+    storage = dict.fromkeys(unique_seqs_p1)
+    storage ={k:{} for k in storage.keys()}
+    for i in index_p1:
+        for j in index_p2:
+            storage[unique_seqs[i]][unique_seqs[j]] = \
+            distance_wrapper(unique_seqs[i], unique_seqs[j])
+            # updates the start index removing first entry, to avoid duplicate calcs
+        if(len(index_p2)>1):
+            index_p2.pop(0)
+    return(storage)
+
+
+
+def apply_pairwise_distance_multiprocessing(sequences,
+                                            processes = multiprocessing.cpu_count(),
+                                            pairwise_distance_function = distance_wrapper):
+
+    """
+    Function apply_pairwise_distance takes a list of sequences,
+    takes the unique set, and applies a pariwise_distance_func to all unique combinations.
+    A hash is returned.
+
+    This version of the function is explicitly set up to chunk indexing
+    to allow efficient multi-processing.
+
+    To be efficient:
+    (1) compare unique unique_sequences.
+    (2) Do the pairwise comparision in only one direction A:B = B:A
+
+     Chunk indices for passing to parralel processes
+    (example for 20x20 comparison in 10 chunks)
+    This could be more efficient if the first chunks had fewer indices, but
+    on large datasets if chunks is set > processes, this should be fine,
+    assuming nodes that finish early can take on a new task.
+    ([0, 1], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
+    ([2, 3], [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
+    ([4, 5], [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
+    ([6, 7], [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
+    ([8, 9], [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
+    ([10, 11], [10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
+    ([12, 13], [12, 13, 14, 15, 16, 17, 18, 19])
+    ([14, 15], [14, 15, 16, 17, 18, 19])
+    ([16, 17], [16, 17, 18, 19])
+    ([18, 19], [18, 19])
+
+    Parameters
+    ----------
+    unique_seqs : list of strings
+        list of amino acid strings
+    processes : int
+        process corresponding to parrallel process <= of available cores
+    pairwise_distance_function: function
+        pairwise distance function that takes strings as inputs
+
+    Returns
+    -------
+    pooled_storage : list of (dictionary of dictionaries)
+
+    """
+    error_message = "in apply_pairwise_distance_mulitprocessing() you can not \
+    specify a higher processes number than available CPUs."
+
+    if processes > multiprocessing.cpu_count():
+        raise RuntimeError(error_message)
+
+    # unique_seq is a list of unique sequences
+
+
+    chunks = 2*processes
+    total_number_of_seqs = len(sequences)
+    index = range(0,total_number_of_seqs)
+    partition_size = total_number_of_seqs / chunks
+    #assert total_number_of_seqs % chunks == 0, "chunk size not a multiple of unique seqs"
+    # index is chunked into two parts (row, and column) so that
+    # the pairwise distance task can be mapped to multiple processes
+    def partition(l,n):
+        return([l[i:i + n] for i in xrange(0, len(l), n)])
+
+    def set_global(x):
+        unique_seqs = x
+        global unique_seqs
+
+    index_p1 = partition(index, partition_size)
+    index_p2 = [range(i[0], total_number_of_seqs) for i in index_p1]
+    # part1 and part2 indices are passed as a tuple to each process,
+    # memory and unique_sequence are shared in memory
+    index = [(index_p1[i],index_p2[i]) for i in range(chunks)]
+    # Set up pool multiprocessing
+
+    p = multiprocessing.Pool(processes = processes,
+                             initializer = set_global,
+                             initargs=(sequences,))
+    # map function to the parralel processes
+    pooled_storage  = p.map(f, index)
+
+
+    #pooled_storage = parmap.starmap(f, index = index, unique_seqs = sequences)
+    p.close()
+    p.join()
+    return(pooled_storage)
+
+
+
+
+
+def unpack_pooled_dd_to_kkv(pooled_dd):
+    """
+
+    Function that applies unpack_dd_to_kkv() on a list of
+    dictionaries
+
+            pooled_dd = [
+
+            { 'A': {'A': 1, 'B': 2, 'C': 3},
+              'B': {'B': 4, 'C': 5},
+              'C': {'C': 6}},
+            { 'D': {'D': 7, 'E': 8, 'F': 9},
+              'E': {'E': 10, 'F': 11},
+              'F': {'F': 12}}
+            ]
+
+            to
+
+            kkvs = [
+            { 'key1'  : ['A','A','A','B','B','C'],
+              'key2'  : ['A','B','C','B','C','C'],
+              'value' : [1,2,3,4,5,6]},
+            { 'key1'  : ['D','D','D','E','E','F'],
+              'key2'  : ['D','E','F','E','F','F'],
+              'value' : [7,8,9,10,11,12]}
+            ]
+
+            finally to
+
+            kkv  = {
+            'key1'  : ['A','A','A','B','B','C','D','D','D','E','E','F'],
+            'key2'  : ['A','B','C','B','C','C','D','E','F','E','F','F'],
+            'value' : [1,2,3,4,5,6, 7,8,9,10,11,12]
+            }
+
+
+
+    Parameters
+    ----------
+    pooled_dd : list
+        list of dicitionary of dictionarie
+
+    Returns
+    ----------
+    kkv : dictionary
+        dictionary of lists (key1, key2, value format)
+
+    Examples
+    ----------
+    apply_pairwise_distance_mulitprocessing()
+
+    """
+    kkvs = [unpack_dd_to_kkv(pooled_dd[i]) for i in range(0,len(pooled_dd))]
+    flatten = lambda l: [item for sublist in l for item in sublist]
+    kkv = {}
+    for key in kkvs[0]:
+        kkv[key] =  flatten([x[key] for x in kkvs])
+
+    #kkv =  {"key1" : flatten([x["key1"] for x in kkvs]),
+    #        "key2" : flatten([x["key2"] for x in kkvs]),
+    #            "value" : flatten([x["value"] for x in kkvs])}
+
     return(kkv)
