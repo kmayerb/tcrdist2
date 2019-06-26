@@ -1,7 +1,316 @@
 import parasail
 import multiprocessing
 from scipy.spatial import distance
-import parmap
+import itertools
+import random
+import numpy as np
+
+def apply_pw_distance_metric_w_multiprocessing(sequences,
+                                               f,
+                                               processes = multiprocessing.cpu_count()):
+    """
+    Function that computes pairwise distance between a list of sequences,
+    using python's multiprocessing package to parralelize the distance calulation
+    to multiple python interpretors based on the available cpu.
+
+    This is the core function of this module!!!!!
+
+    It is flexible, as f can be any function taking as input a list of indices.
+    [(i,j),(i,j), ... (i,j)].
+
+    unique_seqs an orderd list containing all of the sequence to be compared
+    are put in the global namespace of each interpretor, and f can be defined
+    to calculate the distance metric as appropriate.
+
+    For a first example:
+
+    **_f_pwdist_parallel_using_nw_metric** uses  **nw_metric()**
+
+    _f_pwdist_parallel_using_nw_metric():
+        output_tuples = []
+        for i,j in indices:
+            d = nw_metric(unique_seqs[i], unique_seqs[j])
+            output_tuples.append((i,j,d, unique_seqs[i], unique_seqs[j]))
+        return(output_tuples)
+
+    For a second example:
+
+    **_f_pwdist_parallel_using_distance_wrapper** calls a distance_wrapper()
+
+    output_tuple = []
+    for i,j in indices:
+        d = distance_wrapper(unique_seqs[i], unique_seqs[j])
+        output_tuple.append((i,j,d, unique_seqs[i], unique_seqs[j]))
+    return(output_tuple)
+
+
+    distance_wrapper():
+
+    def distance_wrapper(a,b):
+        return(float(SequencePair(a, b).hamming_distance) )
+
+    This currently wraps scipy.hamming distance after aligning sequences
+
+
+    Parameters
+    ----------
+    sequences : list
+        list of strings containing amino acid letters
+    processes : ind
+        number of available cpus defaults to multiprocessing.cpu_count()
+    f : function
+        function that references unique_seqs and can take a list of (i,j) tuples
+
+    Returns
+    -------
+    multiprocessed_result : list
+        list of lists containing five part tuples (int, int, float, str, str)
+
+    Examples
+    --------
+     pairwise.apply_pw_distance_metric_w_multiprocessing(sequences = sequence
+     s, f = pairwise._f_pwdist_parallel_using_distance_wrapper,
+     processes = 2)
+
+     pairwise.apply_pw_distance_metric_w_multiprocessing(sequences = sequences,
+     f = pairwise._f_pwdist_parallel_using_nw_metric,
+     processes = 2)
+
+    """
+
+    error_message = "in a_apply_pairwise_multiprocessing() you can not \
+    specify a higher processes number than available CPUs."
+
+    if processes > multiprocessing.cpu_count():
+        raise RuntimeError(error_message)
+
+    # this produces chunked indices a list of lists containing (i,j) tuples
+    indices = get_chunked_pwdist_indices(sequences = sequences,
+                                         processes=processes)
+
+    # sets the sequences to the namespace of each multiprocerss
+    def set_global(x):
+        unique_seqs = x
+        global unique_seqs
+
+    # creates pool, and runs intializer functoin
+    p = multiprocessing.Pool(processes = processes,
+                             initializer = set_global,
+                             initargs=(sequences,))
+
+    # map function to the parralel processes
+    multiprocessed_result  = p.map(f, indices)
+    p.close()
+    p.join()
+    return(multiprocessed_result)
+
+def get_random_amino_acid(n):
+    """
+    Function that results in random amino acid seq of length n
+    for testing and benchmarking
+    """
+    return(''.join([random.choice('GPAVLIMCFYWHKRQNEDST') for i in xrange(n)]))
+
+def get_k_ramdom_amino_acid_of_length_n(k = 1000, n = 20):
+    """
+    Function that results in a list of k amino acid seqs of length n
+    for testing and benchmarking
+    """
+    return([get_random_amino_acid(n) for i in xrange(k)])
+
+
+def _partition(l,n):
+    """
+    Function that takes a list and maximum number of elements,
+    and break the list into sublists
+
+    Parameters
+    ----------
+    l : list
+    n : int
+
+    Returns
+    -------
+    list of lists
+
+    """
+    return([l[i:i + n] for i in xrange(0, len(l), n)])
+
+
+def get_pwdist_indices(sequences):
+    """
+    From a list of sequences get lower triangle indices tuples (i,j)
+    for pairwise comparisons.
+
+    Parameters
+    ----------
+    sequences : list of strings
+        list of (likely amino acid) strings
+
+    Returns
+    -------
+    ind_tuples : list
+        ist of tuples (i,j)
+
+    """
+    ind_tuples = []
+    L = len(sequences)
+    for i, j in itertools.product(range(L), range(L)):
+        if i <= j:
+            ind_tuples.append((i,j))
+    return(ind_tuples)
+
+
+def get_chunked_pwdist_indices(sequences, processes):
+    """
+    Function that takes given a list of sequences, and return a
+    chunked set of indices equal to the number of processes.
+
+    Parameters
+    ----------
+    sequences : list of strings
+        list of (likely amino acid) strings
+
+    Returns
+    -------
+    ind_chunks : list
+        list of lists containing tuple indices
+
+    Examples
+    -------
+    get_chunked_pwdist_indices(sequences = ("A","B","C"), processes = 2)
+    >>> (1,2), (1,3)],  [(2,3)] ]
+    """
+
+    ind = get_pwdist_indices(sequences)
+    chunk_size = (len(ind) / processes) + 1
+    ind_chunks = _partition(ind, chunk_size)
+    return(ind_chunks)
+
+def _f_pwdist_serial_using_nw_metric(i,j):
+    """
+    Function for comparing (f_s) serial vs parralelel processing speed.
+    This function does distance matrix calculation on at a time.
+
+    ! unique_seqs must be in the namespace when this function is called
+
+    Parameters
+    ----------
+    i : integer
+        integer i index
+    j : integer
+        integer j index
+
+    Returns
+    -------
+    five part tuples (int, int, float, str, str)
+
+    """
+    d = nw_metric(unique_seqs[i], unique_seqs[j])
+    return( (i,j,d, unique_seqs[i], unique_seqs[j]))
+
+def _f_pwdist_parallel_using_nw_metric(indices):
+    """
+    Function for parralel processing of pairwise distance method using
+    hard coded call to the nw_metric
+
+    Parameters
+    ----------
+    indices: list
+        list of tuples (i,j) containing int index refs for pairwise comparison
+
+    Returns
+    -------
+    output_tuples : list
+        list of five part tuples (int, int, float, str, str)
+
+    """
+    output_tuples = []
+    for i,j in indices:
+        d = nw_metric(unique_seqs[i], unique_seqs[j])
+        output_tuples.append((i,j,d, unique_seqs[i], unique_seqs[j]))
+    return(output_tuples)
+
+def _f_pwdist_parallel_using_distance_wrapper(indices):
+    """
+    Function for parralel processing of pairwise distance method using
+    call to the distacne_wrapper which can be configured
+
+    Parameters
+    ----------
+    x :
+
+    Returns
+    -------
+    x :
+
+
+    """
+    output_tuple = []
+    for i,j in indices:
+        d = distance_wrapper(unique_seqs[i], unique_seqs[j])
+        output_tuple.append((i,j,d, unique_seqs[i], unique_seqs[j]))
+    return(output_tuple)
+
+def _pack_matrix(chunked_results):
+    """
+    Function taking a list of tuple generated from a f_pwdist_parallel_()
+    function and generaing a np.matrix.
+
+    Parameters
+    ----------
+    chunked_results : list
+        list of lists of five part tuples (int, int, float, str, str)
+
+    Returns
+    -------
+    pwdist : np.matrix
+        matrix with chunked result applied to i,j position
+
+
+    """
+    indices = [item for sublist in chunked_results for item in sublist]
+    matrix_dim = max([x[0] for x in indices])+1
+    pwdist = np.nan * np.zeros((matrix_dim, matrix_dim))
+    for i,j,d,x,y in indices:
+        pwdist[j, i] = d
+        pwdist[i, j] = d
+    return(pwdist)
+
+def nw_metric(s1, s2):
+    """
+    Function applying Parasail's Needleman Wuncsh Algorithm to get a distance
+    between any two sequences.
+
+    May or may not produce a true metric. Details in:
+    E. Halpering, J. Buhler, R. Karp, R. Krauthgamer, and B. Westover.
+    Detecting protein sequence conservation via metric embeddings.
+    Bioinformatics, 19 (sup 1) 2003
+
+    Parameters
+    ----------
+    s1: string
+        string containing amino acid letters
+
+    s2: string
+        string containing amino acid letters
+
+    Returns
+    -------
+    D : float
+        distance betwee
+
+    """
+    xx = parasail.nw_stats(s1, s1, open=3, extend=3, matrix=parasail.blosum62).score
+    yy = parasail.nw_stats(s2, s2, open=3, extend=3, matrix=parasail.blosum62).score
+    xy = parasail.nw_stats(s1, s2, open=3, extend=3, matrix=parasail.blosum62).score
+    D = xx + yy - 2 * xy
+    return D
+
+
+
+
+
 
 class SequencePair:
     """
