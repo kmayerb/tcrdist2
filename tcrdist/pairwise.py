@@ -246,11 +246,11 @@ def _f_pwdist_parallel_using_distance_wrapper(indices):
 
 
     """
-    output_tuple = []
+    output_tuples = []
     for i,j in indices:
         d = distance_wrapper(unique_seqs[i], unique_seqs[j])
-        output_tuple.append((i,j,d, unique_seqs[i], unique_seqs[j]))
-    return(output_tuple)
+        output_tuples.append((i,j,d, unique_seqs[i], unique_seqs[j]))
+    return(output_tuples)
 
 def _pack_matrix(chunked_results):
     """
@@ -276,6 +276,9 @@ def _pack_matrix(chunked_results):
         pwdist[j, i] = d
         pwdist[i, j] = d
     return(pwdist)
+
+def flatten(l):
+    return([item for sublist in l for item in sublist])
 
 def nw_metric(s1, s2):
     """
