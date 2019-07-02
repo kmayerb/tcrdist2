@@ -97,11 +97,6 @@ python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(downl
 In tcrdist2, `TCRrep` (T-Cell Receptor Repertoire) is the main object class for repertoire analysis. This vignette illustrates its use.
 
 ```python
-tcr = TCRrep( cell_df = example_df, chains = ["alpha", "beta"])
-tcr
-```
-
-```python
 from collections import OrderedDict
 import tcrdist as td
 from tcrdist.repertoire import TCRrep
@@ -131,11 +126,7 @@ example_df.head()
 example_df['count'] = 1
 ```
 
-```python
-TCRrep( cell_df = example_df, chains = ["alpha", "beta"])
-```
-
-### Example Data Columns
+### `example_df` Data Columns
 
 Data for paired alpha/beta chained single cell TCR data will contain the following headers
 
