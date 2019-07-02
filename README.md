@@ -89,122 +89,8 @@ python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(downl
 ```
 
 ```bash
-python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'dropbox_osx');"
+python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'dropbox_linux);"
 ```
-
-### Configure the full dev-env using python 2.7.11
-If you want to test or extend the functionality of **tcrdist2** using the same
-development environment that we are currently using,
-configure your environment with the [requirements-dev.txt](https://github.com/kmayerb/tcrdist2/blob/API2/requirements-dev.txt) file.
-
-```bash
-virtualenv venv-dev
-source ./venv-dev/bin/activate
-pip install -r requirements-dev.txt
-git clone https://github.com/kmayerb/tcrdist2.git
-```
-
-## Work with tcrdist2 interactively!
-
-**tcrdist2** was works with [Pandas](https://vimeo.com/59324550) DataFrames.
-Therefore, you may find it useful to work interactively with ipython.
-
-We are working on providing an ipython notebook with example instructions
-[instructions_api.ipyn](https://github.com/kmayerb/tcrdist2/blob/API2/instructions_api.ipynb)
-
-## Example 1: tcrdist2 on a single receptor sequence
-
-```ipython
-betaNT = 'CGGGGGGGGTACCNTTGNTTAGGTCCTCTACACGGTTAACCTGGTCCCCGAACCGAAGGTCAATAGGGCCTGTATACTGCTGGCACAGAAGTACACAGCTGAGTCCCTGGGTTCTGAGGGCTGGATCTTCAGAGTGGAGTCANN'
-betaQuals = '12.12.12.12.12.22.9.8.6.6.6.8.3.0.3.10.3.0.3.10.10.11.20.25.30.37.37.29.27.14.14.15.27.30.41.47.36.50.50.50.42.42.57.57.43.47.53.47.47.47.47.47.47.50.54.57.57.57.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.57.57.57.57.59.59.59.57.57.57.57.57.57.57.57.59.57.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.59.59.59.59.59.57.57.57.59.57.57.43.37.28.28.21.28.23.37.28.30.15.19.17.15.21.20.25.3.0.0'
-chain = td.processing.processNT(organism = 'human', chain = 'B', nuc = betaNT, quals = betaQuals, use_parasail = True)
-pd.DataFrame(chain)
-```
-
-```ipython
-In [1]: import tcrdist as td
-
-In [2]: import pandas as pd
-
-In [3]: betaNT = 'CGGGGGGGGTACCNTTGNTTAGGTCCTCTACACGGTTAACCTGGTCCCCGAACCGAAGG
-   ...: TCAATAGGGCCTGTATACTGCTGGCACAGAAGTACACAGCTGAGTCCCTGGGTTCTGAGGGCTGGATCT
-   ...: TCAGAGTGGAGTCANN'
-   ...: betaQuals = '12.12.12.12.12.22.9.8.6.6.6.8.3.0.3.10.3.0.3.10.10.11.20
-   ...: .25.30.37.37.29.27.14.14.15.27.30.41.47.36.50.50.50.42.42.57.57.43.47
-   ...: .53.47.47.47.47.47.47.50.54.57.57.57.68.68.68.68.68.68.68.68.68.68.68
-   ...: .68.68.68.68.68.57.57.57.57.59.59.59.57.57.57.57.57.57.57.57.59.57.68
-   ...: .68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.59.59
-   ...: .59.59.59.57.57.57.59.57.57.43.37.28.28.21.28.23.37.28.30.15.19.17.15
-   ...: .21.20.25.3.0.0'
-
-In [4]: chain = td.processing.processNT(organism = 'human',
-   ...:                                 chain = 'B',
-   ...:                                 nuc = betaNT,
-   ...:                                 quals = betaQuals,
-   ...:                                 use_parasail = True)
-
-In [5]: pd.DataFrame(chain)
-```
-
-## Example 2: tcrdist2 on a batch of sequences
-
-### readPairedSequences
-
-```python
-psDf = td.processing.readPairedSequences(paired_seqs_file = "tcrdist/datasets/test_human_pairseqs.tsv",
-                                         organism = "human",
-                                         use_parasail = True);
-```
-### computeProbs
-
-```python
-probDf = td.processing.computeProbs(psDf)
-psDf = psDf.join(probDf)
-```
-
-###  identifyClones
-```python
-clonesDf = td.processing.identifyClones(psDf)                                         
-```
-
-
-
-## More Information on Dependencies
-
-Following the instructions above and setting up a virtual environment should take care of ensuring the proper
-dependencies are available to tcrdist2.  In addition to original **TCRdist** dependencies, **tcrdist2**
-requires the following new dependencies:
-- futures=3.2.0
-- pandas=0.20.3
-- parasail-python=1.1.16
-
-
-If you are familiar with dependency management in condas,
-a **tcrdist2** development environment can be created rapidly using conda:
-
-```bash
-conda create --name tcrpy27osX python=2.7.11 scipy=0.16.0  matplotlib=1.4.3 numpy=1.10.1 futures=3.2.0 pandas=0.20.3 parasail-python=1.1.16 scikit-learn=0.17.1 jupyterlab jupyter
-```
-The current dependencies can be found here [tcrpy27osX.yml](https://github.com/kmayerb/tcrdist2/blob/API2/tcrpy27osX.yml), so
-recreating the conda env is a one-liner:
-
-```bash
-conda env create -n tcrpy27osX -f tcrpy27osX.yml
-```
-## Blast Functionality and Data Files.
-.
-
-BLAST 2.2.16 can easily be downloaded here for [macosx](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.16/blast-2.2.16-universal-macosx.tar.gz)
-or here for [linux](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.16/blast-2.2.16-x64-linux.tar.gz)
-and put in the externals/ folder if the installation commands in the above section are not successful.
-
-folder to place BLAST execuatable: tcrdist/external/blast-2.2.16/bin/
-- blastall and formatdb are the only required executables.
-
-
-The data set and files from the original Dash et al. 2017 paper can be found
-[here](https://www.dropbox.com/s/kivfp27gbz2m2st/tcrdist_extras_v2.tgz),
-but are not included in the tcrdist2 installation.
 
 # tcrdist2 Vignette: Tools for Computing Pairwise Distance
 
@@ -1231,6 +1117,124 @@ tcrAdaptive.cdr3_d_aa_pw[1:10,1:10]
 
 
 ---
+
+# More Information
+
+
+### Configure the full dev-env using python 2.7.11
+If you want to test or extend the functionality of **tcrdist2** using the same
+development environment that we are currently using,
+configure your environment with the [requirements-dev.txt](https://github.com/kmayerb/tcrdist2/blob/API2/requirements-dev.txt) file.
+
+```bash
+virtualenv venv-dev
+source ./venv-dev/bin/activate
+pip install -r requirements-dev.txt
+git clone https://github.com/kmayerb/tcrdist2.git
+```
+
+## Work with tcrdist2 interactively!
+
+**tcrdist2** was works with [Pandas](https://vimeo.com/59324550) DataFrames.
+Therefore, you may find it useful to work interactively with ipython.
+
+We are working on providing an ipython notebook with example instructions
+[instructions_api.ipyn](https://github.com/kmayerb/tcrdist2/blob/API2/instructions_api.ipynb)
+
+## Example 1: tcrdist2 on a single receptor sequence
+
+```ipython
+betaNT = 'CGGGGGGGGTACCNTTGNTTAGGTCCTCTACACGGTTAACCTGGTCCCCGAACCGAAGGTCAATAGGGCCTGTATACTGCTGGCACAGAAGTACACAGCTGAGTCCCTGGGTTCTGAGGGCTGGATCTTCAGAGTGGAGTCANN'
+betaQuals = '12.12.12.12.12.22.9.8.6.6.6.8.3.0.3.10.3.0.3.10.10.11.20.25.30.37.37.29.27.14.14.15.27.30.41.47.36.50.50.50.42.42.57.57.43.47.53.47.47.47.47.47.47.50.54.57.57.57.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.57.57.57.57.59.59.59.57.57.57.57.57.57.57.57.59.57.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.59.59.59.59.59.57.57.57.59.57.57.43.37.28.28.21.28.23.37.28.30.15.19.17.15.21.20.25.3.0.0'
+chain = td.processing.processNT(organism = 'human', chain = 'B', nuc = betaNT, quals = betaQuals, use_parasail = True)
+pd.DataFrame(chain)
+```
+
+```ipython
+In [1]: import tcrdist as td
+
+In [2]: import pandas as pd
+
+In [3]: betaNT = 'CGGGGGGGGTACCNTTGNTTAGGTCCTCTACACGGTTAACCTGGTCCCCGAACCGAAGG
+   ...: TCAATAGGGCCTGTATACTGCTGGCACAGAAGTACACAGCTGAGTCCCTGGGTTCTGAGGGCTGGATCT
+   ...: TCAGAGTGGAGTCANN'
+   ...: betaQuals = '12.12.12.12.12.22.9.8.6.6.6.8.3.0.3.10.3.0.3.10.10.11.20
+   ...: .25.30.37.37.29.27.14.14.15.27.30.41.47.36.50.50.50.42.42.57.57.43.47
+   ...: .53.47.47.47.47.47.47.50.54.57.57.57.68.68.68.68.68.68.68.68.68.68.68
+   ...: .68.68.68.68.68.57.57.57.57.59.59.59.57.57.57.57.57.57.57.57.59.57.68
+   ...: .68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.68.59.59
+   ...: .59.59.59.57.57.57.59.57.57.43.37.28.28.21.28.23.37.28.30.15.19.17.15
+   ...: .21.20.25.3.0.0'
+
+In [4]: chain = td.processing.processNT(organism = 'human',
+   ...:                                 chain = 'B',
+   ...:                                 nuc = betaNT,
+   ...:                                 quals = betaQuals,
+   ...:                                 use_parasail = True)
+
+In [5]: pd.DataFrame(chain)
+```
+
+## Example 2: tcrdist2 on a batch of sequences
+
+### readPairedSequences
+
+```python
+psDf = td.processing.readPairedSequences(paired_seqs_file = "tcrdist/datasets/test_human_pairseqs.tsv",
+                                         organism = "human",
+                                         use_parasail = True);
+```
+### computeProbs
+
+```python
+probDf = td.processing.computeProbs(psDf)
+psDf = psDf.join(probDf)
+```
+
+###  identifyClones
+```python
+clonesDf = td.processing.identifyClones(psDf)                                         
+```
+
+
+
+## More Information on Dependencies
+
+Following the instructions above and setting up a virtual environment should take care of ensuring the proper
+dependencies are available to tcrdist2.  In addition to original **TCRdist** dependencies, **tcrdist2**
+requires the following new dependencies:
+- futures=3.2.0
+- pandas=0.20.3
+- parasail-python=1.1.16
+
+
+If you are familiar with dependency management in condas,
+a **tcrdist2** development environment can be created rapidly using conda:
+
+```bash
+conda create --name tcrpy27osX python=2.7.11 scipy=0.16.0  matplotlib=1.4.3 numpy=1.10.1 futures=3.2.0 pandas=0.20.3 parasail-python=1.1.16 scikit-learn=0.17.1 jupyterlab jupyter
+```
+The current dependencies can be found here [tcrpy27osX.yml](https://github.com/kmayerb/tcrdist2/blob/API2/tcrpy27osX.yml), so
+recreating the conda env is a one-liner:
+
+```bash
+conda env create -n tcrpy27osX -f tcrpy27osX.yml
+```
+## Blast Functionality and Data Files.
+.
+
+BLAST 2.2.16 can easily be downloaded here for [macosx](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.16/blast-2.2.16-universal-macosx.tar.gz)
+or here for [linux](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.16/blast-2.2.16-x64-linux.tar.gz)
+and put in the externals/ folder if the installation commands in the above section are not successful.
+
+folder to place BLAST execuatable: tcrdist/external/blast-2.2.16/bin/
+- blastall and formatdb are the only required executables.
+
+
+The data set and files from the original Dash et al. 2017 paper can be found
+[here](https://www.dropbox.com/s/kivfp27gbz2m2st/tcrdist_extras_v2.tgz),
+but are not included in the tcrdist2 installation.
+
 # Citing
 
 Quantifiable predictive features define epitope-specific T cell receptor repertoires
