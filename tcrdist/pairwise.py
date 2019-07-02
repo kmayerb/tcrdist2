@@ -166,10 +166,10 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
     multiprocessed_result  = p.map(f, indices)
     p.close()
     p.join()
-    return(multiprocessed_result)
+    return(flatten(multiprocessed_result))
 
 
-def nw_metric(s1, s2, open = 3, extend = 3, matrix=parasail.blosum62):
+def nw_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
     """
     Function applying Parasail's Needleman-Wuncsh Algorithm to get a distance
     between any two sequences.
@@ -347,7 +347,7 @@ def _f_pwdist_parallel_using_nw_metric(indices):
     return(output_tuples)
 
 
-def _pack_matrix(chunked_results):
+def _pack_matrix(chunked_results, flatten = False):
     """
     Function taking a list of tuple generated from a f_pwdist_parallel_()
     function and generating a np.matrix.
@@ -355,7 +355,9 @@ def _pack_matrix(chunked_results):
     Parameters
     ----------
     chunked_results : list
-        list of lists of five part tuples (int, int, float, str, str)
+        list of five part tuples (int, int, float, str, str)
+    flatten: boolean
+        set to true if chunked_result is a list of lists
 
     Returns
     -------
@@ -364,7 +366,10 @@ def _pack_matrix(chunked_results):
 
 
     """
-    indices = [item for sublist in chunked_results for item in sublist]
+    if flatten:
+        indices = [item for sublist in chunked_results for item in sublist]
+    else:
+        indices = chunked_results
     matrix_dim = max([x[0] for x in indices])+1
     pwdist = np.nan * np.zeros((matrix_dim, matrix_dim))
     for i,j,d,x,y in indices:
@@ -544,7 +549,8 @@ class SequencePair:
             if they were correctly aligned".format(x,y))
 
         d = distance.hamming(u = list(x), v = list(y))
-        return(d)
+        hd = d * len(x)
+        return(hd)
 
 def distance_wrapper_old(a,b):
     return(float(SequencePair(a, b).hamming_distance) )

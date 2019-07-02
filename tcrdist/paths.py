@@ -12,6 +12,9 @@ path_to_scripts = op.dirname(op.realpath(__file__))
 path_to_db = op.join(path_to_scripts, 'db')
 assert op.isdir( path_to_db )
 
+path_to_matrices = op.join(path_to_scripts, 'db', 'matrices')
+assert op.isdir( path_to_matrices)
+
 ## used for making nice sortable tables
 path_to_tablesorter_files = op.join(path_to_scripts, 'external/tablesorter')
 assert op.isdir( path_to_tablesorter_files)
@@ -32,7 +35,7 @@ db_file = 'alphabeta_db.tsv' # db file corresponding to original publication
 def path_to_current_db_files(db_file=db_file):
     db_file = op.join(path_to_db, db_file)
     assert op.exists(db_file)
-    
+
     db_files_dir = db_file + '_files'
     if not op.exists(db_files_dir):
         os.mkdir(db_files_dir)
