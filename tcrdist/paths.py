@@ -12,8 +12,8 @@ path_to_scripts = op.dirname(op.realpath(__file__))
 path_to_db = op.join(path_to_scripts, 'db')
 assert op.isdir( path_to_db )
 
-path_to_matrices = op.join(path_to_scripts, 'db', 'matrices')
-assert op.isdir( path_to_matrices)
+#path_to_matrices = op.join(path_to_scripts, 'db', 'matrices')
+#assert op.isdir( path_to_matrices)
 
 ## used for making nice sortable tables
 path_to_tablesorter_files = op.join(path_to_scripts, 'external/tablesorter')
