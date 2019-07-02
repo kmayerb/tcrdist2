@@ -125,6 +125,102 @@ example_df = df[tcrdist_to_tcrdist2_mapping.keys()].rename(columns = tcrdist_to_
 example_df.head()
 example_df['count'] = 1
 ```
+```python
+example_df.head()
+```
+
+
+
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>epitope</th>
+      <th>subject</th>
+      <th>cdr3_a_aa</th>
+      <th>cdr3_b_aa</th>
+      <th>j_a_gene</th>
+      <th>v_a_gene</th>
+      <th>j_b_gene</th>
+      <th>v_b_gene</th>
+      <th>count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>human_tcr0001</td>
+      <td>pp65</td>
+      <td>human_subject0010</td>
+      <td>CAGQASQGNLIF</td>
+      <td>CASSIQALLTF</td>
+      <td>TRAJ42*01</td>
+      <td>TRAV35*01</td>
+      <td>TRBJ1-2*01</td>
+      <td>TRBV12-3*01</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>human_tcr0002</td>
+      <td>pp65</td>
+      <td>human_subject0010</td>
+      <td>CAGQASQGNLIF</td>
+      <td>CASSIQALLTF</td>
+      <td>TRAJ42*01</td>
+      <td>TRAV35*01</td>
+      <td>TRBJ1-2*01</td>
+      <td>TRBV12-3*01</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>human_tcr0003</td>
+      <td>pp65</td>
+      <td>human_subject0010</td>
+      <td>CAGQASQGNLIF</td>
+      <td>CASSIQALLTF</td>
+      <td>TRAJ42*01</td>
+      <td>TRAV35*01</td>
+      <td>TRBJ1-2*01</td>
+      <td>TRBV12-3*01</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>human_tcr0004</td>
+      <td>pp65</td>
+      <td>human_subject0010</td>
+      <td>CAGPRETSYDKVIF</td>
+      <td>CASSSAYYGYTF</td>
+      <td>TRAJ50*01</td>
+      <td>TRAV35*02</td>
+      <td>TRBJ1-2*01</td>
+      <td>TRBV12-3*01</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>human_tcr0005</td>
+      <td>pp65</td>
+      <td>human_subject0010</td>
+      <td>CAGQASQGNLIF</td>
+      <td>CASSIQALLTF</td>
+      <td>TRAJ42*01</td>
+      <td>TRAV35*01</td>
+      <td>TRBJ1-2*01</td>
+      <td>TRBV12-3*01</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
 
 ### `example_df` Data Columns
 
