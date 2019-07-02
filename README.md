@@ -96,6 +96,10 @@ python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(downl
 
 In tcrdist2, `TCRrep` (T-Cell Receptor Repertoire) is the main object class for repertoire analysis. This vignette illustrates its use.
 
+```python
+tcr = TCRrep( cell_df = example_df, chains = ["alpha", "beta"])
+tcr
+```
 
 ```python
 from collections import OrderedDict
@@ -104,16 +108,12 @@ from tcrdist.repertoire import TCRrep
 import pandas as pd
 import numpy as np
 import parasail
-
-#import pandas.util.testing as tm
 ```
 
 ## Preliminary: Load Example Data
 
 
 ```python
-#example_df = pd.read_pickle("./quick_load_example_df")
-#example_df.head()
 df = td.processing.readPairedSequences(paired_seqs_file = "tcrdist/datasets/test_human_pairseqs.tsv",
                                          organism = "human", use_parasail = True);
 
@@ -130,10 +130,6 @@ example_df = df[tcrdist_to_tcrdist2_mapping.keys()].rename(columns = tcrdist_to_
 example_df.head()
 example_df['count'] = 1
 ```
-
-    RESULTS BASED ON PARASAIL
-
-
 
 ```python
 TCRrep( cell_df = example_df, chains = ["alpha", "beta"])
@@ -212,19 +208,6 @@ tcr.clones_df
 
 
 <div>
-<style>
-    .dataframe thead tr:only-child th {
-        text-align: right;
-    }
-
-    .dataframe thead th {
-        text-align: left;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -311,19 +294,6 @@ tcr.clones_df
 
 
 <div>
-<style>
-    .dataframe thead tr:only-child th {
-        text-align: right;
-    }
-
-    .dataframe thead th {
-        text-align: left;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -800,19 +770,6 @@ example_df.head()
 
 
 <div>
-<style>
-    .dataframe thead tr:only-child th {
-        text-align: right;
-    }
-
-    .dataframe thead th {
-        text-align: left;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -924,19 +881,6 @@ example_adaptive_df.head(10)
 
 
 <div>
-<style>
-    .dataframe thead tr:only-child th {
-        text-align: right;
-    }
-
-    .dataframe thead th {
-        text-align: left;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1042,19 +986,6 @@ tcrAdaptive.clones_df.head()
 
 
 <div>
-<style>
-    .dataframe thead tr:only-child th {
-        text-align: right;
-    }
-
-    .dataframe thead th {
-        text-align: left;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
