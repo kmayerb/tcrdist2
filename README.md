@@ -67,25 +67,28 @@ You should see, the following:
 
 
 
-## `tcrdist2` produces a distance measure based on comparison over multiple T-Cell Receptor complementarity-determining regions (CDRs)
+## tcrdist2 produces a distance measure based on comparison over multiple T-Cell Receptor complementarity-determining regions (CDRs)
 
 Here is an example of what **tcrdist2** can do. A more detailed explanation of
 the tools and their customization follows below.
 
 #### Quick-Start Explanation
 
-0. Load and example_df containing the naive and hyper-mutated CDR3 sequence parsed from DNA sequencing reads
-1. Initialize instance of the `TCRrep` class, specifying `chains` and passing example_df to `cells_df.`
+0. Load an example_df containing CDR3 sequences parsed from bulk or single-cell DNA sequencing reads
+1. Initialize an instance of the `TCRrep` class, specifying `chains` and passing example_df to `cells_df.`
 2. Optional: Add epitope and subject to the `TCRrep.index_cols` list
-3. Use V-gene allele name to infer amino acid sequence at the CDR1, CDR2, and pMHC loop between the CDR2 and CDR3
-4. Specify `index_cols` (CDR features) to be used in the comparison
-5. `Deduplicate` counts replicate cells that might occur during clonal explansion to produce the `TCRrep.clones_df`
-6. Optional: Specify the substitution matrix for each region (if none specified parasail.blosum62 will be used for all)
-7. Run pairwise comparison on all the alpha chain region using the Hamming Distance (number of mismatched alligned positions).
-A numpy matrix is stored as `TCRrep.cdr3_a_aa_pw` , `TCRrep.cdr2_a_aa_pw` , `TCRrep.cdr1_a_aa_pw`, and `TCRrep.pmhc_a_aa_pw1`
-8. Run pairwise comparison on beta region.
-A numpy matrix is stored as `TCRrep.cdr3_b_aa_pw` , `TCRrep.cdr2_b_aa_pw` , `TCRrep.cdr1_b_aa_pw`, and `TCRrep.pmhc_b_aa_pw1`
-9. Combine pairwise comparisons at each region to calculate a multi-region tcrdist, supplying optional weights.
+3. Use V-gene allele name to infer most probable amino acid sequences at the CDR1, CDR2, and pMHC loop position between the CDR2 and CDR3
+4. Specify `index_cols` to indicate whcih CDRs should be used in the comparison
+5. `Deduplicate` groups by index_cols and counts replicate cells (which might occur during clonal expansion).
+The result is the `TCRrep.clones_df` object.
+6. Optional: Specify an approriate substitution matrix for aligning each region
+(if none are specified parasail.blosum62 will be used for all)
+7. Run pairwise comparisons on CDR regions of the alpha chain.
+(In this case, we use the Hamming Distance, a metric summing the number of mismatched aligned positions).
+As a result, numpy pairwise distance matrices are stored as `TCRrep.cdr3_a_aa_pw` , `TCRrep.cdr2_a_aa_pw` , `TCRrep.cdr1_a_aa_pw`, and `TCRrep.pmhc_a_aa_pw1`
+8. As in step 7, run pairwise comparisons on the CDR regions of the beta chain.
+Numpy pairwise distance matrices are stored as `TCRrep.cdr3_b_aa_pw` , `TCRrep.cdr2_b_aa_pw` , `TCRrep.cdr1_b_aa_pw`, and `TCRrep.pmhc_b_aa_pw1`
+9. Use `compute_paired_tcrdist` to sum over pairwise matrices at each CDR to calculate a multi-region tcrdist, supplying optional weights.
 
 
 ```python

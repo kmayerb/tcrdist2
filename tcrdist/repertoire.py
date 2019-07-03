@@ -39,7 +39,8 @@ class TCRrep:
     compute_pairwise_all()
         computes pairwise distances on deduplicated data for all
 
-
+    Private Methods
+    ---------------
     _validate_chains(self)
         raises ValueError is chains arg is mis-specified
     _validate_chain()
@@ -78,7 +79,7 @@ class TCRrep:
         return 'tcrdist.repertoire.TCRrep for {}\n with index_cols: {}\n with model organism: {}'.format(self.project_id, self.index_cols, self.organism)
 
     def __getitem__(self, position):
-        # It should be decided whether get item should refer to the  or to the clone_df
+        # It should be decided whether get item should refer to the  or to the clone_df or it could be for iterating over pw dist matrices
         if self.clone_df is None:
             return self.cell_df.loc[position]
         if self.clone_df is not None:
@@ -220,7 +221,8 @@ class TCRrep:
         chain: string
             'alpha', 'beta', 'gamma', or 'delta'
         compute_specific_region : string
-            string (e.g. "cdr2_a_aa") to over-ride function behavior and compute only a single region
+            string (e.g. "cdr2_a_aa") to over-ride function behavior and compute
+            only a single region
         metric : string
             'nw', 'hamming', or 'custom'
         processes: int
@@ -242,7 +244,7 @@ class TCRrep:
         testrep = TCRrep(cell_df = example_df, organism = "human", chains= ["alpha","beta"])
         testrep.infer_cdrs_from_v_gene(chain = "alpha")
         testrep.infer_cdrs_from_v_gene(chain = "beta")
-        testrep.index_cols = testrep.index_cols + ['cdr1_a_aa','cdr2_a_aa', 'pmhc_a_aa', 'cdr1_b_aa', 'cdr2_b_aa', 'pmhc_b_aa']
+        testrep.index_cols = testrep.index_cols + ['cdr1_a_aa','cdr2_a_aa','pmhc_a_aa', 'cdr1_b_aa', 'cdr2_b_aa', 'pmhc_b_aa']
         testrep.deduplicate()
         testrep.compute_pairwise_all(chain = "alpha", metric= "hamming")
         testrep.compute_pairwise_all(chain = "beta", metric= "hamming")
@@ -257,10 +259,14 @@ class TCRrep:
         self._validate_chain(chain)
         # If compute_specific_region is None, then the behavior is to loop through the a list regions.
         if compute_specific_region is None:
-            index_col_from_chain = {'alpha' : ['cdr3_a_aa','cdr2_a_aa','cdr1_a_aa','pmhc_a_aa'],
-                                    'beta'  : ['cdr3_b_aa','cdr2_b_aa','cdr1_b_aa','pmhc_b_aa'],
-                                    'gamma' : ['cdr3_g_aa','cdr2_g_aa','cdr1_g_aa','pmhc_g_aa'],
-                                    'delta' : ['cdr3_d_aa','cdr2_d_aa','cdr1_d_aa','pmhc_d_aa']}
+            index_col_from_chain = {'alpha' : ['cdr3_a_aa','cdr2_a_aa',
+                                               'cdr1_a_aa','pmhc_a_aa'],
+                                    'beta'  : ['cdr3_b_aa','cdr2_b_aa',
+                                               'cdr1_b_aa','pmhc_b_aa'],
+                                    'gamma' : ['cdr3_g_aa','cdr2_g_aa',
+                                               'cdr1_g_aa','pmhc_g_aa'],
+                                    'delta' : ['cdr3_d_aa','cdr2_d_aa',
+                                               'cdr1_d_aa','pmhc_d_aa']}
         # Alternative behavior: is to loop over a single chain and region.
         else:
             index_col_from_chain = {}
@@ -296,6 +302,73 @@ class TCRrep:
             # ASSIGN RESULT
             self._assign_pw_result(pw = pw, chain=chain, index_col=index_col)
 
+    def compute_paired_tcrdist(self,
+                               chains = ['alpha', 'beta'],
+                               replacement_weights = {}):
+        """
+        Computes tcrdistance metric combining distances metrics across multiple
+        TCR regions.
+
+        Parameters
+        ----------
+        chains: list
+            list of strings containing some combination of 'alpha', 'beta',
+            'gamma', and 'delta'
+        replacement_weights: dictionary
+            optional dictionary of the form {'cdr1_a_aa_pw':1, 'cdr2_a_aa_pw':1}
+            used to place greater weight on certain TCR regions. The default
+            is a weight of 1.
+
+        Returns
+        -------
+        r: dictionary
+            dictionary with a 2D tcrdist np.array and dictionary of regions and
+            relative weights
+        """
+        [self._validate_chain(c) for c in chains]
+        weights = {'cdr1_a_aa_pw':1,
+                   'cdr2_a_aa_pw':1,
+                   'cdr3_a_aa_pw':1,
+                   'pmhc_a_aa_pw':1,
+                   'cdr1_b_aa_pw':1,
+                   'cdr2_b_aa_pw':1,
+                   'cdr3_b_aa_pw':1,
+                   'pmhc_b_aa_pw':1,
+                   'cdr1_g_aa_pw':1,
+                   'cdr2_g_aa_pw':1,
+                   'cdr3_g_aa_pw':1,
+                   'pmhc_g_aa_pw':1,
+                   'cdr1_d_aa_pw':1,
+                   'cdr2_d_aa_pw':1,
+                   'cdr3_d_aa_pw':1,
+                   'pmhc_d_aa_pw':1}
+
+        for k in replacement_weights:
+            weights[k] = replacement_weights[k]
+
+        alpha_keys = [k for k in weights.keys() if k.endswith("a_aa_pw")]
+        beta_keys  = [k for k in weights.keys() if k.endswith("b_aa_pw")]
+        gamma_keys = [k for k in weights.keys() if k.endswith("g_aa_pw")]
+        delta_keys = [k for k in weights.keys() if k.endswith("d_aa_pw")]
+
+        full_keys = []
+        if 'alpha' in chains:
+            full_keys = full_keys + alpha_keys
+        if 'beta' in chains:
+            full_keys = full_keys + beta_keys
+        if 'gamma' in chains:
+            full_keys = full_keys + gamma_keys
+        if 'delta' in chains:
+            full_keys = full_keys + delta_keys
+
+        tcrdist = np.zeros(self.__dict__[full_keys[0]].shape)
+        for k in full_keys:
+            tcrdist = self.__dict__[k]*weights[k] + tcrdist
+        self.paired_tcrdist = tcrdist
+        self.paired_tcrdist_weights = {k:weights[k] for k in full_keys}
+        r = {'paired_tcrdist' : tcrdist,
+                'paired_tcrdist_weights' : {k:weights[k] for k in full_keys}}
+        return(r)
 
     def _validate_chains(self):
         """
@@ -303,7 +376,7 @@ class TCRrep:
         """
         check_chains_arg = ['alpha', 'beta', "gamma", "delta"]
         if len([c for c in self.chains if c not in check_chains_arg]) > 0:
-            raise ValueError('TCRrep chains arg can be one or more of the'
+            raise ValueError('TCRrep chains arg can be one or more of the '
                              'following {} case-sensitive'.format(check_chains_arg))
 
     def _validate_chain(self, chain):
@@ -488,9 +561,6 @@ class TCRrep:
 
 
 
-    #@property
-    #def clean_df(self):
-    #        return self.[meta_cols + ['CDR3']]
 
 def _map_gene_to_reference_seq(organism = "human",
                                gene= 'TRAV1-1*02',
@@ -529,7 +599,7 @@ def _compute_pairwise(sequences, metric = "nw", processes = 2, user_function = N
     unique_seqs = pd.Series(sequences).unique()
 
     pw = pairwise.apply_pw_distance_metric_w_multiprocessing(
-        sequences = unique_seqs, #! BUG FIX
+        sequences = unique_seqs, #! BUG FIX (sequences changed to unique_seqs)
         metric = metric,
         user_function = user_function,
         processes= processes,
@@ -540,51 +610,3 @@ def _compute_pairwise(sequences, metric = "nw", processes = 2, user_function = N
     pw_full = pw_df.loc[sequences, sequences]
     pw_full_np = pw_full.values
     return(pw_full_np)
-
-
-# def _generate_parasail_hamming_aa_smat(filename = "inv_hamming.txt"):
-#     """
-#     Function that customizes a substitution matrix for use with parasail. It
-#     customizes an existing blosum62 parasail substitution matrix to calculate
-#     hamming distance.
-#
-#     Parameters
-#     ----------
-#     weight : int
-#         integer to apply to all non diagonal entries
-#
-#     Returns
-#     -------
-#     x: parasail.bindings_v2.Matrix instance
-#         returns parasail substitution matrix (approximating Hamming Distance)
-#         with integer weight on all non-diagonal entries and zero on the diagonal.
-#     """
-#     return(parasail.Matrix( path_to_matrices + "/" + filename ))
-
-
-# def _generate_parasail_hamming_aa_smat(weight = 1):
-#     """
-#     Parasail copy function as shown on github is not working so we have to import from
-#     file.
-#     Function that customizes a substitution matrix for use with parasail. It
-#     customizes an existing blosum62 parasail substitution matrix to calculate
-#     hamming distance.
-#
-#     Parameters
-#     ----------
-#     weight : int
-#         integer to apply to all non diagonal entries
-#
-#     Returns
-#     -------
-#     x: parasail.bindings_v2.Matrix instance
-#         returns parasail substitution matrix (approximating Hamming Distance)
-#         with integer weight on all non-diagonal entries and zero on the diagonal.
-#     """
-#     x = parasail.blosum62.copy()
-#     smat = np.ones(shape=(24,24), dtype= int)
-#     np.fill_diagonal(smat, 0)
-#     smat = np.multiply(smat, weight)
-#     x.name = 'hamming_{}'.format(weight)
-#     x.matrix = smat
-#     return(x)

@@ -91,7 +91,36 @@ class test_repertoire(unittest.TestCase):
 
         self.assertTrue((tcrdist == expected_tcrdist).all())
 
+    def test_repertoire____use_case_hamming_paired_tcrdist(self):
+        tr = TCRrep(cell_df = example_df.copy(), organism = "human", chains= ["alpha","beta"])
+        tr.infer_cdrs_from_v_gene(chain = "alpha")
+        tr.infer_cdrs_from_v_gene(chain = "beta")
+        tr.index_cols =['cdr3_a_aa','cdr1_a_aa','cdr2_a_aa', 'pmhc_a_aa', 'cdr3_b_aa', 'cdr1_b_aa', 'cdr2_b_aa', 'pmhc_b_aa']
+        tr.deduplicate()
+        #tr.clone_df
+        tr.compute_pairwise_all(chain = "alpha", metric = "hamming")
+        tr.compute_pairwise_all(chain = "beta", metric = "hamming")
+        r = tr.compute_paired_tcrdist(chains = ['alpha','beta'])
 
+        expected = {'paired_tcrdist': np.array([[  0.,  50.,  49.,  48.,  49.,  49.,  51.,  44.,  46.],
+                [ 50.,   0.,  21.,  29.,  29.,  47.,  40.,  45.,  44.],
+                [ 49.,  21.,   0.,  42.,  39.,  47.,  42.,  44.,  50.],
+                [ 48.,  29.,  42.,   0.,  14.,  35.,  48.,  52.,  46.],
+                [ 49.,  29.,  39.,  14.,   0.,  30.,  45.,  49.,  44.],
+                [ 49.,  47.,  47.,  35.,  30.,   0.,  46.,  43.,  48.],
+                [ 51.,  40.,  42.,  48.,  45.,  46.,   0.,  36.,  41.],
+                [ 44.,  45.,  44.,  52.,  49.,  43.,  36.,   0.,  47.],
+                [ 46.,  44.,  50.,  46.,  44.,  48.,  41.,  47.,   0.]]),
+         'paired_tcrdist_weights': {'cdr1_a_aa_pw': 1,
+          'cdr1_b_aa_pw': 1,
+          'cdr2_a_aa_pw': 1,
+          'cdr2_b_aa_pw': 1,
+          'cdr3_a_aa_pw': 1,
+          'cdr3_b_aa_pw': 1,
+          'pmhc_a_aa_pw': 1,
+          'pmhc_b_aa_pw': 1}}
+
+        self.assertTrue((r['paired_tcrdist'] == expected['paired_tcrdist']).all())
 
 
 if __name__ == '__main__':
