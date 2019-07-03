@@ -18,9 +18,9 @@ class TCRrep:
     pwdist_df : pandas.core.frame.DataFrame
         pandas.DataFrame containing pairwise distances between unique unique_sequences
     index_cols : list
-        list of strings, indicating columns in cell_df for unique grouping
+        list of strings, indicating columns in  for unique grouping
     meta_cols : list
-        list of strings, indicating metadata columns in cell_df
+        list of strings, indicating metadata columns in
     chains : list
         list of strings
     clones : None
@@ -29,7 +29,7 @@ class TCRrep:
     Methods
     -------
     deduplicate(self, index_cols)
-        removes duplicate tcr-clones in cell_df
+        removes duplicate tcr-clones in
     compute_pairwise()
         computes pairwise distances on deduplicated data
 
@@ -37,8 +37,8 @@ class TCRrep:
         raises ValueError is chains arg is mis-specified
     _validate_chain()
         raises ValueError if chain arg is mis-specified
-    _validate_cell_df(self)
-        raises TypeError if cell_df is not pd.DataFrame
+    _validate_(self)
+        raises TypeError if  is not pd.DataFrame
     _initialize_chain_specific_attributes(self)
 
     """
@@ -54,7 +54,7 @@ class TCRrep:
         # VALIDATION OF INPUTS
         # check that chains are valid.
         self._validate_chains()
-        # check that cell_df is a pd.DataFrame
+        # check that  is a pd.DataFrame
         self._validate_cell_df()
         # INITIALIZATION OF SPECIFIC ATTRIBUTES BASED ON SELECTED CHAINS
         self._initialize_chain_specific_attributes()
@@ -64,7 +64,7 @@ class TCRrep:
         return 'tcrdist.repertoire.TCRrep for {}\n with index_cols: {}\n'.format(self.project_id, self.index_cols)
 
     def __getitem__(self, position):
-        # It should be decided whether get item should refer to the cell_df or to the clone_df
+        # It should be decided whether get item should refer to the  or to the clone_df
         if self.clones_df is None:
             return self.cell_df.loc[position]
         if self.clones_df is not None:
@@ -146,10 +146,10 @@ class TCRrep:
 
     def _validate_cell_df(self):
         """
-        raise ValueError if cell_df is not properly formatted.
+        raise ValueError if  is not properly formatted.
         """
         if not isinstance(self.cell_df, pd.DataFrame):
-            raise ValueError('TCRrep cell_df argument must be pandas.DataFrame')
+            raise ValueError('TCRrep  argument must be pandas.DataFrame')
         # TODO: When know, validator should check column names and datatypes
 
     def _initialize_chain_specific_attributes(self):
@@ -185,7 +185,7 @@ class TCRrep:
 
     #@property
     #def clean_df(self):
-    #        return self.cell_df[meta_cols + ['CDR3']]
+    #        return self.[meta_cols + ['CDR3']]
 
 
 def _deduplicate(cell_df, index_cols):
