@@ -67,7 +67,7 @@ You should see, the following:
 
 
 
-## `tcrdist2` produces a distance measure based on comparison over multiple T-Cell Receptor complementarity-determining regions (CRDs)
+## `tcrdist2` produces a distance measure based on comparison over multiple T-Cell Receptor complementarity-determining regions (CDRs)
 
 Here is an example of what **tcrdist2** can do. A more detailed explanation of
 the tools and their customization follows below.
