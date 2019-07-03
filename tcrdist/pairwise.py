@@ -190,7 +190,7 @@ def nw_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
     Returns
     -------
     D : float
-        distance betwee
+        distance via reciprocal alignment scores.
 
     """
     xx = parasail.nw_stats(s1, s1, open=open, extend=extend, matrix=matrix).score
@@ -198,6 +198,34 @@ def nw_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
     xy = parasail.nw_stats(s1, s2, open=open, extend=extend, matrix=matrix).score
     D = xx + yy - 2 * xy
     return D
+
+def hm_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
+    """
+    Function applying Parasail's Needleman-Wuncsh Algorithm to get a distance
+    between any two sequences.
+
+    May or may not produce a true metric. Details in:
+    E. Halpering, J. Buhler, R. Karp, R. Krauthgamer, and B. Westover.
+    Detecting protein sequence conservation via metric embeddings.
+    Bioinformatics, 19 (sup 1) 2003
+
+    Parameters
+    ----------
+    s1: string
+        string containing amino acid letters
+
+    s2: string
+        string containing amino acid letters
+
+    Returns
+    -------
+    D : float
+        distance between strings (Hamming Distance: number of mismatched positions)
+
+    """
+    xy = parasail.nw_stats(s1, s2, open=open, extend=extend, matrix=matrix)
+    hamming_distance = xy.length-xy.matches
+    return hamming_distance
 
 def function_factory(metric = "nw", **kwargs):
     """
@@ -214,6 +242,9 @@ def function_factory(metric = "nw", **kwargs):
         def distance_wrapper(a,b):
             return(nw_metric(a, b, **kwargs))
     if metric == "hamming":
+        def distance_wrapper(a,b):
+            return(hm_metric(a,b,**kwargs))
+    if metric == "hamming2":
         def distance_wrapper(a,b):
             return(float(SequencePair(a, b).hamming_distance) )
     return distance_wrapper
