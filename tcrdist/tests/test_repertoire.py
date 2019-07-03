@@ -35,7 +35,7 @@ class test_repertoire(unittest.TestCase):
 
     def test_repertoire_full_use_case(self):
         """
-        This is not a unit test! This is a test of a use_case of an instance of
+        This is not a unit test persay! This is a test of a use_case of an instance of
         the TCRrep() class used for pairwise sequence comparison
 
         """
@@ -63,6 +63,33 @@ class test_repertoire(unittest.TestCase):
 
         self.assertTrue((tcrdist == expected_tcrdist).all())
 
+
+    def test_repertoire_full_use_case_hamming(self):
+        """
+        This is not a unit test persay! This is a test of a use_case of an instance of
+        the TCRrep() class used for pairwise sequence comparison
+        """
+        testrep = TCRrep(cell_df = example_df, chains = ["alpha", "beta"]) # (1)
+        testrep.index_cols.append("epitope")                         # (2)
+        testrep.index_cols.append("subject")
+        testrep.deduplicate()                                    # (3)
+        testrep.cdr3_a_aa_smat = parasail.blosum62               # (4)
+        testrep.cdr3_b_aa_smat = parasail.blosum62
+        testrep.compute_pairwise(chain = "alpha", metric = "hamming")                # (5)
+        testrep.compute_pairwise(chain = "beta", metric = "hamming")                 # (6)
+        tcrdist = testrep.cdr3_a_aa_pw + testrep.cdr3_b_aa_pw    # (7)
+
+        expected_tcrdist = np.array([[  0.,  18.,  17.,  18.,  19.,  22.,  19.,  18.,  16.],
+           [ 18.,   0.,  11.,  15.,  15.,  17.,  10.,  18.,  18.],
+           [ 17.,  11.,   0.,  18.,  15.,  17.,  13.,  18.,  20.],
+           [ 18.,  15.,  18.,   0.,  14.,  19.,  14.,  20.,  18.],
+           [ 19.,  15.,  15.,  14.,   0.,  14.,  11.,  17.,  16.],
+           [ 22.,  17.,  17.,  19.,  14.,   0.,  14.,  13.,  18.],
+           [ 19.,  10.,  13.,  14.,  11.,  14.,   0.,  17.,  15.],
+           [ 18.,  18.,  18.,  20.,  17.,  13.,  17.,   0.,  19.],
+           [ 16.,  18.,  20.,  18.,  16.,  18.,  15.,  19.,   0.]])
+
+        self.assertTrue((tcrdist == expected_tcrdist).all())
 
 
 

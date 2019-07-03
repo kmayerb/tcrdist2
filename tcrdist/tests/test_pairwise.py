@@ -70,25 +70,36 @@ class test_SequencePair(unittest.TestCase):
         self.assertTrue(kkv == expected)
 
 
-    # def test_apply_pairwise_distance___returns_hamming_values(self):
-    #     """
-    #     this test defines distance function within the test.
-    #     It is explicit because the Hamming dist could be subbed with other Methods
-    #     in the future.
-    #     """
-    #     sequences = ["CAGQASQGNLIF","CAGQASQGNLIF","CAGQASQGNLIFA", \
-    #     "CAGQASQGNLIAA","CAGQASQGNLIFAAA","CAGQASQGNLIFAAAAA"]
-    #     # define it explicitly here since this is test for hamming values
-    #     def my_distance_wrapper(a,b):
-    #         return(float(pairwise.SequencePair(a, b).hamming_distance) )
-    #     unique_seqs = pairwise.select_unique_sequences(sequences)
-    #     d = pairwise.apply_pairwise_distance(unique_seqs)
-    #
-    #     kkv = pairwise.unpack_dd_to_kkv(dd = d)
-    #     a = kkv['value'][0:5]
-    #     b = [0.0, 0.13333333333333333, 0.23529411764705882, 0.15384615384615385, 0.0]
-    #     # round to third decimal place
-    #     self.assertTrue(map(lambda p: round(p, 3), a) == map(lambda p: round(p, 3), b) )
+    def test_apply_pairwise_distance___returns_hamming_values(self):
+        sequences = ["CAGQASQGNLIF","CAGQASQGNLIF","CAGQASQGNLIFA", \
+        "CAGQASQGNLIAA","CAGQASQGNLIFAAA","CAGQASQGNLIFAAAAA"]
+        # define it explicitly here since this is test for hamming values
+        def my_distance_wrapper(a,b):
+            return(float(pairwise.SequencePair(a, b).hamming_distance) )
+        unique_seqs = pairwise.select_unique_sequences(sequences)
+        d = pairwise.apply_pairwise_distance(unique_seqs)
+        kkv = pairwise.unpack_dd_to_kkv(dd = d)
+        a = kkv['value'][0:5]
+        b = [0.0, 2.0, 4.0, 2.0, 0.0]
+        self.assertTrue(a==b)
+
+        # kkv- MANUAL INSPECTION
+        # 'CAGQASQGNLIAA'
+        # 'CAGQASQGNLIAA'  #0
+
+        # 'CAGQASQGNLIAA'
+        # 'CAGQASQGNLIFAAA' # 2
+
+        # 'CAGQASQGNLIAA',
+        # 'CAGQASQGNLIFAAAAA', # 4
+
+        # 'CAGQASQGNLIF'
+        # 'CAGQASQGNLIAA', # 2
+
+        # 'CAGQASQGNLIF',
+        # 'CAGQASQGNLIF', # 0
+
+        #self.assertTrue(map(lambda p: round(p, 3), a) == map(lambda p: round(p, 3), b) )
 
     def test_apply_pairwise_distance___returns_correct_key1(self):
 
