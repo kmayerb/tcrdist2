@@ -340,7 +340,7 @@ tcr
 
 
 ```python
-tcr.clones_df
+tcr.clone_df
 ```
 
 

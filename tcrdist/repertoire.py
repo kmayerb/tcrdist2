@@ -13,7 +13,7 @@ class TCRrep:
     ----------
     cell_df : pandas.core.frame.DataFrame
         pandas.DataFrame containing data at the cell level
-    clones_df: pandas.core.frame.DataFrame
+    clone_df: pandas.core.frame.DataFrame
         pandas.core.frame.DataFrame holding unique clones
     pwdist_df : pandas.core.frame.DataFrame
         pandas.DataFrame containing pairwise distances between unique unique_sequences
@@ -47,7 +47,7 @@ class TCRrep:
         self.cell_df = cell_df
         self.chains = chains
         self.pwdist_df = None
-        self.clones_df = None
+        self.clone_df = None
         self.index_cols = []
         self.meta_cols = None
         self.project_id = "<Your TCR Repertoire Project>"
@@ -65,16 +65,16 @@ class TCRrep:
 
     def __getitem__(self, position):
         # It should be decided whether get item should refer to the  or to the clone_df
-        if self.clones_df is None:
+        if self.clone_df is None:
             return self.cell_df.loc[position]
-        if self.clones_df is not None:
-            return self.clones_df.loc[position]
+        if self.clone_df is not None:
+            return self.clone_df.loc[position]
 
     def __len__(self):
         return self.cell_df.shape[0]
 
     def deduplicate(self):
-        self.clones_df = _deduplicate(self.cell_df, self.index_cols)
+        self.clone_df = _deduplicate(self.cell_df, self.index_cols)
         return self
 
     def compute_pairwise(self,
@@ -93,7 +93,7 @@ class TCRrep:
                                 'gamma' : 'crd3_g_aa',
                                 'delta' : 'cdr3_d_aa'}
 
-        sequences = self.clones_df[index_col_from_chain[chain]]
+        sequences = self.clone_df[index_col_from_chain[chain]]
 
         # Pull the default substitution matrix
         if chain == "alpha":
