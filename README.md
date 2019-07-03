@@ -67,10 +67,10 @@ You should see, the following:
 
 
 
-## tcrdist2 produces a distance measure based on comparison over multiple complementarity-determining regions (CRDs) of T-Cell Receptor
+## `tcrdist2` produces a distance measure based on comparison over multiple T-Cell Receptor complementarity-determining regions (CRDs)
 
-Here is an example of what tcrdist2 can do, with more detailed explanations
-the tools can be customized following below.
+Here is an example of what **tcrdist2** can do. A more detailed explanation of
+the tools and their customization follows below.
 
 #### Quick-Start Explanation
 
@@ -81,10 +81,11 @@ the tools can be customized following below.
 4. Specify `index_cols` (CDR features) to be used in the comparison
 5. `Deduplicate` counts replicate cells that might occur during clonal explansion to produce the `TCRrep.clones_df`
 6. Optional: Specify the substitution matrix for each region (if none specified parasail.blosum62 will be used for all)
-7. Run pairwise comparison on all the alpha chain region; numpy matrix is stored as
-`TCRrep.cdr3_a_aa_pw` , `TCRrep.cdr2_a_aa_pw` , `TCRrep.cdr1_a_aa_pw`, and `TCRrep.pmhc_a_aa_pw1`
-8. Run pairwise comparison on beta region; a numpy matrix is stored as `TCRrep.cdr3_b_aa_pw` , `TCRrep.cdr2_b_aa_pw` , `TCRrep.cdr1_b_aa_pw`, and `TCRrep.pmhc_b_aa_pw1`
-9. Combine pairwise comparisons at each region to calculate a multi-region tcrdist, with optional weights.
+7. Run pairwise comparison on all the alpha chain region using the Hamming Distance (number of mismatched alligned positions).
+A numpy matrix is stored as `TCRrep.cdr3_a_aa_pw` , `TCRrep.cdr2_a_aa_pw` , `TCRrep.cdr1_a_aa_pw`, and `TCRrep.pmhc_a_aa_pw1`
+8. Run pairwise comparison on beta region.
+A numpy matrix is stored as `TCRrep.cdr3_b_aa_pw` , `TCRrep.cdr2_b_aa_pw` , `TCRrep.cdr1_b_aa_pw`, and `TCRrep.pmhc_b_aa_pw1`
+9. Combine pairwise comparisons at each region to calculate a multi-region tcrdist, supplying optional weights.
 
 
 ```python
