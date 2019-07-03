@@ -224,7 +224,8 @@ def hm_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
 
     """
     xy = parasail.nw_stats(s1, s2, open=open, extend=extend, matrix=matrix)
-    hamming_distance = xy.length-xy.matches
+    xy_t = parasail.nw_trace(s1, s2, open=open, extend=extend, matrix=matrix)
+    hamming_distance = len(xy_t.traceback.comp)-xy.matches
     return hamming_distance
 
 def function_factory(metric = "nw", **kwargs):
