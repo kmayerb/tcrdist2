@@ -8,52 +8,52 @@ import warnings
 
 class TCRrep:
     """
-    Class for a TCRrep (T-Cell Receptor Repertoire) analysis.
+    Class for managing a T-Cell Receptor Repertoire (TCRrep) analysis. Produce
+    a distance measure based on comparisons from multiple T-Cell receptor
+    complementarity-determining regions (CDRs)
 
 
     Attributes
     ----------
     cell_df : pandas.core.frame.DataFrame
-        pandas.DataFrame containing data at the cell level
-    clone_df: pandas.core.frame.DataFrame
-        pandas.core.frame.DataFrame holding unique clones
-    pwdist_df : pandas.core.frame.DataFrame
-        pandas.DataFrame containing pairwise distances between unique unique_sequences
+        input data at the level of individual cell level
+    clone_df : pandas.core.frame.DataFrame
+        deduplicated data frame at the level of unique clones
     index_cols : list
-        list of strings, indicating columns in  for unique grouping
+        list of strings, indicating columns to group cells to clones
     organism : string
-        string either "human" or "mouse"
+        either "human" or "mouse"
     meta_cols : list
-        list of strings, indicating metadata columns in
+        list of strings, indicating metadata columns (e.g. hla_type)
     chains : list
-        list of strings
-    clones : None
+        list of strings containing one or more of 'alpha', 'beta', 'gamma' or 'delta'
 
 
     Methods
     -------
     infer_cdrs_from_v_gene()
-        given v-gene name looks up amino acid sequences
-    deduplicate(index_cols)
-        removes duplicate tcr-clones in
+        infer CDR amino acid sequences from v-gene specified
+    deduplicate()
+        remove duplicate clones by grouping
     compute_pairwise_all()
-        computes pairwise distances on deduplicated data for all
+        compute pairwise distances on deduplicated data for all regions in
+        a chain. Alternatively can compute distance between a
 
-    Private Methods
-    ---------------
-    _validate_chains(self)
-        raises ValueError is chains arg is mis-specified
+
+    Extended Summary
+    ----------------
+    _validate_chains()
+        raise ValueError is chains arg is mis-specified
     _validate_chain()
-        raises ValueError if chain arg is mis-specified
-    _validate_(self)
-        raises TypeError if  is not pd.DataFrame
+        raise ValueError if chain arg is mis-specified
+    _validate_()
+        raise TypeError if  is not pd.DataFrame
     _initialize_chain_specific_attributes(self, chain)
-        creates chain specific attribute including setting default sub matrix
-    _get_smat(self, chain, index_col)
-        returns smat given chain (e.g. "alpha") and index_col (e.g. "cdr2_a_aa")
-    _assign_pw_result(self, pw, chain, index_col)
-        assigns pw distance given chain (e.g. "alpha") and index_col (e.g. "cdr2_a_aa")
-
+        create chain specific attribute including setting default sub matrix
+    _get_smat()
+        return smat given chain (e.g. "alpha") and index_col (e.g. "cdr2_a_aa")
+    _assign_pw_result()
+        assign pw distance given chain (e.g. "alpha") and index_col (e.g. "cdr2_a_aa")
 
     """
 
@@ -71,7 +71,7 @@ class TCRrep:
         self._validate_chains()
         # check that  is a pd.DataFrame
         self._validate_cell_df()
-        # INITIALIZATION OF SPECIFIC ATTRIBUTES BASED ON SELECTED CHAINS
+        # INITIsALIZATION OF SPECIFIC ATTRIBUTES BASED ON SELECTED CHAINS
         self._initialize_chain_specific_attributes()
 
 
@@ -98,33 +98,38 @@ class TCRrep:
 
     def infer_cdrs_from_v_gene(self, chain):
         """
-        Function which takes TCR V-gene names and infers the amino amino_acid
-        sequence of key cdr1, cdr2, and pmhc regions.
+        Function taking TCR v-gene name to infer the amino amino_acid
+        sequence of cdr1, cdr2, and pmhc loop regions.
 
         Parameters
     	----------
         chain : string
             'alpha', 'beta', 'gamma', or 'delta'
 
-        Assigns
+        Returns
     	-------
-    	Assigns [cdr3|cdr2|cdr1|pmhc]_[a|b|d|g]_aa columns in self.cell_df
+        self.cell_df : pandas.core.frame.DataFrame
+    	   Assigns [cdr3|cdr2|cdr1|pmhc]_[a|b|d|g]_aa columns in self.cell_df
 
         Examples
-    	-------
-        testrep = TCRrep(cell_df = example_df, organism = "human", chains= ["alpha","beta"])
-        testrep.infer_cdrs_from_v_gene(chain = "alpha")
-        testrep.infer_cdrs_from_v_gene(chain = "beta")
-        testrep.index_cols = testrep.index_cols + ['cdr1_a_aa','cdr2_a_aa', 'pmhc_a_aa', 'cdr1_b_aa', 'cdr2_b_aa', 'pmhc_b_aa']
+    	--------
+        >>> testrep = TCRrep(cell_df = example_df, organism = "human", chains= ["alpha","beta"])
+        >>> testrep.infer_cdrs_from_v_gene(chain = "alpha")
+        >>> testrep.infer_cdrs_from_v_gene(chain = "beta")
+        >>> testrep.index_cols = testrep.index_cols + ['cdr1_a_aa','cdr2_a_aa', 'pmhc_a_aa', 'cdr1_b_aa', 'cdr2_b_aa', 'pmhc_b_aa']
 
         Notes
-    	-------
-        Function which takes TCR V-gene names and infers the amino amino_acid
-        sequence of key cdr1, cdr2, and pmhc region. (the pMHC-facing loop between
-        CDR2 and CDR3 (IMGT alignment columns 81 - 86) based on lookup in
-        dictionary: from tcrdist.cdr3s_human import pb_cdrs.
+    	-----
+        This function takes the V-gene names and infers the amino amino_acid
+        sequence of the cdr1, cdr2, and pmhc region (pmhc refers to the
+        pMHC-facing loop between CDR2 and CDR3 (IMGT alignment columns 81 - 86.
+        These sequences are based up on lookup from the dictionary here:
+        from tcrdist.cdr3s_human import pb_cdrs
 
-        IMGT Definitions of cdr1, cdr2, and pMHC-facing
+        References
+        ----------
+
+        IMGT definitions of cdr1, cdr2, and pMHC-facing can be found here
         http://www.imgt.org/IMGTScientificChart/Nomenclature/IMGT-FRCDRdefinition.html
         """
         f0 = lambda v : _map_gene_to_reference_seq(gene = v, cdr = 0)
@@ -148,62 +153,6 @@ class TCRrep:
             self.cell_df['pmhc_d_aa'] = map(f2, self.cell_df.v_d_gene)
 
 
-
-    def compute_pairwise(self,
-                         chain,
-                         metric = "nw",
-                         processes = 2,
-                         user_function = None,
-                         to_matrix = True,
-                         **kwargs):
-        """
-        Early Function to be replaced with compute_pairwise_all
-        """
-
-        # validate chain argument passed
-        self._validate_chain(chain)
-        # another option would be to loop through the a list of chains
-        index_col_from_chain = {'alpha' : 'cdr3_a_aa',
-                                'beta'  : 'cdr3_b_aa',
-                                'gamma' : 'crd3_g_aa',
-                                'delta' : 'cdr3_d_aa'}
-
-        sequences = self.clone_df[index_col_from_chain[chain]]
-
-        # Pull the default substitution matrix
-        if chain == "alpha":
-            smat = self.cdr3_a_aa_smat
-        elif chain == "beta":
-            smat = self.cdr3_b_aa_smat
-        elif chain == 'gamma':
-            smat = self.cdr3_g_aa_smat
-        elif chain == "delta":
-            smat = self.cdr3_d_aa_smat
-
-        # If kwargs were passed use them, otherwise pass chain-sp. smat from above
-        if ('matrix' in kwargs) or ("open" in kwargs):
-            pw = _compute_pairwise(sequences = sequences,
-                                   metric = metric,
-                                   processes = processes,
-                                   user_function = user_function,
-                                   **kwargs)
-        else:
-            pw = _compute_pairwise(sequences = sequences,
-                                   metric = metric,
-                                   processes = processes,
-                                   user_function = user_function,
-                                   **{'matrix' : smat})
-
-
-        if chain == "alpha":
-            self.cdr3_a_aa_pw = pw
-        elif chain == "beta":
-            self.cdr3_b_aa_pw = pw
-        elif chain == 'gamma':
-            self.cdr3_g_aa_pw = pw
-        elif chain == "delta":
-            self.cdr3_d_aa_pw = pw
-
     def compute_pairwise_all(self,
                              chain,
                              compute_specific_region = None,
@@ -213,45 +162,46 @@ class TCRrep:
                              to_matrix = True,
                              **kwargs):
         """
-        Function that computes pairwise distances for all regions on a given
-        chain or for a specific region.
+        Computes pairwise distances for all regions on a given
+        chain or for a specific region on that chain.
 
         Parameters
     	----------
-        chain: string
+        chain : string
             'alpha', 'beta', 'gamma', or 'delta'
         compute_specific_region : string
-            string (e.g. "cdr2_a_aa") to over-ride function behavior and compute
-            only a single region
+            optional string (e.g. "cdr2_a_aa") to over-ride function behavior
+            and compute only a single region
         metric : string
             'nw', 'hamming', or 'custom'
-        processes: int
+        processes : int
             int for number of available cpu for multiprocessing (to see available
             try multiprocessing.cpu_count())
-        user_function: function
+        user_function : function
             function for a custom distance metric on two strings (This is
             an advanced option, so don't use this unless you are absolutely
             sure what you are doing; metric arg must be set to 'custom').
-        to_matrix: boolean
+        to_matrix : boolean
             True will return pairwise distance as result as a 2D ndarray
 
     	Assigns
     	-------
     	self.[cdr3|cdr2|cdr1|pmhc]_[a|b|d|g]_aa_pw objects
 
-        Example
-    	-------
-        testrep = TCRrep(cell_df = example_df, organism = "human", chains= ["alpha","beta"])
-        testrep.infer_cdrs_from_v_gene(chain = "alpha")
-        testrep.infer_cdrs_from_v_gene(chain = "beta")
-        testrep.index_cols = testrep.index_cols + ['cdr1_a_aa','cdr2_a_aa','pmhc_a_aa', 'cdr1_b_aa', 'cdr2_b_aa', 'pmhc_b_aa']
-        testrep.deduplicate()
-        testrep.compute_pairwise_all(chain = "alpha", metric= "hamming")
-        testrep.compute_pairwise_all(chain = "beta", metric= "hamming")
+        Examples
+    	--------
+        >>> testrep = TCRrep(cell_df = example_df, organism = "human", chains= ["alpha","beta"])
+        >>> testrep.infer_cdrs_from_v_gene(chain = "alpha")
+        >>> testrep.infer_cdrs_from_v_gene(chain = "beta")
+        >>> testrep.index_cols = testrep.index_cols + ['cdr1_a_aa','cdr2_a_aa','pmhc_a_aa', 'cdr1_b_aa', 'cdr2_b_aa', 'pmhc_b_aa']
+        >>> testrep.deduplicate()
+        >>> testrep.compute_pairwise_all(chain = "alpha", metric= "hamming")
+        >>> testrep.compute_pairwise_all(chain = "beta", metric= "hamming")
 
-        # alternatively, compute each region one by one
-        testrep.compute_pairwise_all(chain = "beta", compute_specific_region="cdr1_b_aa")
-        testrep.compute_pairwise_all(chain = "alpha", compute_specific_region="cdr2_a_aa")
+        alternatively, compute each region one by one
+
+        >>> testrep.compute_pairwise_all(chain = "beta", compute_specific_region="cdr1_b_aa")
+        >>> testrep.compute_pairwise_all(chain = "alpha", compute_specific_region="cdr2_a_aa")
 
         """
 
@@ -311,10 +261,10 @@ class TCRrep:
 
         Parameters
         ----------
-        chains: list
+        chains : list
             list of strings containing some combination of 'alpha', 'beta',
             'gamma', and 'delta'
-        replacement_weights: dictionary
+        replacement_weights : dictionary
             optional dictionary of the form {'cdr1_a_aa_pw':1, 'cdr2_a_aa_pw':1}
             used to place greater weight on certain TCR regions. The default
             is a weight of 1.
@@ -369,6 +319,62 @@ class TCRrep:
         r = {'paired_tcrdist' : tcrdist,
                 'paired_tcrdist_weights' : {k:weights[k] for k in full_keys}}
         return(r)
+
+    def compute_pairwise(self,
+                         chain,
+                         metric = "nw",
+                         processes = 2,
+                         user_function = None,
+                         to_matrix = True,
+                         **kwargs):
+        """
+        Early Function to be replaced with compute_pairwise_all.
+        TODO: Rewrite test and remove.
+        """
+
+        # validate chain argument passed
+        self._validate_chain(chain)
+        # another option would be to loop through the a list of chains
+        index_col_from_chain = {'alpha' : 'cdr3_a_aa',
+                                'beta'  : 'cdr3_b_aa',
+                                'gamma' : 'crd3_g_aa',
+                                'delta' : 'cdr3_d_aa'}
+
+        sequences = self.clone_df[index_col_from_chain[chain]]
+
+        # Pull the default substitution matrix
+        if chain == "alpha":
+            smat = self.cdr3_a_aa_smat
+        elif chain == "beta":
+            smat = self.cdr3_b_aa_smat
+        elif chain == 'gamma':
+            smat = self.cdr3_g_aa_smat
+        elif chain == "delta":
+            smat = self.cdr3_d_aa_smat
+
+        # If kwargs were passed use them, otherwise pass chain-sp. smat from above
+        if ('matrix' in kwargs) or ("open" in kwargs):
+            pw = _compute_pairwise(sequences = sequences,
+                                   metric = metric,
+                                   processes = processes,
+                                   user_function = user_function,
+                                   **kwargs)
+        else:
+            pw = _compute_pairwise(sequences = sequences,
+                                   metric = metric,
+                                   processes = processes,
+                                   user_function = user_function,
+                                   **{'matrix' : smat})
+
+
+        if chain == "alpha":
+            self.cdr3_a_aa_pw = pw
+        elif chain == "beta":
+            self.cdr3_b_aa_pw = pw
+        elif chain == 'gamma':
+            self.cdr3_g_aa_pw = pw
+        elif chain == "delta":
+            self.cdr3_d_aa_pw = pw
 
     def _validate_chains(self):
         """
@@ -440,7 +446,7 @@ class TCRrep:
         ----------
         chain : string
             'alpha', 'beta', 'gamma', or 'delta'
-        index_col: string
+        index_col : string
             [cdr3|cdr2|cdr1|pmhc]_[a|b|g|d]_aa_pw
         """
         self._validate_chain(chain = chain)
@@ -505,7 +511,7 @@ class TCRrep:
         ----------
         chain : string
             'alpha', 'beta', 'gamma', or 'delta'
-        index_col: string
+        index_col : string
             [cdr3|cdr2|cdr1|pmhc]_[a|b|g|d]_aa_pw
 
         """
@@ -567,7 +573,7 @@ def _map_gene_to_reference_seq(organism = "human",
                                cdr = 1,
                                ref = pb_cdrs):
     """
-    Function that takes TCR V-gene
+    get cdr amino acid seq from TCR V-gene name.
 
 
     Parameters
@@ -591,11 +597,34 @@ def _map_gene_to_reference_seq(organism = "human",
     return aa_string
 
 def _deduplicate(cell_df, index_cols):
+    """
+    Use index_cols to group by and group identical entries. The input DataFrame
+    must have a column 'count'.
+    """
     clones = cell_df.groupby(index_cols)['count'].agg(np.sum).reset_index()
     return clones
 
 def _compute_pairwise(sequences, metric = "nw", processes = 2, user_function = None, **kwargs):
+    """
+    Wrapper for pairwise.apply_pw_distance_metric_w_multiprocessing()
 
+    Parameters
+    ----------
+    sequences : list
+
+    metric : string
+
+    processes : int
+
+    user_function : function
+
+    Returns
+    -------
+
+    pw_full_np : np.ndarray
+        matrix of pairwise comparisons
+
+    """
     unique_seqs = pd.Series(sequences).unique()
 
     pw = pairwise.apply_pw_distance_metric_w_multiprocessing(
