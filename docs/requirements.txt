@@ -1,0 +1,6 @@
+futures==3.2.0
+numpy==1.10.1
+pandas==0.20.3
+parasail==1.1.16
+scikit-learn==0.17.1
+scipy==0.16.0
