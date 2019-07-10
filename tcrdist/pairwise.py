@@ -47,6 +47,37 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
     to multiple python interpreters based on the available number of cpu.
     Some explanation is in order.
 
+    Parameters
+    ----------
+    sequences : list
+        list of strings containing amino acid letters
+    metric : string
+        string specifying distance metric (must be "nw", "hamming", or "custom")
+    f : function
+        function that is passed to parallel interpreters. Must accept a list of
+        integers tuples [(i,j),(i,j)...] and to reference unique_seqs[i].
+        Defaults to _f_pwdist_parallel_using_distance_wrapper()
+    user_function:
+        optional function provided by the user to compute distance between two
+        strings. To be used metric is set to 'custom'
+    processes : int
+        number of available cpus defaults to multiprocessing.cpu_count()
+
+
+    Returns
+    -------
+    multiprocessed_result : list
+        list of lists containing five part tuples (int, int, float, str, str)
+
+    Raises
+    ------
+    RuntimeError
+
+    ValueError
+
+
+    Notes
+    -----
     The function is pretty flexible, with < f > being mapped to the parallel
     interpreters taking as input a list of indices (as tuples).
     [(i,j),(i,j), ... (i,j)].
@@ -79,36 +110,14 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
             metric = "nw",
             **{'open':3, 'extend':3, 'matrix':parasail.blosum62})
 
-    Parameters
-    ----------
-    sequences : list
-        list of strings containing amino acid letters
-    metric : string
-        string specifying distance metric (must be "nw", "hamming", or "custom")
-    f : function
-        function that is passed to parallel interpreters. Must accept a list of
-        integers tuples [(i,j),(i,j)...] and to reference unique_seqs[i].
-        Defaults to _f_pwdist_parallel_using_distance_wrapper()
-    user_function:
-        optional function provided by the user to compute distance between two
-        strings. To be used metric is set to 'custom'
-    processes : int
-        number of available cpus defaults to multiprocessing.cpu_count()
-
-
-    Returns
-    -------
-    multiprocessed_result : list
-        list of lists containing five part tuples (int, int, float, str, str)
-
     Examples
     --------
-    td.apply_pw_distance_metric_w_multiprocessing(
+    >>> td.apply_pw_distance_metric_w_multiprocessing(
         sequences,
         metric = "nw",
         **{'open':3, 'extend':3, 'matrix':parasail.blosum62})
 
-    td.apply_pw_distance_metric_w_multiprocessing(
+    >>> td.apply_pw_distance_metric_w_multiprocessing(
         sequences,
         metric = "custom",
         user_function = some_user_function)

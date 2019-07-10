@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.com/kmayerb/tcrdist2.svg?branch=API2)](https://travis-ci.com/kmayerb/tcrdist2)
 
+[![Build Docs Status](https://readthedocs.org/projects/tcrdist2/badge/?version=latest)
+
 # tcrdist2
 
 2019-07-04

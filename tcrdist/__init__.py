@@ -26,6 +26,7 @@ from .test_resources import adaptive100
 from .pairwise import *
 
 
+
 # from . import embedding  (ImportError: libgfortran.so.1 on linux but not on windows, environmental diff?)
 
 __all__ = ['processing',
@@ -34,4 +35,6 @@ __all__ = ['processing',
            'datasets',
            'distances',
            'embedding',
-           'pairwise']
+           'pairwise',
+           'repertoire',
+           'mappers']

@@ -1,6 +1,8 @@
 Repertoire
 ==========
 
+The documents here explain the use
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -8,5 +10,5 @@ Repertoire
 .. automodule:: tcrdist.repertoire
 
 .. autoclass:: TCRrep
-    :members: infer_cdrs_from_v_gene, deduplicate, compute_pairwise_all 
+    :members: infer_cdrs_from_v_gene, deduplicate, compute_pairwise_all
     :show-inheritance:

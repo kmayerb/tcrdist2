@@ -17,7 +17,11 @@ in Dash et al. Nature (2017).
    :caption: Contents:
 
    Installation
+   Examples
    Repertoire
+   Pairwise
+   Processing
+
 
 
 

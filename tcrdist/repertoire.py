@@ -64,6 +64,7 @@ class TCRrep:
         self.pwdist_df = None
         self.clone_df = None
         self.index_cols = []
+        self.stored_tcrdist = []
         self.meta_cols = None
         self.project_id = "<Your TCR Repertoire Project>"
         # VALIDATION OF INPUTS
@@ -132,9 +133,9 @@ class TCRrep:
         IMGT definitions of cdr1, cdr2, and pMHC-facing can be found here
         http://www.imgt.org/IMGTScientificChart/Nomenclature/IMGT-FRCDRdefinition.html
         """
-        f0 = lambda v : _map_gene_to_reference_seq(gene = v, cdr = 0)
-        f1 = lambda v : _map_gene_to_reference_seq(gene = v, cdr = 1)
-        f2 = lambda v : _map_gene_to_reference_seq(gene = v, cdr = 2)
+        f0 = lambda v : _map_gene_to_reference_seq(gene = v, cdr = 0, organism = self.organism)
+        f1 = lambda v : _map_gene_to_reference_seq(gene = v, cdr = 1, organism = self.organism)
+        f2 = lambda v : _map_gene_to_reference_seq(gene = v, cdr = 2, organism = self.organism)
         if chain is "alpha":
             self.cell_df['cdr1_a_aa'] = map(f0, self.cell_df.v_a_gene)
             self.cell_df['cdr2_a_aa'] = map(f1, self.cell_df.v_a_gene)
