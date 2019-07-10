@@ -27,33 +27,28 @@ class TCRrep:
         list of strings, indicating metadata columns (e.g. hla_type)
     chains : list
         list of strings containing one or more of 'alpha', 'beta', 'gamma' or 'delta'
-
+    stored_tcrdist : list
+        list containing all previously generated outputs of
+        `TCRrep.compute_paired_tcrdist`
+    paired_tcrdist : ndarray
+        most recent output of :py:meth:`tcrdist.repertoire.TCRrep.compute_paired_tcrdist`
+    paired_tcrdist_weights : dictionary
+        CDR weights used to generate the most recent output of
+        TCRrep.compute_paired_tcrdist`
 
     Methods
     -------
-    infer_cdrs_from_v_gene()
+    TCRrep.infer_cdrs_from_v_gene()
         infer CDR amino acid sequences from v-gene specified
     deduplicate()
         remove duplicate clones by grouping
     compute_pairwise_all()
         compute pairwise distances on deduplicated data for all regions in
         a chain. Alternatively can compute distance between a
+    compute_paired_tcrdist()
+        calculate weighted pairwise distance across all CDRs
 
 
-    Extended Summary
-    ----------------
-    _validate_chains()
-        raise ValueError is chains arg is mis-specified
-    _validate_chain()
-        raise ValueError if chain arg is mis-specified
-    _validate_()
-        raise TypeError if  is not pd.DataFrame
-    _initialize_chain_specific_attributes(self, chain)
-        create chain specific attribute including setting default sub matrix
-    _get_smat()
-        return smat given chain (e.g. "alpha") and index_col (e.g. "cdr2_a_aa")
-    _assign_pw_result()
-        assign pw distance given chain (e.g. "alpha") and index_col (e.g. "cdr2_a_aa")
 
     """
 
@@ -65,6 +60,8 @@ class TCRrep:
         self.clone_df = None
         self.index_cols = []
         self.stored_tcrdist = []
+        self.paired_tcrdist = None
+        self.paired_tcrdist_weights = None
         self.meta_cols = None
         self.project_id = "<Your TCR Repertoire Project>"
         # VALIDATION OF INPUTS
@@ -255,10 +252,11 @@ class TCRrep:
 
     def compute_paired_tcrdist(self,
                                chains = ['alpha', 'beta'],
-                               replacement_weights = {}):
+                               replacement_weights = {},
+                               store_result = True):
         """
         Computes tcrdistance metric combining distances metrics across multiple
-        TCR regions.
+        T Cell Receptor CDR regions.
 
         Parameters
         ----------
@@ -269,12 +267,46 @@ class TCRrep:
             optional dictionary of the form {'cdr1_a_aa_pw':1, 'cdr2_a_aa_pw':1}
             used to place greater weight on certain TCR regions. The default
             is a weight of 1.
+        store_result : boolean
+            True will store results to
+            :py:attr:`TCRrep.stored_tcrdist`
 
         Returns
         -------
-        r: dictionary
-            dictionary with a 2D tcrdist np.array and dictionary of regions and
-            relative weights
+        r : dictionary
+            a dictionary with keys paired_tcrdist points to a 2D
+            tcrdist np.ndarray and paired_tcrdist_weights pointing to
+            dictionary of weights. See notes.
+
+        Notes
+        -----
+
+        Calling this function assigns results to
+        `TCRrep.paired_tcrdist` and
+        `TCRrep.paired_tcrdist_weights`
+        and stores r to
+        `TCRrep.stored_tcrdist`
+
+        In addition it returns a dictionary with keys `paired_tcrdist` 2D
+        tcrdist np.array and `paired_tcrdist_weights`
+        a dictionary of regions and relative weights:
+
+        {'paired_tcrdist': array([[ 0., 76., 80.,..., 89., 89., 87.],
+                                [ 76., 0., 60., ..., 81., 75., 43.],
+                                [ 80., 60., 0., ..., 59., 81., 77.],
+                                ...,
+                                [ 89., 81., 59.,  ..., 0., 60., 58.],
+                                [ 89., 75., 81.,   ..., 60., 0., 40.],
+                                [ 87., 43., 77., ..., 58., 40., 0.]]),
+        'paired_tcrdist_weights': {'cdr1_a_aa_pw': 1,
+                                   'cdr1_b_aa_pw': 2,
+                                   'cdr2_a_aa_pw': 1,
+                                   'cdr2_b_aa_pw': 2,
+                                   'cdr3_a_aa_pw': 2,
+                                   'cdr3_b_aa_pw': 4,
+                                   'pmhc_a_aa_pw': 1,
+                                   'pmhc_b_aa_pw': 2}}
+
         """
         [self._validate_chain(c) for c in chains]
         weights = {'cdr1_a_aa_pw':1,
@@ -312,13 +344,28 @@ class TCRrep:
         if 'delta' in chains:
             full_keys = full_keys + delta_keys
 
-        tcrdist = np.zeros(self.__dict__[full_keys[0]].shape)
+        # initialize tcrdist matrix size
         for k in full_keys:
-            tcrdist = self.__dict__[k]*weights[k] + tcrdist
+            try:
+                tcrdist = np.zeros(self.__dict__[k].shape)
+                break
+            except KeyError:
+                pass
+
+        for k in full_keys:
+            try:
+                tcrdist = self.__dict__[k]*weights[k] + tcrdist
+            except KeyError:
+                warnings.warn("tcrdist was calculated without: '{}' because pairwise distances haven't been computed for this region:".format(k))
+                pass
+
+
         self.paired_tcrdist = tcrdist
         self.paired_tcrdist_weights = {k:weights[k] for k in full_keys}
         r = {'paired_tcrdist' : tcrdist,
                 'paired_tcrdist_weights' : {k:weights[k] for k in full_keys}}
+        if store_result:
+            self.stored_tcrdist.append(r)
         return(r)
 
     def compute_pairwise(self,
@@ -640,3 +687,24 @@ def _compute_pairwise(sequences, metric = "nw", processes = 2, user_function = N
     pw_full = pw_df.loc[sequences, sequences]
     pw_full_np = pw_full.values
     return(pw_full_np)
+
+
+"""
+Private Methods of TCRrep
+
+Extended Summary
+----------------
+_validate_chains()
+    raise ValueError is chains arg is mis-specified
+_validate_chain()
+    raise ValueError if chain arg is mis-specified
+_validate_()
+    raise TypeError if  is not pd.DataFrame
+_initialize_chain_specific_attributes(self, chain)
+    create chain specific attribute including setting default sub matrix
+_get_smat()
+    return smat given chain (e.g. "alpha") and index_col (e.g. "cdr2_a_aa")
+_assign_pw_result()
+    assign pw distance given chain (e.g. "alpha") and index_col (e.g. "cdr2_a_aa")
+
+"""

@@ -1,7 +1,7 @@
 Installation
 ============
 
-tcrdist2 is a API-enabled toolkit for T-cell receptor analysis inspired by the
+tcrdist2 is a API-enabled toolkit for T Cell receptor analysis inspired by the
 TCRdist pipeline developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and
 colleagues as part of a T-cell receptor epitope specificity analysis
 in Dash et al. Nature (2017).
@@ -86,7 +86,7 @@ You should see, the following:
 Optional Blast Tools
 ++++++++++++++++++++
 
-tcrdist2 uses [parasail](https://github.com/jeffdaily/parasail-python)
+tcrdist2 uses `parasail <https://github.com/jeffdaily/parasail-python>'_
 for sequence alignments; however, some features have the option to use BLAST instead.
 
 The BLAST version 2.2.16 used in Dash et al. 2017, can be optionally installed with
