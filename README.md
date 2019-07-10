@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.com/kmayerb/tcrdist2.svg?branch=API2)](https://travis-ci.com/kmayerb/tcrdist2)
-[![Build Docs Status](https://readthedocs.org/projects/tcrdist2/badge/?version=latest)(https://tcrdist2.readthedocs.io/en/latest/)
+[![Build Docs Status](https://readthedocs.org/projects/tcrdist2/badge/?version=latest)](https://tcrdist2.readthedocs.io/en/latest/)
 
 # tcrdist2
 
