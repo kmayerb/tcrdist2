@@ -34,7 +34,7 @@ def get_translation(seq, frame):
     naa = len(seq)/3
     protseq = ''
     codons = []
-    for i in range(naa):
+    for i in range(int(naa)):
         codon = seq[3*i:3*i+3]
         codons.append( codon )
         if '#' in codon:
