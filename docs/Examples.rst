@@ -8,7 +8,7 @@ The CDR3 alpha and beta sequences and V and J gene usage can be downloaded from 
 `vdjDB <https://vdjdb.cdr3.net/search>`_.
 
 Data from this study were selected from the vdjDB using the
-search filter (references == PMID:28646592). This query returns data
+search filter (references == PMID:28636592). This query returns data
 for 2442 paired alpha/beta T cell receptors
 from human and mouse subjects with predicted epitope specificities.
 
@@ -18,7 +18,7 @@ from human and mouse subjects with predicted epitope specificities.
 .. image:: f2.png
 
 Data were downloaded as a tab separated flat
-file (*DMJVdb_PMID28636592.tsv*).
+file (*vdjDB_PMID28636592.tsv*).
 
 The application programming interface for tcrdist2 involves step-wise
 commands using the :py:class:`tcrdist.repertoire.TCRrep` class, which
@@ -41,7 +41,7 @@ alternative analysis options.
   from tcrdist.repertoire import TCRrep
 
 
-  pd_df = pd.read_csv("DMJVdb_PMID28636592.tsv", sep = "\t")      # 1
+  pd_df = pd.read_csv("vdjDB_PMID28636592.tsv", sep = "\t")      # 1
   t_df = td.mappers.vdjdb_to_tcrdist2(pd_df = pd_df)              # 2
   t_df.organism.value_counts                                      # 3
   index_mus = t_df.organism == "MusMusculus"                      # 4
