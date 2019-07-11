@@ -6,15 +6,14 @@ from .amino_acids import amino_acids
 logger = logging.getLogger('logo_tools.py')
 
 def get_alphabet( pwm ):
-    alphabet = pwm[0].keys()[:]
-    alphabet.sort()
+    alphabet = sorted(list(pwm[0].keys())[:])
     return alphabet
 
 def check_pwm( pwm, tol= 0.001 ):
     L = len(pwm)
     alphabet = get_alphabet( pwm )
     for pos in range(L):
-        for aa,val in pwm[pos].iteritems(): assert val > -1e-6
+        for aa, val in pwm[pos].items(): assert val > -1e-6
         total = sum( ( pwm[pos][aa] for aa in alphabet ) )
         assert abs( total - 1.0 ) - tol
 
@@ -30,7 +29,7 @@ def create_pwm_from_sequences( seqs, alphabet, pseudocounts=0.0 ):
     L = len( seqs[0] )
 
     for pos in range(L):
-        pwm[ pos ] = dict( zip( alphabet, [pseudocounts]*len(alphabet) ) )
+        pwm[ pos ] = dict( list(zip( alphabet, [pseudocounts]*len(alphabet) )) )
 
     for s in seqs:
         assert len(s) == L
@@ -73,18 +72,18 @@ nuc_match_lower_case = {}
 
 for x in nucleotide_classes_lower_case:
     for y in nucleotide_classes_lower_case:
-        nuc_match_lower_case[(x,y)] = False
+        nuc_match_lower_case[(x, y)] = False
         for x1 in nucleotide_classes_lower_case[x]:
             for y1 in nucleotide_classes_lower_case[y]:
                 if x1==y1:
-                    nuc_match_lower_case[(x,y)] = True
+                    nuc_match_lower_case[(x, y)] = True
                     break
 
 def nucleotide_symbols_match( a_in, b_in ):
     a = a_in.lower()
     b = b_in.lower()
     if a==b: return True
-    return nuc_match_lower_case.get( (a,b), False )
+    return nuc_match_lower_case.get( (a, b), False )
 
 
 

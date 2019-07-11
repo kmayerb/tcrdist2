@@ -17,8 +17,8 @@ def loadPSData(name=None):
     
     if name is None or name == '':
         print('Available datsets:')
-        for k in datasets.keys():
-            print('  %s' % k)
+        for k in list(datasets.keys()):
+            print(('  %s' % k))
         return
     
     try:
@@ -34,7 +34,7 @@ def loadPSData(name=None):
     datasetsPath = op.join(op.split(inspect.stack()[0][1])[0], 'datasets')
     filename = op.join(datasetsPath, fn)
     
-    print('Reading from %s' % filename)
+    print(('Reading from %s' % filename))
     
     if 'mouse' in fn:
         organism = 'mouse'

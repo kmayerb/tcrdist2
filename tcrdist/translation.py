@@ -4,7 +4,7 @@ from . import logo_tools
 from .genetic_code import genetic_code
 
 def modifyGeneticCode(genetic_code):
-    bases_plus = logo_tools.nucleotide_classes_lower_case.keys()
+    bases_plus = list(logo_tools.nucleotide_classes_lower_case.keys())
 
     for a in bases_plus:
         for b in bases_plus:
@@ -31,7 +31,7 @@ def get_translation(seq, frame):
     offset = np.abs(frame) - 1
     assert offset in range(3)
     seq = seq[offset:].lower()
-    naa = len(seq)/3
+    naa = len(seq)//3
     protseq = ''
     codons = []
     for i in range(naa):
@@ -41,9 +41,9 @@ def get_translation(seq, frame):
             protseq += '#'
         else:
             protseq += genetic_code.get( codon, 'X' )
-    return protseq,codons
+    return protseq, codons
 
 genetic_code = modifyGeneticCode(genetic_code)
 
 if __name__ == '__main__':
-    print(modifyGeneticCode(genetic_code))
+    print((modifyGeneticCode(genetic_code)))

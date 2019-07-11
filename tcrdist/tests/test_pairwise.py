@@ -6,9 +6,9 @@ class test_SequencePair(unittest.TestCase):
     # Tests gaps are introduced at sequence ends
     def test_align___0(self):
         # initialize SequencePair
-        sp = pairwise.SequencePair("","")
+        sp = pairwise.SequencePair("", "")
         # call align function with specific input
-        self.assertTrue(sp.align("AAA","GAAAGGG", open_penalty = 3 , extend_penalty = 3).traceback.query == '-AAA---')
+        self.assertTrue(sp.align("AAA", "GAAAGGG", open_penalty = 3, extend_penalty = 3).traceback.query == '-AAA---')
 
     # Tests that the complete longer sequence is returned
     def test_align___1(self):
@@ -61,9 +61,9 @@ class test_SequencePair(unittest.TestCase):
         ]
 
         expected  = {
-        'key1'  : ['A','A','A','B','B','C','D','D','D','E','E','F'],
-        'key2'  : ['A','B','C','B','C','C','D','E','F','E','F','F'],
-        'value' : [1,2,3,4,5,6, 7,8,9,10,11,12]
+        'key1'  : ['A', 'A', 'A', 'B', 'B', 'C', 'D', 'D', 'D', 'E', 'E', 'F'],
+        'key2'  : ['A', 'B', 'C', 'B', 'C', 'C', 'D', 'E', 'F', 'E', 'F', 'F'],
+        'value' : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         }
 
         kkv = pairwise.unpack_pooled_dd_to_kkv(pooled_dd)
@@ -71,10 +71,10 @@ class test_SequencePair(unittest.TestCase):
 
 
     def test_apply_pairwise_distance___returns_hamming_values(self):
-        sequences = ["CAGQASQGNLIF","CAGQASQGNLIF","CAGQASQGNLIFA", \
-        "CAGQASQGNLIAA","CAGQASQGNLIFAAA","CAGQASQGNLIFAAAAA"]
+        sequences = ["CAGQASQGNLIF", "CAGQASQGNLIF", "CAGQASQGNLIFA", \
+        "CAGQASQGNLIAA", "CAGQASQGNLIFAAA", "CAGQASQGNLIFAAAAA"]
         # define it explicitly here since this is test for hamming values
-        def my_distance_wrapper(a,b):
+        def my_distance_wrapper(a, b):
             return(float(pairwise.SequencePair(a, b).hamming_distance) )
         unique_seqs = pairwise.select_unique_sequences(sequences)
         d = pairwise.apply_pairwise_distance(unique_seqs)
@@ -103,24 +103,24 @@ class test_SequencePair(unittest.TestCase):
 
     def test_apply_pairwise_distance___returns_correct_key1(self):
 
-        sequences = ["CAGQASQGNLIF","CAGQASQGNLIF","CAGQASQGNLIFA", \
-        "CAGQASQGNLIAA","CAGQASQGNLIFAAA","CAGQASQGNLIFAAAAA"]
+        sequences = ["CAGQASQGNLIF", "CAGQASQGNLIF", "CAGQASQGNLIFA", \
+        "CAGQASQGNLIAA", "CAGQASQGNLIFAAA", "CAGQASQGNLIFAAAAA"]
 
         unique_seqs = pairwise.select_unique_sequences(sequences)
         d = pairwise.apply_pairwise_distance(unique_seqs)
         kkv = pairwise.unpack_dd_to_kkv(dd = d)
         a = kkv['key1'][0:5]
-        b =['CAGQASQGNLIAA','CAGQASQGNLIAA','CAGQASQGNLIAA','CAGQASQGNLIF','CAGQASQGNLIF']
+        b =['CAGQASQGNLIAA', 'CAGQASQGNLIAA', 'CAGQASQGNLIAA', 'CAGQASQGNLIF', 'CAGQASQGNLIF']
         self.assertTrue(a == b)
 
     def test_apply_pairwise_distance___gets_correct_key2(self):
-        sequences = ["CAGQASQGNLIF","CAGQASQGNLIF","CAGQASQGNLIFA", \
-        "CAGQASQGNLIAA","CAGQASQGNLIFAAA","CAGQASQGNLIFAAAAA"]
+        sequences = ["CAGQASQGNLIF", "CAGQASQGNLIF", "CAGQASQGNLIFA", \
+        "CAGQASQGNLIAA", "CAGQASQGNLIFAAA", "CAGQASQGNLIFAAAAA"]
         unique_seqs = pairwise.select_unique_sequences(sequences)
         d = pairwise.apply_pairwise_distance(unique_seqs)
         kkv = pairwise.unpack_dd_to_kkv(dd = d)
         a = kkv['key2'][0:5]
-        b =['CAGQASQGNLIAA','CAGQASQGNLIFAAA','CAGQASQGNLIFAAAAA','CAGQASQGNLIAA','CAGQASQGNLIF']
+        b =['CAGQASQGNLIAA', 'CAGQASQGNLIFAAA', 'CAGQASQGNLIFAAAAA', 'CAGQASQGNLIAA', 'CAGQASQGNLIF']
         self.assertTrue(a == b)
 
     #def test_apply_pairwise_distance_multiprocessing(self):

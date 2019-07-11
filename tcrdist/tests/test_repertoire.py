@@ -92,15 +92,15 @@ class test_repertoire(unittest.TestCase):
         self.assertTrue((tcrdist == expected_tcrdist).all())
 
     def test_repertoire____use_case_hamming_paired_tcrdist(self):
-        tr = TCRrep(cell_df = example_df.copy(), organism = "human", chains= ["alpha","beta"])
+        tr = TCRrep(cell_df = example_df.copy(), organism = "human", chains= ["alpha", "beta"])
         tr.infer_cdrs_from_v_gene(chain = "alpha")
         tr.infer_cdrs_from_v_gene(chain = "beta")
-        tr.index_cols =['cdr3_a_aa','cdr1_a_aa','cdr2_a_aa', 'pmhc_a_aa', 'cdr3_b_aa', 'cdr1_b_aa', 'cdr2_b_aa', 'pmhc_b_aa']
+        tr.index_cols =['cdr3_a_aa', 'cdr1_a_aa', 'cdr2_a_aa', 'pmhc_a_aa', 'cdr3_b_aa', 'cdr1_b_aa', 'cdr2_b_aa', 'pmhc_b_aa']
         tr.deduplicate()
         #tr.clone_df
         tr.compute_pairwise_all(chain = "alpha", metric = "hamming")
         tr.compute_pairwise_all(chain = "beta", metric = "hamming")
-        r = tr.compute_paired_tcrdist(chains = ['alpha','beta'])
+        r = tr.compute_paired_tcrdist(chains = ['alpha', 'beta'])
 
         expected = {'paired_tcrdist': np.array([[  0.,  50.,  49.,  48.,  49.,  49.,  51.,  44.,  46.],
                 [ 50.,   0.,  21.,  29.,  29.,  47.,  40.,  45.,  44.],

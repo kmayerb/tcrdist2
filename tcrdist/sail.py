@@ -1,4 +1,4 @@
-from __future__ import division
+
 import numpy as np
 import parasail as ps
 
@@ -73,7 +73,7 @@ def _q_stop(query_seq, q_seq):
     :param q_seq: string
     :return: integer
     """
-    q_seq = q_seq.replace("-" , "")
+    q_seq = q_seq.replace("-", "")
     q_start = query_seq.find(q_seq)
     q_stop  = q_start + len(q_seq) - 1
     return(q_stop)
@@ -149,7 +149,7 @@ def _get_ids_by_org_chain_region(organism,
     ['TRAJ15*01', 'TRAJ15*02', 'TRAJ35*01', 'TRAJ50*01', 'TRAJ24*01']
     '''
     ids = []
-    for (id, g) in d[organism].iteritems():
+    for (id, g) in d[organism].items():
         if g.chain == chain and g.region == region:
             ids.append(id)
     return (ids)
@@ -369,7 +369,7 @@ def _get_hit_parasail(vj,
 
     # sort parasail results from highest to lowest alignment score
     scores = sorted(scores, key=lambda x: x['score'], reverse=True)
-    id_score_evalue = [(s['hit_id'],s['score'], _evalue_aproximation(s['score'])) for s in scores]
+    id_score_evalue = [(s['hit_id'], s['score'], _evalue_aproximation(s['score'])) for s in scores]
 
     # add alignment start positions for the highest scoring alignment
     scores[0]["parasail_result"].get_traceback()

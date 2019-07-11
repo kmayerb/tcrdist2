@@ -53,7 +53,7 @@ def tree_sort( old_l, distances, return_leaves=True ): ## average linkage
 def get_top_genes( blast_hits_string ):
     hits = dict( [ ( x.split(':')[0], int( x.split(':')[1] ) ) for x in blast_hits_string.split(';') ] )
     top_score = max( hits.values() )
-    return set( [ x for x,y in hits.iteritems() if y >= top_score ] )
+    return { x for x, y in hits.items() if y >= top_score }
 
 def get_top_reps( blast_hits_string, organism ):
     hits = dict( [ ( x.split(':')[0], int( x.split(':')[1] ) ) for x in blast_hits_string.split(';') ] )
@@ -64,7 +64,7 @@ def get_top_reps( blast_hits_string, organism ):
     # else:
     #     assert vj == 'J'
     #     rep_map = cdr3s_human.all_jseq_representative[ organism ]
-    return set( [ all_genes[organism][x].rep for x,y in hits.iteritems() if y >= top_score ] )
+    return { all_genes[organism][x].rep for x, y in hits.items() if y >= top_score }
 
 
 def reps_from_genes( genes, organism, mm1=False, trim_allele=False ):
@@ -94,16 +94,16 @@ def get_mm1_rep_ignoring_allele( gene, organism ): # helper fxn
     return rep
 def get_allele2mm1_rep_gene_for_counting(all_genes):
     allele2mm1_rep_gene_for_counting = {}
-    for organism in ['human','mouse']:
+    for organism in ['human', 'mouse']:
         allele2mm1_rep_gene_for_counting[ organism ] = {}
 
         for chain in 'AB':
 
             ## look at gene/allele maps
-            vj_alleles = { 'V': [ id for (id,g) in all_genes[organism].iteritems() if g.chain==chain and g.region=='V'],
-                           'J': [ id for (id,g) in all_genes[organism].iteritems() if g.chain==chain and g.region=='J'] }
+            vj_alleles = { 'V': [ id for (id, g) in all_genes[organism].items() if g.chain==chain and g.region=='V'],
+                           'J': [ id for (id, g) in all_genes[organism].items() if g.chain==chain and g.region=='J'] }
 
-            for vj, alleles in vj_alleles.iteritems():
+            for vj, alleles in vj_alleles.items():
                 gene2rep = {}
                 gene2alleles = {}
                 rep_gene2alleles = {}
@@ -123,10 +123,10 @@ def get_allele2mm1_rep_gene_for_counting(all_genes):
                     gene2alleles[gene].append( allele )
 
                 merge_rep_genes = {}
-                for gene,reps in gene2rep.iteritems():
+                for gene, reps in gene2rep.items():
                     if len(reps)>1:
                         assert vj=='V'
-                        logger.debug('multireps: %s, %s, %s',organism, gene, reps)
+                        logger.debug('multireps: %s, %s, %s', organism, gene, reps)
                         '''
                         for allele in gene2alleles[gene]:
                             logger.debug('%s %s %s %s' % (' '.join(all_genes[organism][allele].cdrs), allele, get_rep(allele,organism), get_mm1_rep(allele,organism)))
@@ -134,12 +134,11 @@ def get_allele2mm1_rep_gene_for_counting(all_genes):
 
                         ## we are going to merge these reps
                         ## which one should we choose?
-                        l = [ (len(rep_gene2alleles[rep]), rep ) for rep in reps ]
-                        l.sort()
+                        l = sorted([ (len(rep_gene2alleles[rep]), rep ) for rep in reps ])
                         l = l[::-1]
                         assert l[0][0] > l[1][0]
                         toprep = l[0][1]
-                        for (count,rep) in l:
+                        for (count, rep) in l:
                             if rep in merge_rep_genes:
                                 assert rep == toprep and merge_rep_genes[rep] == rep
                             merge_rep_genes[ rep ] = toprep
@@ -150,7 +149,7 @@ def get_allele2mm1_rep_gene_for_counting(all_genes):
                     if count_rep in merge_rep_genes:
                         count_rep = merge_rep_genes[ count_rep ]
                     allele2mm1_rep_gene_for_counting[ organism ][ allele] = count_rep
-                    logger.debug('allele2mm1_rep_gene_for_counting: %s, %s, %s',organism, allele, count_rep)
+                    logger.debug('allele2mm1_rep_gene_for_counting: %s, %s, %s', organism, allele, count_rep)
     return allele2mm1_rep_gene_for_counting
 
 allele2mm1_rep_gene_for_counting = get_allele2mm1_rep_gene_for_counting(all_genes)
@@ -176,19 +175,18 @@ def assign_label_reps_and_colors_based_on_most_common_genes_in_repertoire( tcr_i
         for tcr_info in tcr_infos:
             reps = tcr_info[countreps_tag].split(';')
             for rep in reps:
-                counts[rep] = counts.get(rep,0)+1
+                counts[rep] = counts.get(rep, 0)+1
 
         newcounts = {}
         for tcr_info in tcr_infos:
             reps = tcr_info[countreps_tag].split(';')
-            toprep = max( [ ( counts[x],x) for x in reps ] )[1]
+            toprep = max( [ ( counts[x], x) for x in reps ] )[1]
             tcr_info[rep_tag] = toprep ## doesnt have allele info anymore
-            newcounts[toprep] = newcounts.get(toprep,0)+1
+            newcounts[toprep] = newcounts.get(toprep, 0)+1
 
-        l = [(y,x) for x,y in newcounts.iteritems()]
-        l.sort()
+        l = sorted([(y, x) for x, y in newcounts.items()])
         l.reverse()
-        rep_colors = dict( zip( [x[1] for x in l], html_colors.get_rank_colors_no_lights(len(l)) ) )
+        rep_colors = dict( list(zip( [x[1] for x in l], html_colors.get_rank_colors_no_lights(len(l)) )) )
         for tcr_info in tcr_infos:
             tcr_info[ color_tag ] = rep_colors[ tcr_info[ rep_tag ] ]
 

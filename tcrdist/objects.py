@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger('objects.py')
 
 from . import translation
-from .blosum import bsd4,blosum
+from .blosum import bsd4, blosum
 
 class DotDict(dict):
     def __getattr__(self, item):
@@ -39,17 +39,17 @@ class TCRClone(DotDict):
     epitope = ''
 
     def __init__(self, chain1, chain2, **kwargs):
-        for k in chain1.keys():
+        for k in list(chain1.keys()):
             self[k] = chain1[k]
-        for k in chain2.keys():
+        for k in list(chain2.keys()):
             self[k] = chain2[k]
 
-        for k in kwargs.keys():
+        for k in list(kwargs.keys()):
             self[k] = kwargs[k]
 
 class TCRChain(DotDict):
     def __init__(self, **kwargs):
-        for k in kwargs.keys():
+        for k in list(kwargs.keys()):
             self[k] = kwargs[k]
 
 class TCR_Gene:
@@ -69,12 +69,12 @@ class TCR_Gene:
         else:
             self.cdrs = l['cdrs'].split(self.cdrs_sep)
             ## these are still 1-indexed !!!!!!!!!!!!!!
-            self.cdr_columns = [ map( int, x.split('-')) for x in l['cdr_columns'].split(self.cdrs_sep) ]
+            self.cdr_columns = [ list(map( int, x.split('-'))) for x in l['cdr_columns'].split(self.cdrs_sep) ]
         frame = l['frame']
         assert frame in [1, 2, 3]
         self.nucseq_offset = frame - 1 ## 0, 1 or 2 (0-indexed for python)
         self.protseq = translation.get_translation( self.nucseq, frame )[0]
-        assert self.protseq == self.alseq.replace(self.gap_character,'')
+        assert self.protseq == self.alseq.replace(self.gap_character, '')
         # sanity check
         if self.cdrs:
             assert self.cdrs == [ self.alseq[ x[0]-1 : x[1] ] for x in self.cdr_columns ]
@@ -91,7 +91,7 @@ class DistanceParams(DotDict):
         self.scale_factor = 1.0
         if config_string:
             l = config_string.split(',')
-            for tag,val in [x.split(':') for x in l ]:
+            for tag, val in [x.split(':') for x in l ]:
                 if tag == 'gap_penalty_cdr3_region':
                     self.gap_penalty_cdr3_region = float(val)
                 elif tag == 'gap_penalty_v_region':
@@ -103,10 +103,10 @@ class DistanceParams(DotDict):
                 elif tag == 'scale_factor':
                     self.scale_factor = float(val)
                 elif tag == 'align_cdr3s':
-                    assert val in ['True','False']
+                    assert val in ['True', 'False']
                     self.align_cdr3s = ( val == 'True' )
                 elif tag == 'trim_cdr3s':
-                    assert val in ['True','False']
+                    assert val in ['True', 'False']
                     self.trim_cdr3s = ( val == 'True' )
                 else:
                     logger.error('unrecognized tag: %s' % tag)

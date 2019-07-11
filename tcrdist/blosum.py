@@ -18,15 +18,15 @@ bsd4 = {}
 
 for a in amino_acids:
     for b in amino_acids:
-        bab = blosum[(a,b)]
+        bab = blosum[(a, b)]
         if a==b:
-            bsd4[(a,b)] = 0
+            bsd4[(a, b)] = 0
         else: ## different
             assert bab<4
             if bab<0:
-                bsd4[(a,b)] = 4
+                bsd4[(a, b)] = 4
             else:
-                bsd4[(a,b)] = 4-bab
+                bsd4[(a, b)] = 4-bab
 
 if __name__ == '__main__':
     from .amino_acids import amino_acids
@@ -34,9 +34,9 @@ if __name__ == '__main__':
     tag = 'bsd4'
     for a in amino_acids:
         for b in amino_acids:
-            print('DIST:',tag,a+b,bsd4[(a,b)],'blosum:',blosum[(a,b)])
+            print(('DIST:', tag, a+b, bsd4[(a, b)], 'blosum:', blosum[(a, b)]))
             for c in amino_acids:
-                dev = bsd4[(a,c)] - ( bsd4[(a,b)] + bsd4[(b,c)] )
+                dev = bsd4[(a, c)] - ( bsd4[(a, b)] + bsd4[(b, c)] )
                 if dev>0:
-                    print('DEV:',tag, dev, a+c, bsd4[(a,c)], a+b,bsd4[(a,b)], b+c,bsd4[(b,c)])
+                    print(('DEV:', tag, dev, a+c, bsd4[(a, c)], a+b, bsd4[(a, b)], b+c, bsd4[(b, c)]))
 

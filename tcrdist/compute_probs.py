@@ -34,7 +34,7 @@ def filterOutRow(r, max_cdr3_length=30, allow_stop_codons=False, allow_X=False):
             if not aa in amino_acids:
                 assert aa in 'X*'
                 if ( aa == '*' and not allow_stop_codons) or ( aa == 'X' and not allow_X ):
-                    logger.debug('{} skipping: badseq: {} {}'.format(theid, cdr3a_protseq,cdr3b_protseq))
+                    logger.debug('{} skipping: badseq: {} {}'.format(theid, cdr3a_protseq, cdr3b_protseq))
                     fo = True
                     break
     return fo
@@ -72,8 +72,8 @@ def samplerProb(r, chain):
                                                return_final_cdr3_nucseq=True)
 
     if new_cdr3_nucseq != r['cdr3%s_nucseq'%c]: ## note note note
-        logger.warning('new_cdr3%s_nucseq: %s %s',c,len(new_cdr3_nucseq),new_cdr3_nucseq)
-        logger.warning('old_cdr3%s_nucseq: %s %s',c,len(r['cdr3%s_nucseq'%c]), r['cdr3%s_nucseq'%c])
+        logger.warning('new_cdr3%s_nucseq: %s %s', c, len(new_cdr3_nucseq), new_cdr3_nucseq)
+        logger.warning('old_cdr3%s_nucseq: %s %s', c, len(r['cdr3%s_nucseq'%c]), r['cdr3%s_nucseq'%c])
         new_cdr3_protseq = get_translation( new_cdr3_nucseq, '+1' )[0]
     else:
         new_cdr3_protseq = r['cdr3%s'%c]
@@ -111,7 +111,7 @@ def getMaskedSeqs(r, chain):
     #assert trims[1] + trims[2] + inserts[0] + inserts[1] + inserts[2] == 0
     #assert inserts[3] == len( cdr3_new_nucseq )
 
-    it = '+%d-%d'%(sum(inserts[1:]),sum(trims))
+    it = '+%d-%d'%(sum(inserts[1:]), sum(trims))
     return cdr3_protseq_masked, it, cdr3_new_nucseq
 
 def rearrangementProb(r, chain):

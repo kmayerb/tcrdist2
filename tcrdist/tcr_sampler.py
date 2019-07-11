@@ -22,8 +22,8 @@ def count_matches(a, b, mismatch_score=-3):
     best_score=0
     score=0
     num_matches = 0
-    for i in range(min(len(a),len(b))):
-        if a[i] == b[i] or logo_tools.nuc_match_lower_case.get( (a[i],b[i]), False ):
+    for i in range(min(len(a), len(b))):
+        if a[i] == b[i] or logo_tools.nuc_match_lower_case.get( (a[i], b[i]), False ):
             score += match_score
         else:
             score += mismatch_score
@@ -79,7 +79,7 @@ def get_j_cdr3_nucseq( organism, j_gene, paranoid = False ):
 
     ## goes up to (but not including) GXG
     old_num_genome_j_positions_in_loop = cdr3s_human.all_num_genome_j_positions_in_loop[organism][ab][j_gene] + 2
-    num_genome_j_positions_in_loop = len( jg.cdrs[0].replace(gap_character,''))
+    num_genome_j_positions_in_loop = len( jg.cdrs[0].replace(gap_character, ''))
     assert old_num_genome_j_positions_in_loop == num_genome_j_positions_in_loop
 
     ## trim j_nucseq so that it extends up to the F/W position
@@ -191,21 +191,21 @@ def analyze_junction( organism, v_gene, j_gene, cdr3_protseq, cdr3_nucseq, force
     elif ab == 'B':
         ## look for one of the d-gene segments
         max_overlap = 0
-        for d_id, d_nucseq in tcr_rearrangement.all_trbd_nucseq[organism].iteritems():
+        for d_id, d_nucseq in tcr_rearrangement.all_trbd_nucseq[organism].items():
             if force_d_id and d_id != force_d_id: continue
             for start in range(len(d_nucseq)):
-                for stop in range(start,len(d_nucseq)):
+                for stop in range(start, len(d_nucseq)):
                     overlap_seq = d_nucseq[start:stop+1]
                     if overlap_seq in nseq:
                         if len(overlap_seq)>max_overlap:
                             max_overlap = len(overlap_seq)
                             best_d_id = d_id
                             best_overlap_seq = overlap_seq
-                            best_trim = (start,len(d_nucseq)-1-stop)
+                            best_trim = (start, len(d_nucseq)-1-stop)
 
         if max_overlap: ## found a bit of d, although it might be bogus (eg 1 nt)
             pos = nseq.index( best_overlap_seq )
-            for i in range(pos+num_matched_v,pos+num_matched_v+max_overlap):
+            for i in range(pos+num_matched_v, pos+num_matched_v+max_overlap):
                 assert ncount[i] == 1
                 ncount[i] = 0
                 cdr3_nucseq_src[i] = 'D'
@@ -239,9 +239,9 @@ def analyze_junction( organism, v_gene, j_gene, cdr3_protseq, cdr3_nucseq, force
         newseq = ''
         newseq_ncount = ''
 
-        for i,a in enumerate(cdr3_protseq):
+        for i, a in enumerate(cdr3_protseq):
             nc = sum(ncount[3*i:3*i+3])
-            newseq_ncount += `nc`
+            newseq_ncount += repr(nc)
             if nc>1:
                 newseq += a
             elif nc==1:
@@ -281,9 +281,9 @@ def get_coding_probability( nucseq, protseq ):
         count=0
         for c in reverse_genetic_code[aa]:
             match = True
-            for x,y in zip(c,ncodon):
+            for x, y in zip(c, ncodon):
                 ## want to allow for the possibility of 'wskmyr' symbols in nucseq?
-                if x!= y and y != 'n' and not logo_tools.nuc_match_lower_case.get( (x,y), False ):
+                if x!= y and y != 'n' and not logo_tools.nuc_match_lower_case.get( (x, y), False ):
                     match = False
                     break
             if match:
@@ -372,7 +372,7 @@ def alpha_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protse
             for c in reverse_genetic_code[target_aa]:
                 if c.startswith(codon):
                     matched = True
-            logger.debug('V %s %s %s',codon, target_aa, matched)
+            logger.debug('V %s %s %s', codon, target_aa, matched)
             if matched:
                 max_v_germline = i+1
             else:
@@ -384,13 +384,13 @@ def alpha_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protse
             len_codon = (i%3) + 1
             if i_aa >= len(cdr3_protseq): break
             end   = len(j_nucseq)-3*i_aa
-            codon = j_nucseq[max(0,end-len_codon):end]
+            codon = j_nucseq[max(0, end-len_codon):end]
             target_aa = cdr3_protseq[ len_cdr3_protseq-1-i_aa ]
             matched = False
             for c in reverse_genetic_code[target_aa]:
                 if c.endswith(codon):
                     matched = True
-            logger.debug('J %s %s %s',codon, target_aa, matched)
+            logger.debug('J %s %s %s', codon, target_aa, matched)
             if matched:
                 max_j_germline = i+1
             else:
@@ -398,21 +398,21 @@ def alpha_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protse
 
 
     min_insert = 3*len_cdr3_protseq - max_v_germline - max_j_germline
-    logger.debug('max_v_germline: %s %s %s %s',max_v_germline, len_v_nucseq, v_nucseq, cdr3_nucseq)
+    logger.debug('max_v_germline: %s %s %s %s', max_v_germline, len_v_nucseq, v_nucseq, cdr3_nucseq)
 
     logger.debug('max_j_germline: %s %s %s %s %s',
                  max_j_germline,
                  len_j_nucseq, j_nucseq,
                  cdr3_nucseq,  all_genes[organism][j_gene].protseq)
 
-    logger.debug('min_insert: %s %s %s',min_insert,max_v_germline,max_j_germline)
+    logger.debug('min_insert: %s %s %s', min_insert, max_v_germline, max_j_germline)
 
     total_prob = 0.0
-    min_extra_trim = max(0,-1*min_insert)
-    for extra_trim in range(min_extra_trim,100):
+    min_extra_trim = max(0, -1*min_insert)
+    for extra_trim in range(min_extra_trim, 100):
         old_total_prob = total_prob
         total_prob_this_trim = 0.0
-        for extra_v_trim in range(0,extra_trim+1):
+        for extra_v_trim in range(0, extra_trim+1):
             extra_j_trim = extra_trim - extra_v_trim
 
             v_trim = len_v_nucseq - max_v_germline + extra_v_trim
@@ -436,7 +436,7 @@ def alpha_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protse
             logger.debug('coding_prob: %s %s %s %s %s %s %s %s',
                            cdr3_protseq,
                            v_trim, j_trim,
-                           n_insert,total_prob,coding_prob,trim_prob,n_nucseq)
+                           n_insert, total_prob, coding_prob, trim_prob, n_nucseq)
 
         if extra_trim>2 and total_prob_this_trim < error_threshold * old_total_prob:
             break
@@ -512,7 +512,7 @@ def beta_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protseq
             for c in reverse_genetic_code[target_aa]:
                 if c.startswith(codon):
                     matched = True
-            logger.debug('V %s %s %s',codon, target_aa, matched)
+            logger.debug('V %s %s %s', codon, target_aa, matched)
             if matched:
                 max_v_germline = i+1
             else:
@@ -524,39 +524,39 @@ def beta_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protseq
             len_codon = (i%3) + 1
             if i_aa >= len(cdr3_protseq): break
             end   = len(j_nucseq)-3*i_aa
-            codon = j_nucseq[max(0,end-len_codon):end]
+            codon = j_nucseq[max(0, end-len_codon):end]
             target_aa = cdr3_protseq[ len_cdr3_protseq-1-i_aa ]
             matched = False
             for c in reverse_genetic_code[target_aa]:
                 if c.endswith(codon):
                     matched = True
-            logger.debug('J %s %s %s',codon, target_aa, matched)
+            logger.debug('J %s %s %s', codon, target_aa, matched)
             if matched:
                 max_j_germline = i+1
             else:
                 break
 
 
-    logger.debug('max_v_germline: %s %s',max_v_germline, len(v_nucseq))
+    logger.debug('max_v_germline: %s %s', max_v_germline, len(v_nucseq))
 
     ## how about J?
 
     min_insert = 3*len_cdr3_protseq - max_v_germline - max_j_germline
-    logger.debug('max_j_germline: %s %s %s %s',max_j_germline, len_j_nucseq,cdr3_protseq,
+    logger.debug('max_j_germline: %s %s %s %s', max_j_germline, len_j_nucseq, cdr3_protseq,
                     all_genes[organism][j_gene].protseq)
-    logger.debug('min_insert: %s %s %s',min_insert,max_v_germline,max_j_germline)
+    logger.debug('min_insert: %s %s %s', min_insert, max_v_germline, max_j_germline)
 
     trbj_index = int( j_gene[4] ) ## to decide which d genes to allow
-    assert trbj_index in [1,2]
+    assert trbj_index in [1, 2]
 
     total_prob = 0.0
-    min_extra_trim = max(0,-1*min_insert)
+    min_extra_trim = max(0, -1*min_insert)
 
-    dids = tcr_rearrangement.all_trbd_nucseq[organism].keys()
-    for extra_trim in range(min_extra_trim,100):
+    dids = list(tcr_rearrangement.all_trbd_nucseq[organism].keys())
+    for extra_trim in range(min_extra_trim, 100):
         old_total_prob = total_prob
         total_prob_this_trim = 0.0
-        for extra_v_trim in range(0,extra_trim+1):
+        for extra_v_trim in range(0, extra_trim+1):
             extra_j_trim = extra_trim - extra_v_trim
 
             v_trim = len_v_nucseq - max_v_germline + extra_v_trim
@@ -604,7 +604,7 @@ def beta_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protseq
                                 assert len(n_nucseq) == len_cdr3_nucseq
                                 matched = True
                                 #print n_nucseq, cdr3_nucseq
-                                for a,b in zip( n_nucseq, cdr3_nucseq ):
+                                for a, b in zip( n_nucseq, cdr3_nucseq ):
                                     if a!=b and a!= 'n':
                                         matched=False
                                 if matched:
@@ -621,15 +621,15 @@ def beta_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protseq
 
                             if coding_prob:
                                 logger.debug('coding_prob: %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s',
-                                             cdr3_protseq,"trims:",v_trim,d0_trim,d1_trim,j_trim,
-                                            "inserts:",num_n_before_d,num_n_after_d,
-                                            "d_insert:",d_insert,
-                                            "total_prob:",total_prob,"prob:",prob,"coding_prob:",coding_prob,
-                                            "trim_prob:",trim_prob,n_nucseq)
+                                             cdr3_protseq, "trims:", v_trim, d0_trim, d1_trim, j_trim,
+                                            "inserts:", num_n_before_d, num_n_after_d,
+                                            "d_insert:", d_insert,
+                                            "total_prob:", total_prob, "prob:", prob, "coding_prob:", coding_prob,
+                                            "trim_prob:", trim_prob, n_nucseq)
 
 
-            logger.debug('n_insert: %s %s %s %s %s %s %s',n_insert,extra_v_trim,extra_j_trim,'total_prob:',total_prob,
-                    'total_prob_this_insert:',total_prob_this_insert)
+            logger.debug('n_insert: %s %s %s %s %s %s %s', n_insert, extra_v_trim, extra_j_trim, 'total_prob:', total_prob,
+                    'total_prob_this_insert:', total_prob_this_insert)
 
         if extra_trim>2 and total_prob_this_trim < error_threshold * old_total_prob:
             break
@@ -643,16 +643,16 @@ def setup_random_sampling_list( probs ):
     #print 'setup_random_sampling_list:',probs
     total_prob = 0.0
     l = []
-    for k,p in probs.iteritems():
+    for k, p in probs.items():
         total_prob += p
-        l.append( ( total_prob,k ) )
+        l.append( ( total_prob, k ) )
     assert abs( 1-total_prob )<1e-3 ## since we normalized already...
     return l
 
 def sample_from_random_sampling_list( l ):
     #print 'sample_from_random_sampling_list:',l
     f = random.random()
-    for (prob,k) in l:
+    for (prob, k) in l:
         if f<=prob:
             return k
     return l[-1][1]
@@ -689,8 +689,8 @@ def sample_alpha_sequences( organism, nsamples, v_gene, j_gene, force_aa_length 
         ntries += 1
         if ntries%100000==0:
             logger.info('sample_alpha_sequences: ntries: {} {} {} {} force_aa_length {}'.format(ntries,
-                                                                                                nsampled,v_gene,
-                                                                                                j_gene,force_aa_length))
+                                                                                                nsampled, v_gene,
+                                                                                                j_gene, force_aa_length))
         if ntries>max_tries:
             break
 
@@ -756,15 +756,15 @@ def sample_beta_sequences( organism, nsamples, v_gene, j_gene, force_aa_length =
     vd_insert_probsl = setup_random_sampling_list( trim_probs[ 'B_vd_insert' ] )
     dj_insert_probsl = setup_random_sampling_list( trim_probs[ 'B_dj_insert' ] )
 
-    dids = tcr_rearrangement.all_trbd_nucseq[organism].keys()
+    dids = list(tcr_rearrangement.all_trbd_nucseq[organism].keys())
 
-    d_trim_probsl = dict( zip( dids, [ setup_random_sampling_list( trim_probs['B_D{}_d01_trim'.format(x)] )
-                                       for x in dids] ) )
+    d_trim_probsl = dict( list(zip( dids, [ setup_random_sampling_list( trim_probs['B_D{}_d01_trim'.format(x)] )
+                                       for x in dids] )) )
     # d_trim_probsl = { 1: setup_random_sampling_list( trim_probs['B_D1_d01_trim'] ),
     #                   2: setup_random_sampling_list( trim_probs['B_D2_d01_trim'] ) }
 
     jno = int( j_gene[4] )
-    assert jno in [1,2]
+    assert jno in [1, 2]
     if jno == 1:
         allowed_dgenes = [1]
     else:
@@ -778,8 +778,8 @@ def sample_beta_sequences( organism, nsamples, v_gene, j_gene, force_aa_length =
         ntries += 1
         if ntries%100000==0:
             logger.info('sample_beta_sequences: ntries: {} {} {} {} force_aa_length {}'.format(ntries,
-                                                                                               nsampled,v_gene,
-                                                                                               j_gene,force_aa_length))
+                                                                                               nsampled, v_gene,
+                                                                                               j_gene, force_aa_length))
         if ntries>max_tries:
             break
         ## pick d segment
@@ -792,7 +792,7 @@ def sample_beta_sequences( organism, nsamples, v_gene, j_gene, force_aa_length =
         n_vd_insert = sample_from_random_sampling_list( vd_insert_probsl )
         n_dj_insert = sample_from_random_sampling_list( dj_insert_probsl )
 
-        n_d0_trim,n_d1_trim = sample_from_random_sampling_list( d_trim_probsl[dgene] )
+        n_d0_trim, n_d1_trim = sample_from_random_sampling_list( d_trim_probsl[dgene] )
 
         if n_dj_insert > max_dj_insert: continue ## some of these are probably bogus (sequencing errors)
         if vtrim > max_v_trim or jtrim > max_j_trim or (n_d0_trim + n_d1_trim) > d_nucseq_len: continue
