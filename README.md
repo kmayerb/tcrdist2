@@ -5,14 +5,18 @@
 
 2019-07-10
 
+tcrdist2 is a API-enabled toolkit expanding on the T-cell receptor analysis pipeline
+developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and
+colleagues as part of a T-cell receptor epitope specificity analysis
+in Dash et al. [Nature (2017) doi:10.1038/nature22383](https://doi.org/10.1038/nature22383).
 
-**tcrdist2** is a API-enabled toolkit of T Cell Receptor analysis inspired by the TCRdist pipeline developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and colleagues as part of a T-cell receptor epitope specificity analysis in Dash et al. [Nature (2017) doi:10.1038/nature22383](https://doi.org/10.1038/nature22383). The original code for replicating analysis performed in the manuscript can be found [here](https://github.com/phbradley/tcr-dist).
+The original code for replicating analysis performed in the manuscript can be found [here](https://github.com/phbradley/tcr-dist).
 
 ---
 
 ## Documentation
 
-Documentation, Installation Instructions, and Examples
+Documentation, installation instructions, and examples
 can be found here:
 
 [tcrdist2.readthedocs.io](https://tcrdist2.readthedocs.io/en/latest/)

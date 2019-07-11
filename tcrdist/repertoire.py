@@ -182,9 +182,14 @@ class TCRrep:
         to_matrix : boolean
             True will return pairwise distance as result as a 2D ndarray
 
-    	Assigns
-    	-------
-    	self.[cdr3|cdr2|cdr1|pmhc]_[a|b|d|g]_aa_pw objects
+
+
+
+        Notes
+    	-----
+
+        Uses _assign_pw_result to assign self.[cdr3|cdr2|cdr1|pmhc]_[a|b|d|g]_aa_pw objects
+
 
         Examples
     	--------

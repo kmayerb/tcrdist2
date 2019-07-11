@@ -1,13 +1,6 @@
 Example 1
 =========
 
-Paired T cell receptor data is used to demonstrate some of the core
-features of tcrdist2.
-
-
-Example 1A: Compute Hamming Distances for Paired Alpha/Beta Chains
-------------------------------------------------------------------
-
 The data for this example come from the paper "Quantifiable predictive features
 define epitope-specific T cell receptor repertoires" by Dash and colleagues (2017)
 `doi:10.1038/nature22383 <https://www.nature.com/articles/nature22383>`_.
@@ -17,7 +10,15 @@ The CDR3 alpha and beta sequences and V and J gene usage data can be downloaded 
 Data from this study were selected from the vdjDB using the
 search filter (references == PMID:28646592). This query returns CDR3 sequences
 and predicted V and J gene usage for 2442 paired alpha/beta T cell receptors
-from human and mouse subjects with known epitope specificities.
+from human and mouse subjects with predicted epitope specificities.
+
+Paired T cell receptor data demonstrate some of the core
+features of tcrdist2.
+
+
+Example 1A: Compute Hamming Distances for Paired Alpha/Beta Chains
+------------------------------------------------------------------
+.. image:: f2.png
 
 The data were downloaded as a tab separated flat
 file (*DMJVdb_PMID28636592.tsv*) which can be downloaded here [URL]
@@ -165,29 +166,15 @@ Stepwise Explanation
     takes a dictionary which specifies greater weight on
     sequence differences occurring in certain CDRs
 
+
+
 That's it! If you've followed along you've computed over 2,000,000 tcrdists from
 real data in later examples we will show how tcrdist2 permits customization
-on this general workflow.
+on this general workflow. The python code for producing the clustered Heatmap
+figure directly from tcrdist output is shown at the end of this section.
 
 
-Examining the Results
-^^^^^^^^^^^^^^^^^^^^^
 
-The visualization section of these docs will demonstrate the custom plotting tools
-developed in the original version of `TCRdist <https://github.com/phbradley/tcr-dist>`_;
-However, let us take a quick look at the results from the workflow presented above
-using some standard python visualization tools.
-
-Are 'tcrdistances' are smaller between receptors with shared versus
-distinct epitope specificities?
-
-Clustered Heatmap
-^^^^^^^^^^^^^^^^^
-
-.. image:: f2.png
-
-The python code for producing this figure directly from tcrdist output is shown
-at the end of this section.
 
 
 Example 1B: Accessing Individual CDR Results
@@ -213,14 +200,14 @@ TCRrep.[cdr1|cdr2|cdr3|pmhc]_[a|b|d|g]_aa_pw
 - the final position reference the object pw: pairwise, sm: substitution matrix, etc.
 
 
-For example, the pairwise results for the cdr3 alpha region can be directly accessed:
+For example, the pairwise results for the alpha chain cdr3 region can be directly accessed:
 
 .. code-block:: python
 
   tr.cdr3_a_aa_pw
 
 
-The pairwise results for the cdr1 beta region can be directly accessed:
+The pairwise results for the beta chain cdr1 region can be directly accessed:
 
 .. code-block:: python
 
@@ -291,7 +278,7 @@ Example 1D: Computing Distances with Substitution Matrices
 ----------------------------------------------------------
 
 The introductory example used the Hamming Distance (number of aligned positions
-with mismatching information) to calculate pairwise distance between each CDR3.
+with mismatching information) to calculate pairwise distance between each receptor.
 
 Another approach is to use reciprocal Needleman-Wunsch alignment scores.
 In this case, :py:attr:`metric` is set to "nw" for
@@ -453,6 +440,7 @@ Steps 1-10 are identical to Example 1.
 Putting It Together With Only CDR3s
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+
 .. code-block:: python
 
   import pandas as pd
@@ -519,6 +507,8 @@ Steps 1-10 are identical to Example and 1 C.
     (a tcrdist will be computed but a warning message will be thrown
     reminding the user that not all CDRs were used in the metric)
 
+
+.. image:: nw_cdr3.png
 
 
 
@@ -593,6 +583,15 @@ Additional Code for Plots
 -------------------------
 
 
+Examining the Results
+^^^^^^^^^^^^^^^^^^^^^
+
+The visualization section of these docs will demonstrate the custom plotting tools
+developed in the original version of `TCRdist <https://github.com/phbradley/tcr-dist>`_;
+However, let us take a quick look at the results from the workflow presented above
+using some standard python visualization tools.
+
+
 Code For Clustered Heatmap
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -626,6 +625,53 @@ Code For Clustered Heatmap
   g.ax_row_dendrogram.set_visible(False)
   g.ax_col_dendrogram.legend(loc="center", ncol = 4)
   g.cax.set_position([.97, .2, .03, .45])
+
+
+
+Code For Clustered Blosum62 Heatmap CDR3s
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+  %matplotlib inline
+  import matplotlib
+  import matplotlib.pyplot as plt
+  import seaborn as sns
+  # Convert the ndarray containing tcrdist to a DataFrame
+  px = pd.DataFrame(tr2.paired_tcrdist)
+
+  bostock3 = ["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3","#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd","#ccebc5","#ffed6f"]
+  lut = dict(zip(tr2.clone_df.epitope.unique(), bostock3))
+  row_colors = tr2.clone_df.epitope.map(lut)
+
+  # Cluster using seaborn
+  g = sns.clustermap(data= px,
+                     row_colors = row_colors,
+                     col_colors = row_colors,
+                     row_cluster=True,
+                     col_cluster=True,
+                     yticklabels=False,
+                     xticklabels=False,
+                    )
+
+  # bostok3 : Mike Bostock's 3rd Categorical Set
+  bostock3 = ["#8dd3c7","#ffffb3","#bebada","#fb8072",
+              "#80b1d3","#fdb462","#b3de69","#fccde5",
+              "#d9d9d9","#bc80bd","#ccebc5","#ffed6f"]
+  lut = dict(zip(tr2.clone_df.epitope.unique(), bostock3))
+  row_colors = tr2.clone_df.epitope.map(lut)
+
+  # Make a Custom Legend
+  for label in tr2.clone_df.epitope.unique():
+      g.ax_col_dendrogram.bar(0, 0, color=lut[label],
+                              label=label, linewidth=0)
+
+  g.ax_row_dendrogram.set_visible(False)
+  g.ax_col_dendrogram.legend(loc="center", ncol = 4)
+  g.cax.set_position([.97, .2, .03, .45])
+
+
+
 
 Distribution of Distances
 ^^^^^^^^^^^^^^^^^^^^^^^^^
