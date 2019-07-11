@@ -4,37 +4,34 @@ Example 1
 The data for this example come from the paper "Quantifiable predictive features
 define epitope-specific T cell receptor repertoires" by Dash and colleagues (2017)
 `doi:10.1038/nature22383 <https://www.nature.com/articles/nature22383>`_.
-The CDR3 alpha and beta sequences and V and J gene usage data can be downloaded from the
+The CDR3 alpha and beta sequences and V and J gene usage can be downloaded from the
 `vdjDB <https://vdjdb.cdr3.net/search>`_.
 
 Data from this study were selected from the vdjDB using the
-search filter (references == PMID:28646592). This query returns CDR3 sequences
-and predicted V and J gene usage for 2442 paired alpha/beta T cell receptors
+search filter (references == PMID:28646592). This query returns data
+for 2442 paired alpha/beta T cell receptors
 from human and mouse subjects with predicted epitope specificities.
 
-Paired T cell receptor data demonstrate some of the core
-features of tcrdist2.
 
-
-Example 1A: Compute Hamming Distances for Paired Alpha/Beta Chains
-------------------------------------------------------------------
+1A: Compute Hamming Distances for Paired Alpha/Beta Chains
+----------------------------------------------------------
 .. image:: f2.png
 
-The data were downloaded as a tab separated flat
-file (*DMJVdb_PMID28636592.tsv*) which can be downloaded here [URL]
+Data were downloaded as a tab separated flat
+file (*DMJVdb_PMID28636592.tsv*).
 
-The application programming interface for tcrdist2 involves a set of step-wise
-commands centered around the :py:class:`tcrdist.repertoire.TCRrep` class, which
+The application programming interface for tcrdist2 involves step-wise
+commands using the :py:class:`tcrdist.repertoire.TCRrep` class, which
 stores input data, methods, user-parameters, and results.
 
-Before explaining each step and method options in detail, it is useful to present these steps as a
-block of stepwise code. Below is a complete set of commands calculating
+Before explaining steps and method options in detail, it is useful to present
+these steps as a block of code needed to calculate the
 'tcrdistances' -- weighted pairwise distance measures based on comparison
 across multiple T cell receptor complementarity-determining regions (CDRs) --
 between all mouse T cell clones in the Dash et al. 2017 dataset.
 
-In addition to annotations describing each step, we follow this
-introductory example with more information on alternative analysis options.
+Numbered annotations describe each step. We then elaborate on
+alternative analysis options.
 
 .. code-block:: python
 
@@ -88,10 +85,16 @@ introductory example with more information on alternative analysis options.
 Stepwise Explanation
 ^^^^^^^^^^^^^^^^^^^^
 
-#. Load .tsv file to a Pandas DataFrame.
+#. Read the .tsv data file into a pandas DataFrame.
 
-#. Use :py:func:`tcrdist.mappers.vdjdb_to_tcrdist2` to convert raw vdjDB DataFrame to
-   a DataFrame with the correct tcrdist2 headers.
+#. Call :py:func:`tcrdist.mappers.vdjdb_to_tcrdist2` to select and rename
+   the appropriate columns.
+   You are encouraged to compare the raw and tcrdist2 formatted inputs
+
+   .. code-block:: python
+
+      pd_df.head()
+      t_df.head()
 
 #. Examine instances of human and mouse sequences in the data.
 
@@ -102,11 +105,9 @@ Stepwise Explanation
 
 #. Create an instance of the :py:class:`tcrdist.repertoire.TCRrep` class
    initialized with the `t_df_mus` DataFrame.
-   Upon initialization, the :py:attr:`organism` argument must be set to
-   "mouse" and the correctly formatted input data passed to the :py:attr:`cell_df'
-   argument. The data is stored as :py:attr:`tcrdist.repertoire.TCRrep.cell_df`.
-   You are encouraged to examine it to acquaint yourself with tcrdist2 input
-   data fields:
+    - Upon initialization, the :py:attr:`organism` argument must be set to
+      "mouse"
+    - The data is now stored as :py:attr:`tcrdist.repertoire.TCRrep.cell_df`.
 
    .. code-block:: python
 
@@ -136,8 +137,7 @@ Stepwise Explanation
    - Any row of the DataFrame
    missing any of the CDRs specified in the `index_col` list will not be
    included in the :py:obj:`tcrdist.repertoire.TCRrep.clone_df` DataFrame.
-   You are encouraged to examine it to acquaint yourself with
-   data fields:
+   The :py:obj:`clone_df` data is now stored:
 
    .. code-block:: python
 
@@ -151,36 +151,32 @@ Stepwise Explanation
       mismatching positions between two aligned strings. In a later example,
       we will demonstrate how tcrdist2 can incorporate amino acid
       substitution matrices in calculating a distance score.
-    - `processes` argument is optional for specifying the number of
-      available CPUs. tcrdist2 uses python's multiprocessing package to
+    - `processes` specified the number of available CPUs.
+      tcrdist2 uses python's multiprocessing package to
       parallelize pairwise distance computation.
 
-#. Repeat the previous step setting `chain` argument to 'beta'. We will show how
-   individual CDR computations can be specified in a later example.
+#. Repeat the previous step setting `chain` argument to 'beta'.
 
-#. Once the site-specific individual pairwise distances are computed across all
-   of the complementarity determining regions, calling
-   :py:meth:`tcrdist.repertoire.TCRrep.compute_paired_tcrdist` computes
-   the 'tcrdist'- a weighted sum of the distances at each of the CDRs.
-  - By default all CDRs are weighted equally. The argument `replacement_weights`
-    takes a dictionary which specifies greater weight on
-    sequence differences occurring in certain CDRs
-
+#. Call :py:meth:`tcrdist.repertoire.TCRrep.compute_paired_tcrdist` to compute
+   the 'tcrdist'- a weighted sum of the Hamming Distances at each CDR.
+    - The argument `replacement_weights`
+      takes a dictionary which specifies greater weight on
+      sequence differences occurring in certain CDRs.
+      (By default all CDRs are weighted equally.)
 
 
 That's it! If you've followed along you've computed over 2,000,000 tcrdists from
 real data in later examples we will show how tcrdist2 permits customization
 on this general workflow. The python code for producing the clustered Heatmap
-figure directly from tcrdist output is shown at the end of this section.
+figure shown above directly from this tcrdist2 output is shown at the end of this section.
 
 
+We now examine some of the flexibility of the tcrdist2 workflow.
 
 
+1B: Accessing Individual CDR Results
+------------------------------------
 
-Example 1B: Accessing Individual CDR Results
---------------------------------------------
-
-We now examine the first example to show the flexibility of the tcrdist2 workflow.
 In the introductory workflow, we combined the number of mismatches
 between 8 total CDRs and combined the results into a single distance metric.
 
@@ -213,7 +209,16 @@ The pairwise results for the beta chain cdr1 region can be directly accessed:
 
   tr.cdr1_b_aa_pw
 
-Moreover, the `tcrdistances` can be recalculated with different CDR weightings.
+
+One could calculate a weighted tcrdist directly:
+
+.. code-block:: python
+
+  1 * tr.cdr1_b_aa_pw + 3 * tr.cdr3_a_aa_pw + 3 * tr.cdr3_b_aa_pw
+
+But it is more practical to recalculate `tcrdistances` by
+setting the CDR weights in the function call by passing a dictionary to the
+:py:attr:`replacement_weights` argument.
 
 Note that by default (and when store_result = True) each result is cached in
 the :py:obj:`tcrdist.repertoire.TCRrep.stored_tcrdist` list.
@@ -224,13 +229,14 @@ By default, the most recently  generated tcrdist is stored as
 The following example illustrates the point.
 
 
-Example 1C: Using Custom Weights and Stored Results
----------------------------------------------------
+1C: Using Custom Weights and Stored Results
+-------------------------------------------
 
 .. code-block:: python
 
   # 1
-  tcrdist0 = tr.compute_paired_tcrdist(chains = ['alpha','beta'], store_result = True)
+  tcrdist0 = tr.compute_paired_tcrdist(chains = ['alpha','beta'],
+                                       store_result = True)
 
   replacement_weights = {'cdr1_a_aa_pw':1,
                          'cdr2_a_aa_pw':1,
@@ -242,7 +248,8 @@ Example 1C: Using Custom Weights and Stored Results
                          'pmhc_b_aa_pw':0}
   # 2
   tcrdist1 = tr.compute_paired_tcrdist(chains = ['alpha','beta'],
-                          replacement_weights= replacement_weights)
+                          replacement_weights= replacement_weights,
+                          store_result = True)
 
   # 3
   tr.stored_tcrdist[0]
@@ -254,7 +261,7 @@ Example 1C: Using Custom Weights and Stored Results
 
 #. Repeat step 13 using new weights.
 
-#. Access either result. The weights are stored along with the pairwise distances.
+#. Access a stored result. The weights are stored along with the pairwise distances.
 
 
     {'paired_tcrdist': array([[  0.,  76.,  80., ...,  89.,  89.,  87.],
@@ -274,8 +281,8 @@ Example 1C: Using Custom Weights and Stored Results
     'pmhc_b_aa_pw': 2}}
 
 
-Example 1D: Computing Distances with Substitution Matrices
-----------------------------------------------------------
+1D: Computing Distances with Substitution Matrices
+--------------------------------------------------
 
 The introductory example used the Hamming Distance (number of aligned positions
 with mismatching information) to calculate pairwise distance between each receptor.
