@@ -22,7 +22,7 @@ from . import distances
 from .all_genes import all_genes
 from .sail import *
 from .setup_blast import install_blast_to_externals
-from .test_resources import adaptive100
+#from .test_resources import adaptive100
 from .pairwise import *
 from . import mappers
 
