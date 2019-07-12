@@ -31,6 +31,7 @@ is particularly illustrative.
 
    Installation
    Examples
+   Example_2
    Repertoire
    Pairwise
    Processing
