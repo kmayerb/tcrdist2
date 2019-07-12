@@ -106,7 +106,7 @@ def cluster_viz(px,
     g1 : seaborn clustermap
 
     """
-    lut = dict(zip(epitopes, eptitope_colors))
+    lut = dict(zip(epitopes, epitope_colors))
     row_colors = clone_df.epitope.map(lut)
 
     # Cluster using seaborn
