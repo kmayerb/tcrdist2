@@ -98,6 +98,29 @@ Detailed explanations of the steps shown above can be found in Example 1
 10. Call tcrdist.repertoire.TCRrep.deduplicate() to remove duplicates
     and create the tcrdist.repertoire.TCRrep.clone_df DataFrame.
 
+Compute Hamming Distance Based Distances
+----------------------------------------
+
+.. code:: python
+
+    tr1.compute_pairwise_all(chain = "alpha",                         # 11
+                            metric = "hamming",
+                            processes = 6,
+                            matrix = parasail.blosum62)
+
+    tr1.compute_pairwise_all(chain = "beta",                          # 12
+                            metric = "hamming",
+                            processes = 6,
+                            matrix = parasail.blosum62)
+
+11. with metric argument is set to either ‘hamming’, ‘nw’ or ‘custom’,
+    tcrdist2 uses python’s multiprocessing package to parallelize
+    pairwise distance computation.
+
+12. Repeat the previous step setting chain argument to ‘beta’.
+
+
+
 How to calculate a tcrdist
 --------------------------
 
@@ -168,26 +191,9 @@ and weights can be accessed later:
    tr.stored_tcrdist[-2]
    tr.stored_tcrdist[-1]
 
-Compute Hamming Distance Based Scores
--------------------------------------
 
-.. code:: python
-
-    tr1.compute_pairwise_all(chain = "alpha",                         # 11
-                            metric = "hamming",
-                            processes = 6,
-                            matrix = parasail.blosum62)
-
-    tr1.compute_pairwise_all(chain = "beta",                          # 12
-                            metric = "hamming",
-                            processes = 6,
-                            matrix = parasail.blosum62)
-
-11. with metric argument is set to either ‘hamming’, ‘nw’ or ‘custom’,
-    tcrdist2 uses python’s multiprocessing package to parallelize
-    pairwise distance computation.
-
-12. Repeat the previous step setting chain argument to ‘beta’.
+Hamming Distance Based tcrdists
+-------------------------------
 
 tcrdist : CDR3_alpha (Hamming Distance)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -262,9 +268,6 @@ tcrdist : CDR3_alpha + CDR3_beta + Other CDR Regions (Hamming Distance)
 
 .. image:: output_20_0.png
 
-
-Weights
--------
 
 CDR3_alpha + CDR3_beta + Other CDR Regions (Weighted Hamming Distance)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
