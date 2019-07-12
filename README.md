@@ -5,7 +5,7 @@
 
 2019-07-12
 
-### tcrdist2 a produces flexible distance measures based on comparison across multiple complementarity-determining regions (CDRs)
+### tcrdist2 produces flexible distance measures based on comparison across multiple complementarity-determining regions (CDRs)
 
 tcrdist2 is a python API-enabled toolkit expanding on the T cell receptor analysis pipeline
 developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and
@@ -16,6 +16,11 @@ The original code for replicating analysis performed in the manuscript can be fo
 
 ---
 
+## Documentation
+
+Documentation, installation instructions, information about dependencies, and examples
+can be found at
+
 ## Installation
 
 The development version of tcrdist2 compatible with Python 2.7 or Python 3.6
@@ -25,10 +30,7 @@ can be cloned or installed directly.
   pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 ```
 
-## Documentation
-
-Documentation, installation instructions, information about dependencies, and examples
-can be found at [tcrdist2.readthedocs.io](https://tcrdist2.readthedocs.io/en/latest/)
+ [tcrdist2.readthedocs.io](https://tcrdist2.readthedocs.io/en/latest/)
 
 ## Citing
 
@@ -36,13 +38,16 @@ Quantifiable predictive features define epitope-specific T cell receptor reperto
 
 Pradyot Dash, Andrew J. Fiore-Gartland, Tomer Hertz, George C. Wang, Shalini Sharma, Aisha Souquette, Jeremy Chase Crawford, E. Bridie Clemens, Thi H. O. Nguyen, Katherine Kedzierska, Nicole L. La Gruta, Philip Bradley & Paul G. Thomas
 
-Nature (2017) doi:10.1038/nature22383
+[Nature (2017) doi:10.1038/nature22383](https://doi.org/10.1038/nature22383).
 
 
 tcrdist2 relies heavily on Parasail for fast sequence alignment:
 
-Daily, Jeff. (2016). Parasail: SIMD C library for global, semi-global, and local pairwise sequence alignments. BMC Bioinformatics, 17(1), 1-11. doi:10.1186/s12859-016-0930-z
 
-http://dx.doi.org/10.1186/s12859-016-0930-z
+Parasail: SIMD C library for global, semi-global, and local pairwise sequence alignments
+
+Daily, Jeff.  
+
+[BMC Bioinformatics 2016, 17(1), 1-11. doi:10.1186/s12859-016-0930-z](http://dx.doi.org/10.1186/s12859-016-0930-z)
 
 ---
