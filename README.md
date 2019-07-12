@@ -5,7 +5,7 @@
 
 2019-07-12
 
-### tcrdist2 produces flexible distance measures based on comparison across multiple complementarity-determining regions (CDRs)
+#### tcrdist2 produces flexible distance measures distinguishing T cell receptors based on comparisons across multiple complementarity-determining regions (CDRs)
 
 tcrdist2 is a python API-enabled toolkit expanding on the T cell receptor analysis pipeline
 developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and
@@ -41,8 +41,6 @@ Pradyot Dash, Andrew J. Fiore-Gartland, Tomer Hertz, George C. Wang, Shalini Sha
 [Nature (2017) doi:10.1038/nature22383](https://doi.org/10.1038/nature22383).
 
 
-tcrdist2 relies heavily on Parasail for fast sequence alignment:
-
 
 Parasail: SIMD C library for global, semi-global, and local pairwise sequence alignments
 
@@ -50,4 +48,5 @@ Daily, Jeff.
 
 [BMC Bioinformatics 2016, 17(1), 1-11. doi:10.1186/s12859-016-0930-z](http://dx.doi.org/10.1186/s12859-016-0930-z)
 
+(tcrdist2 relies heavily on Parasail for fast sequence alignment)
 ---
