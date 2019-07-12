@@ -4,7 +4,8 @@ python:
   - "3.6"
 # command to install dependencies
 install:
-  - pip install -r requirements.txt
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.7.1' ]]; then travis_retry pip install -r requirements.txt; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then travis_retry pip install -r requirements36.txt; fi
 # command to run tests
 script:
   - python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'ncbi_linux');"
