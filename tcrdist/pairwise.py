@@ -107,7 +107,7 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
     :py:attr:`metric` argument (acceptable strings are "nw", "hamming", and TODO: "bradley").
 
     Further flexibility exists even when using one of the default metrics.
-    Via the function_factory *kwargs may be passed to modify default metric parameters.
+    Via the function_factory kwargs may be passed to modify default metric parameters.
 
     For example, the user can set open and extend penalties and specify the
     substitution matrix for the default reciprocal Needleman-Wunsch ('nw') method.
@@ -293,7 +293,7 @@ def hm_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
 def function_factory(metric = "nw", **kwargs):
     """
     The function factory produces an appropriate distance wrapper that accepts
-    **kwargs for the API-Specified function "nw" or "hamming"
+    kwargs for the API-Specified function "nw" or "hamming"
 
     Parameters
     ----------
@@ -303,7 +303,7 @@ def function_factory(metric = "nw", **kwargs):
     Returns
     -------
     distance_wrapper : function
-        function that accepts two string and **kwargs
+        function that accepts two string and kwargs
 
     """
     if metric == "nw":

@@ -272,13 +272,13 @@ The following example illustrates the point.
           [ 89.,  75.,  81., ...,  60.,   0.,  40.],
           [ 87.,  43.,  77., ...,  58.,  40.,   0.]]),
     'paired_tcrdist_weights': {'cdr1_a_aa_pw': 1,
-    'cdr1_b_aa_pw': 2,
-    'cdr2_a_aa_pw': 1,
-    'cdr2_b_aa_pw': 2,
-    'cdr3_a_aa_pw': 2,
-    'cdr3_b_aa_pw': 4,
-    'pmhc_a_aa_pw': 1,
-    'pmhc_b_aa_pw': 2}}
+                              'cdr1_b_aa_pw': 2,
+                              'cdr2_a_aa_pw': 1,
+                              'cdr2_b_aa_pw': 2,
+                              'cdr3_a_aa_pw': 2,
+                              'cdr3_b_aa_pw': 4,
+                              'pmhc_a_aa_pw': 1,
+                              'pmhc_b_aa_pw': 2}}
 
 
 1D: Computing Distances with Substitution Matrices
