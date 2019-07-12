@@ -3,8 +3,8 @@ Example 2
 =========
 
 Example 2 illustrates some of the flexibility of tcrdist2. See Example 1
-for more detailed explanations of the step-wise procedure and TCRrep
-class.
+for similar material with more detailed explanations of
+the step-wise procedure and TCRrep class.
 
 .. code:: python
 
