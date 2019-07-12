@@ -6,7 +6,7 @@ Example 2 illustrates some of the flexibility of tcrdist2. See Example 1
 for more detailed explanations of the step-wise procedure and TCRrep
 class.
 
-.. code:: ipython3
+.. code:: python
 
     import pandas as pd
     import numpy as np
@@ -28,7 +28,7 @@ Preliminary Steps
 Load, Format, and Subset the Data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: ipython3
+.. code:: python
 
     pd_df = pd.read_csv("vdjDB_PMID28636592.tsv", sep = "\t")       # 1
     t_df = td.mappers.vdjdb_to_tcrdist2(pd_df = pd_df)              # 2
@@ -52,7 +52,7 @@ Load, Format, and Subset the Data
 tr1 - Initialize the Repertoire
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: ipython3
+.. code:: python
 
     tr1 = TCRrep(cell_df = t_df_mus, organism = "mouse")             # 6
     tr1.infer_cdrs_from_v_gene(chain = 'alpha')                      # 7
@@ -171,7 +171,7 @@ and weights can be accessed later:
 Compute Hamming Distance Based Scores
 -------------------------------------
 
-.. code:: ipython3
+.. code:: python
 
     tr1.compute_pairwise_all(chain = "alpha",                         # 11
                             metric = "hamming",
@@ -192,7 +192,7 @@ Compute Hamming Distance Based Scores
 tcrdist : CDR3_alpha (Hamming Distance)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: ipython3
+.. code:: python
 
     tcrdist1a  = pd.DataFrame(tr1.cdr3_a_aa_pw)
     cluster_viz(tcrdist1a,
@@ -215,7 +215,7 @@ tcrdist : CDR3_alpha (Hamming Distance)
 tcrdist : CDR3_beta (Hamming Distance)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: ipython3
+.. code:: python
 
     tcrdist1b  = pd.DataFrame(tr1.cdr3_b_aa_pw )
     cluster_viz(tcrdist1b,
@@ -232,7 +232,7 @@ tcrdist : CDR3_beta (Hamming Distance)
 tcrdist : CDR3_alpha + CDR3_beta (Hamming Distance)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: ipython3
+.. code:: python
 
     tcrdist2  = pd.DataFrame(tr1.cdr3_a_aa_pw + tr1.cdr3_b_aa_pw )
     cluster_viz(tcrdist2,
@@ -249,7 +249,7 @@ tcrdist : CDR3_alpha + CDR3_beta (Hamming Distance)
 tcrdist : CDR3_alpha + CDR3_beta + Other CDR Regions (Hamming Distance)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: ipython3
+.. code:: python
 
     tcrdist3 = pd.DataFrame(tr1.compute_paired_tcrdist(store_result= False)['paired_tcrdist'])
     cluster_viz(tcrdist3,
@@ -269,7 +269,7 @@ Weights
 CDR3_alpha + CDR3_beta + Other CDR Regions (Weighted Hamming Distance)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: ipython3
+.. code:: python
 
     tcrdist3w = tr1.compute_paired_tcrdist(store_result= False,
                                          replacement_weights = {'cdr3_a_aa_pw': 3,
@@ -295,7 +295,7 @@ reciprocal alignment score is calculated which is function of the
 subsitution matrix used to score the optimal alignment (see more
 explanation in example 1).
 
-.. code:: ipython3
+.. code:: python
 
     tr1.compute_pairwise_all(chain = "alpha",                         # 11
                             metric = "nw",
@@ -310,7 +310,7 @@ explanation in example 1).
 CDR3_alpha + CDR3_beta + Other CDR Regions (Weighted NW Sub Matrix Based Distance)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: ipython3
+.. code:: python
 
     tcrdist = tr1.compute_paired_tcrdist(store_result= False,
                                          replacement_weights = {'cdr3_a_aa_pw': 3,
@@ -333,7 +333,7 @@ tcrdist2 Can Parallelize Custom Metrics
 Suppose you Imagine Some Metric
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: ipython3
+.. code:: python
 
     def hydrophobic_custom_metric(s1, s2):
 
@@ -365,7 +365,7 @@ Suppose you Imagine Some Metric
 It can be passed to ``compute_pairwise_all( )``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: ipython3
+.. code:: python
 
     tr1.compute_pairwise_all(chain = "alpha",                          # 12
                              metric = "custom", # <----------- set metric to custom
@@ -377,7 +377,7 @@ It can be passed to ``compute_pairwise_all( )``
                              processes = 6,
                              user_function = hydrophobic_custom_metric) # <----------- supply your custom function
 
-.. code:: ipython3
+.. code:: python
 
     tcrdist  = pd.DataFrame(tr1.cdr3_b_aa_pw)
     cluster_viz(tcrdist,
@@ -391,7 +391,7 @@ It can be passed to ``compute_pairwise_all( )``
 .. image:: output_33_0.png
 
 
-.. code:: ipython3
+.. code:: python
 
     tcrdist  = pd.DataFrame(tr1.cdr3_a_aa_pw)
     cluster_viz(tcrdist,
