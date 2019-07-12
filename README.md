@@ -5,7 +5,7 @@
 
 2019-07-12
 
-#### tcrdist2 produces flexible distance measures for comparing T cell receptors. 
+#### tcrdist2 produces flexible distance measures for comparing T cell receptors.
 
 tcrdist2 is a python API-enabled toolkit expanding on the T cell receptor analysis pipeline
 developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and
@@ -49,4 +49,3 @@ Daily, Jeff.
 [BMC Bioinformatics 2016, 17(1), 1-11. doi:10.1186/s12859-016-0930-z](http://dx.doi.org/10.1186/s12859-016-0930-z)
 
 (tcrdist2 relies heavily on Parasail for fast sequence alignment)
----
