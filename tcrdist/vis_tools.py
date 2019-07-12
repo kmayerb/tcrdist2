@@ -1,3 +1,7 @@
+import matplotlib
+import seaborn as sns
+
+
 def bostock_cat_colors(color_sets = ["set3"]):
 
     """
