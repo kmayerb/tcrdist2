@@ -5,7 +5,7 @@
 
 2019-07-12
 
-#### tcrdist2 produces flexible distance measures distinguishing T cell receptors based on comparisons across multiple complementarity-determining regions (CDRs)
+#### tcrdist2 produces flexible distance measures for comparing T cell receptors. 
 
 tcrdist2 is a python API-enabled toolkit expanding on the T cell receptor analysis pipeline
 developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and
