@@ -19,7 +19,7 @@ The original code for replicating analysis performed in the manuscript can be fo
 ## Documentation
 
 Documentation, installation instructions, information about dependencies, and examples
-can be found at
+can be found at  [tcrdist2.readthedocs.io](https://tcrdist2.readthedocs.io/en/latest/)
 
 ## Installation
 
@@ -30,7 +30,7 @@ can be cloned or installed directly.
   pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 ```
 
- [tcrdist2.readthedocs.io](https://tcrdist2.readthedocs.io/en/latest/)
+
 
 ## Citing
 
