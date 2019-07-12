@@ -30,7 +30,7 @@ is particularly illustrative.
    :maxdepth: 2
 
    Installation
-   Examples
+   Example_1
    Example_2
    Repertoire
    Pairwise
