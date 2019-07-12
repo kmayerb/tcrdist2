@@ -7,16 +7,17 @@ developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and
 colleagues as part of a T-cell receptor epitope specificity analysis
 in Dash et al. Nature (2017). `doi:10.1038/nature22383 <https://www.nature.com/articles/nature22383>`_
 
-
-tcrdist2 can be run using either python 2.7.11 or python 3.6 and can
+tcrdist2 can be run using either Python 2.7.11 or Python 3 and can
 be installed from GitHub using pip:
 
 .. code-block:: none
 
   pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 
-Dependencies
-++++++++++++
+Before installing check that you have the appropriate dependencies:
+
+Dependencies if Using Python 3
+++++++++++++++++++++++++++++++
 
 Tcrdist2 requires numpy, scipy, matplotlib, scipy, scikit-learn, as well as
 the C based sequence aligner parasail.
@@ -36,8 +37,8 @@ environment.
 
 
 
-Dependencies Python 2.7.11
-++++++++++++++++++++++++++
+Dependencies if Using Python 2.7.11
++++++++++++++++++++++++++++++++++++
 
 If you are going to install the python 2.7.11 dependencies it is highly recommended that tcrdist2
 is installed within a `python virtual environment <https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/>`_.
