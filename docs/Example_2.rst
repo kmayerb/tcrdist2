@@ -1,9 +1,10 @@
 
-Example 2
-=========
+Quick-Start Example
+===================
 
-Example 2 illustrates some of the flexibility of tcrdist2. See Example 1
-for similar material with more detailed explanations of
+The Quick-Start Example illustrates some of the flexibility of tcrdist2.
+
+See the Detailed Example for similar material with more complete explanations of
 the step-wise procedure and TCRrep class.
 
 .. code:: python
@@ -121,7 +122,7 @@ Compute Hamming Distance Based Distances
 
 
 
-How to calculate a tcrdist
+How to Calculate a tcrdist
 --------------------------
 
 Once region based pairwise comparison have been generated with
