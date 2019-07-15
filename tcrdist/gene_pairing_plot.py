@@ -6,28 +6,32 @@ from scipy import stats
 import statsmodels.api as sm
 #from sklearn.metrics import adjusted_mutual_info_score
 
-#from basic import *
-import html_colors
-#import svg_basic
+from html_colors import get_html_colors
 
 __all__ = ['plotPairings']
 
 greek_alpha = '&#x3b1;'
 greek_beta  = '&#x3b2;'
+greek_gamma = '&#x393;'
+greek_delta = '&#x394;'
 
 segtype2greek_label = { 'VA':'V'+greek_alpha, 'JA':'J'+greek_alpha,
-                        'VB':'V'+greek_beta , 'JB':'J'+greek_beta }
+                        'VB':'V'+greek_beta , 'JB':'J'+greek_beta,
+                        'VG':'V'+greek_gamma, 'JG':'J'+greek_gamma,
+                        'VD':'V'+greek_delta , 'JD':'J'+greek_delta,
+                        'v_a_gene':'V'+greek_alpha, 'j_a_gene':'J'+greek_alpha,
+                        'v_b_gene':'V'+greek_beta , 'j_b_gene':'J'+greek_beta,}
 
-def _create_file(cmds, width, height, filename, background_color=None, use_xlink=False):
-    out = open(filename, 'w')
+def _create_svg(cmds, width, height, background_color=None, use_xlink=False):
+    out = ''
     extra = '' if not use_xlink else 'xmlns:xlink="http://www.w3.org/1999/xlink"'
-    out.write('<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg" version="1.1" {} >\n'\
-              .format(int(width),int(height),extra))
+    out += '<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg" version="1.1" {} >\n'\
+              .format(int(width),int(height),extra)
     if background_color:
-        out.write(_rectangle( (0,0), (width,height), background_color, 'white', 0 ) )
-    out.write('\n'.join(cmds)+'\n')
-    out.write('</svg>\n')
-    out.close()
+        out += _rectangle( (0,0), (width,height), background_color, 'white', 0 )
+    out += '\n'.join(cmds) + '\n'
+    out += '</svg>\n'
+    return out
 
 def _rectangle( upper_left, lower_right, fill, stroke, stroke_width=1, dashed=False ):
     stroke_dasharray_style= ';stroke-dasharray:5,5' if dashed else ''
@@ -118,7 +122,7 @@ def _testAssociation(df, node1, node2, countCol='Count'):
     OR, pvalue = stats.fisher_exact(tab)
     return OR, pvalue, tab
 
-def plotPairings(filename, df, cols, countCol=None, use_color_gradients=True, other_frequency_threshold=0.01):
+def plotPairings(df, cols, countCol=None, use_color_gradients=True, other_frequency_threshold=0.01):
     """Diagram depicts the gene-segment pairing structure of the dataset. The four
     genes (cols) are arrayed left to right. Below each gene-type label (eg "VA")
     is a color-stack showing all the TCR clones and how they break down into the different genes for that gene-type. Each clone
@@ -137,8 +141,6 @@ def plotPairings(filename, df, cols, countCol=None, use_color_gradients=True, ot
 
     Parameters
     ----------
-    filename : str
-        Name of SVG file for storing the output figure.
     df : pd.DataFrame
         Contains gene segment data, one row per clone.
     cols : list
@@ -148,8 +150,8 @@ def plotPairings(filename, df, cols, countCol=None, use_color_gradients=True, ot
 
     Returns
     -------
-    filename : str
-        File name if output is successfully created."""
+    raw_svg : str
+        Raw SVG txt that can be written to a file."""
 
     params = dict(min_ami_for_colorscale=0.114, # from shuffling experiments
                     max_ami_for_colorscale=0.5,
@@ -207,7 +209,7 @@ def plotPairings(filename, df, cols, countCol=None, use_color_gradients=True, ot
         """Assign "Other" to all values below a threshold"""
         tmp = df.groupby(c)[countCol].agg(lambda v: np.sum(v) / tot).sort_values(ascending=False)
         ind = tmp.index[tmp < other_frequency_threshold]
-        df.loc[df[c].isin(ind), c] = 'Other'
+        df.loc[df[c].isin(ind), c] = 'Other ' + c
         freqs[c] = df.groupby(c)[countCol].agg(lambda v: np.sum(v) / tot).sort_values(ascending=False)
         print(c)
         print(freqs[c])
@@ -257,8 +259,8 @@ def plotPairings(filename, df, cols, countCol=None, use_color_gradients=True, ot
 
         #a0colors = dict(zip( [x[1] for x in vl], html_colors.get_rank_colors_no_lights( len(vl) ) ) )
         #a1colors = dict(zip( [x[1] for x in jl], html_colors.get_rank_colors_no_lights( len(jl) ) ) )
-        r0colors = dict(zip(freqs[r0].index, html_colors.get_rank_colors_no_lights(len(freqs[r0]))))
-        r1colors = dict(zip(freqs[r1].index, html_colors.get_rank_colors_no_lights(len(freqs[r1]))))
+        r0colors = dict(zip(freqs[r0].index, get_html_colors(len(freqs[r0]))))
+        r1colors = dict(zip(freqs[r1].index, get_html_colors(len(freqs[r1]))))
         #print(r0colors)
         #print(r1colors)
         '''
@@ -526,7 +528,8 @@ def plotPairings(filename, df, cols, countCol=None, use_color_gradients=True, ot
                 ystart += count*ypixel_scale
         '''
 
-        pairing_svg_y_offset += 2*yspacer #+ ypixel_scale
+        pairing_svg_y_offset += 2*yspacer + ypixel_scale
+        #pairing_svg_y_offset = top_margin
 
     '''
     if no_pairing_text:
@@ -539,11 +542,12 @@ def plotPairings(filename, df, cols, countCol=None, use_color_gradients=True, ot
                 pairing_svg_cmds.append( cmd )
     '''
 
-    """Make SVG file"""
     bg_color = None # 'white'
-    _create_file(pairing_svg_cmds, pairing_svg_width, pairing_svg_y_offset + bottom_margin,
-                           filename, background_color=bg_color)
-    return filename
+    rawsvg = _create_svg(pairing_svg_cmds,
+                         pairing_svg_width,
+                         pairing_svg_y_offset + bottom_margin,
+                         background_color=bg_color)
+    return rawsvg
 
 if __name__ == '__main__':
     np.random.seed(110820)
@@ -556,247 +560,6 @@ if __name__ == '__main__':
     df.loc[:10, 'Count'] = 10
 
     print(df)
-    plotPairings('test.svg', df, ['JA', 'VA', 'VB'], countCol='Count')
-
-'''
-## load epitope jsd values
-epitope_jsds = {}
-jsd_tsvfile = clones_file[:-4] + '_JS_divergence.tsv'
-if not exists( jsd_tsvfile ):
-    print 'Sorry, you need to run analyze_gene_frequencies.py before running make_gene_plots.py'
-    exit()
-
-lines = parse_tsv_file( jsd_tsvfile, [], ['epitope'] + [x+'_jsd_normed' for x in segtypes_lowercase] )
-for line in lines:
-    epitope = line[0]
-    vals = map(float,line[1:])
-    epitope_jsds[epitope] = {}
-    assert len(vals)== len(segtypes)
-    for segtype,val in zip( segtypes, vals ):
-        epitope_jsds[ epitope ][ segtype ] = val
-
-epitope_entropies = {}
-epitope_mis = {}
-epitope_correlations = {}
-epitope_correlations_svg = {}
-epitope_repcounts = {}
-epitope_repcounts_by_len = {}
-
-all_tcrs = parse_tsv_file( clones_file, ['epitope'], [], True )
-
-
-## returns id, cmd
-
-pairing_svg_cmds = []
-path_def_counter = 0
-make_enrichment_glyphs = ( countrep_enrichments_file != None )
-if make_enrichment_glyphs:
-    all_countrep_enrichment = parse_tsv_file( countrep_enrichments_file, [ 'epitope','gene' ], ['jsd_prob_enrich'] )
-
-
-if not epitopes:
-    epitopes = all_tcrs.keys()[:]
-    epitopes.sort()
-
-for epitope in epitopes:
-
-    ## this fills in *_label_rep fields in all_tcrs dictionary
-    util.assign_label_reps_and_colors_based_on_most_common_genes_in_repertoire( all_tcrs[epitope], organism )
-
-    epitope_entropies[epitope] = {}
-    epitope_mis[epitope] = {}
-    epitope_correlations[epitope] = []
-    epitope_repcounts[epitope] = {}
-    epitope_correlations_svg[epitope] = {}
-
-    """tcrs is list of tuples (col1, col2, denom1, denom2)"""
-    tcrs = []
-    for fulltcr in all_tcrs[epitope]:
-        tcrs.append( ( fulltcr['va_label_rep'], fulltcr['ja_label_rep'],
-                       fulltcr['vb_label_rep'], fulltcr['jb_label_rep'],
-                       len(fulltcr['cdr3a']), len(fulltcr['cdr3b'] ) ) ) # not subtracting 5 any more
-
-
-    repcounts = {}
-    repcounts2 = {}
-
-    repcounts_by_len = {}
-
-    for i,r in enumerate(segtypes):
-        repcounts[r] = {}
-        repcounts_by_len[r] = {}
-        for s in segtypes[i+1:]:
-            repcounts2[(r,s)] = {}
-
-    rep_index = dict(zip(segtypes,range(len(segtypes))))
-
-    for tcr in tcrs:
-        assert len(tcr) == 6
-        for r in segtypes:
-            rep = tcr[ rep_index[r] ]
-            repcounts[r][rep] = repcounts[r].get(rep,0)+1
-
-            assert r[1] in 'AB'
-            cdr3len = tcr[4] if r[1]=='A' else tcr[5]
-
-            min_cdr3len = min(min_cdr3len,cdr3len)
-            max_cdr3len = max(max_cdr3len,cdr3len)
-
-            if cdr3len not in repcounts_by_len[r]:
-                repcounts_by_len[r][cdr3len] = {}
-            repcounts_by_len[r][cdr3len][rep] = repcounts_by_len[r][cdr3len].get(rep,0)+1
-
-        for rs in repcounts2:
-            rep = (tcr[ rep_index[rs[0]]], tcr[ rep_index[rs[1]]] )
-            repcounts2[rs][rep] = repcounts2[rs].get(rep,0)+1
-
-    for r in segtypes:
-        for s in segtypes:
-            rs=(r,s)
-            if rs in repcounts2:
-                for rep1 in repcounts[r]:
-                    for rep2 in repcounts[s]:
-                        rep=(rep1,rep2)
-                        if rep not in repcounts2[rs]:
-                            repcounts2[rs][rep] = 0
-
-
-
-    epitope_repcounts[epitope] = dict( repcounts )
-    epitope_repcounts_by_len[epitope] = dict( repcounts_by_len )
-
-    N = len(tcrs)
-
-    ## compute entropies, mutual informations
-    for r in segtypes:
-        entropy=0
-        for rep,count in repcounts[r].iteritems():
-            prob=float(count)/N
-            entropy -= prob * math.log(prob,2)
-        print 'ENT {:4s} {} entropy: {:7.3f} entropy_pow2: {:7.3f} N: {:6d}'.format(epitope,r,entropy,2**entropy,N)
-        epitope_entropies[epitope][r] = entropy
-
-
-    from sklearn.metrics import adjusted_mutual_info_score
-    from scipy.stats import hypergeom
-
-    all_ab_amis = []
-    all_amis = {}
-
-    for rs in repcounts2:
-        ab_pairing = ( rs[0][1] != rs[1][1] )
-        cluster_pairing = ( rs[0][0] == 'C' or rs[1][0] == 'C' )
-
-        mi=0.0
-        entropy=0
-        for (rep1,rep2),count in repcounts2[rs].iteritems():
-            pxy = float(count)/N
-            if pxy>0: entropy -= pxy*math.log(pxy,2)
-            count1 = repcounts[rs[0]][rep1]
-            count2 = repcounts[rs[1]][rep2]
-            px = float(count1)/N
-            py = float(count2)/N
-            if pxy>0: mi += pxy * math.log( (pxy/ (px*py)), 2 )
-
-            ## lets look at the significance of this overlap
-            expected = px * py * N
-            pval = 1
-
-            if count > expected:
-                ## compute hypergeometric distn prob
-                max_possible_overlap = min(count1,count2)
-                x = np.arange(0,max_possible_overlap+1)
-                cdf = hypergeom.cdf( x, N, count1, count2 ) ## cdf is accumulated prob <= val
-                sf  = hypergeom.sf( x, N, count1, count2 )
-                pval = sf[count-1] ## now greater than or equal to count
-                if pval<1e-3:
-                    print 'PVAL: {:4s} {:12.3e} {}-{} {:15s} {:15s} overlap: {:4d} expect: {:7.1f} count1: {:4d} count2: {:4d} '\
-                        .format(epitope,pval,rs[0],rs[1],str(rep1),str(rep2),count,expected,count1,count2)
-                #exit()
-
-                if pval<pval_threshold_for_svg_correlations:
-                    #print 'svg pval!',rep1,rep2,pval
-                    epitope_correlations_svg[epitope][(rep1,rep2)] = ( pval, count/expected )
-                    epitope_correlations_svg[epitope][(rep2,rep1)] = ( pval, count/expected )
-
-            if count < expected:
-                ## compute hypergeometric distn prob
-                max_possible_overlap = min(count1,count2)
-                x = np.arange(0,max_possible_overlap+1)
-                cdf = hypergeom.cdf( x, N, count1, count2 ) ## cdf is accumulated prob <= val
-                sf  = hypergeom.sf( x, N, count1, count2 )
-                pval = cdf[count] ## less than or equal to count
-                if pval<1e-3:
-                    print 'PVAL: {:4s} {:12.3e} {}-{} {:15s} {:15s} overlap: {:4d} expect: {:7.1f} count1: {:4d} count2: {:4d} '\
-                        .format(epitope,pval,rs[0],rs[1],str(rep1),str(rep2),count,expected,count1,count2)
-                #exit()
-                if pval<pval_threshold_for_svg_correlations:
-                    #print 'svg pval!',rep1,rep2,pval
-                    epitope_correlations_svg[epitope][(rep1,rep2)] = ( pval, count/expected )
-                    epitope_correlations_svg[epitope][(rep2,rep1)] = ( pval, count/expected )
-
-
-            if ab_pairing and (not cluster_pairing) and pval<pval_threshold_for_plotting_gene_correlations:
-                if count==0:
-                    logenrich = math.log(  0.25 / expected, 2 )
-                else:
-                    logenrich = math.log( count / expected, 2 )
-
-                epitope_correlations[epitope].append ( ( logenrich, -1*math.log( pval,10 ), rs, rep1, rep2 ) )
-
-
-        ## compute an adjusted mutual information score
-        labels0 = []
-        labels1 = []
-
-        tcr_labels0 = []
-        tcr_labels1 = []
-
-        for tcr in tcrs:
-            l0 = tcr[ rep_index[ rs[0] ] ]
-            l1 = tcr[ rep_index[ rs[1] ] ]
-            if l0 not in labels0: labels0.append( l0 )
-            if l1 not in labels1: labels1.append( l1 )
-            tcr_labels0.append( labels0.index(l0) )
-            tcr_labels1.append( labels1.index(l1) )
-
-        ami = adjusted_mutual_info_score( tcr_labels0, tcr_labels1 )
-
-
-        if ab_pairing:
-            all_ab_amis.append( ( ami, rs ) )
-
-        all_amis[ (rs[0],rs[1]) ] = ami
-        all_amis[ (rs[1],rs[0]) ] = ami
-
-        print 'MI {:4s} {}-{} MI: {:7.3f} AMI: {:7.3f} MI_pow2 {:7.3f} entropy: {:7.3f} entropy_pow2: {:7.3f}'\
-            .format(epitope,rs[0],rs[1],mi,ami,2**mi,entropy,2**entropy)
-
-        epitope_entropies[epitope][rs] = entropy
-        epitope_mis[epitope][rs] = (mi,ami)
-
-
-
-    all_ab_amis.sort()
-    all_ab_amis.reverse()
-
-    top_pairing = all_ab_amis[0]
-    print 'top ab pairing:',top_pairing
-
-    middle_alpha = top_pairing[1][0]
-    middle_beta  = top_pairing[1][1]
-    assert middle_alpha in ['VA','JA']
-    assert middle_beta in ['VB','JB']
-    other_alpha = 'JA' if middle_alpha=='VA' else 'VA'
-    other_beta  = 'JB' if middle_beta =='VB' else 'VB'
-
-
-    
-    
-
-    if force_pairing_order:
-        assert len(force_pairing_order) == 4
-        reps = force_pairing_order[:]
-    else:
-        reps = [ other_alpha, middle_alpha, middle_beta, other_beta ]
-'''
+    svg = plotPairings(df, ['JA', 'VA', 'VB'], countCol='Count')
+    with open('/home/agartlan/gitrepo/test.svg', 'w') as fh:
+        fh.write(svg)
