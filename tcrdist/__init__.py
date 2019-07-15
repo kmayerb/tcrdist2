@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 from .version import __version__
 
 import logging
@@ -12,7 +12,7 @@ logger.debug('Beginning package imports')
 
 from .hello import *
 from .processing import processNT, computeProbs, samplerProb
-from tcr_sampler import alpha_cdr3_protseq_probability, beta_cdr3_protseq_probability
+from .tcr_sampler import alpha_cdr3_protseq_probability, beta_cdr3_protseq_probability
 from . import processing
 from . import util # changed from utils to util to match tcrdist
 from . import plotting
@@ -22,8 +22,10 @@ from . import distances
 from .all_genes import all_genes
 from .sail import *
 from .setup_blast import install_blast_to_externals
-from .test_resources import adaptive100
+#from .test_resources import adaptive100
 from .pairwise import *
+from . import mappers
+from . import vis_tools
 
 
 
@@ -37,4 +39,5 @@ __all__ = ['processing',
            'embedding',
            'pairwise',
            'repertoire',
-           'mappers']
+           'mappers',
+           'vis_tools']

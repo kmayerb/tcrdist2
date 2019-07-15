@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 from .version import __version__
 
 import logging

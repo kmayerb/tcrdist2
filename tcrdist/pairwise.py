@@ -31,9 +31,9 @@ def _f_pwdist_parallel_using_distance_wrapper(indices):
 
     """
     output_tuples = []
-    for i,j in indices:
+    for i, j in indices:
         d = distance_wrapper(unique_seqs[i], unique_seqs[j])
-        output_tuples.append((i,j,d, unique_seqs[i], unique_seqs[j]))
+        output_tuples.append((i, j, d, unique_seqs[i], unique_seqs[j]))
     return(output_tuples)
 
 def apply_pw_distance_metric_w_multiprocessing(sequences,
@@ -107,7 +107,7 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
     :py:attr:`metric` argument (acceptable strings are "nw", "hamming", and TODO: "bradley").
 
     Further flexibility exists even when using one of the default metrics.
-    Via the function_factory *kwargs may be passed to modify default metric parameters.
+    Via the function_factory kwargs may be passed to modify default metric parameters.
 
     For example, the user can set open and extend penalties and specify the
     substitution matrix for the default reciprocal Needleman-Wunsch ('nw') method.
@@ -164,7 +164,7 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
     error_message = "with apply_pw_distance_metric_w_multiprocessing() metric \
     must be one of the following: 'nw','hamming','custom'."
 
-    if metric not in ("nw","hamming","custom"):
+    if metric not in ("nw", "hamming", "custom"):
         raise ValueError(error_message)
 
     error_message = "with apply_pw_distance_metric_w_multiprocessing() \
@@ -190,7 +190,7 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
     else:
         distance_wrapper_new = function_factory(metric = metric, **kwargs )
 
-    def set_global(x,dw):
+    def set_global(x, dw):
         global unique_seqs
         unique_seqs = x
 
@@ -200,7 +200,7 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
     # creates pool, and runs intializer functoin
     p = multiprocessing.Pool(processes = processes,
                              initializer = set_global,
-                             initargs=(sequences,distance_wrapper_new,))
+                             initargs=(sequences, distance_wrapper_new,))
 
     # map function to the parralel processes
     multiprocessed_result  = p.map(f, indices)
@@ -293,7 +293,7 @@ def hm_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
 def function_factory(metric = "nw", **kwargs):
     """
     The function factory produces an appropriate distance wrapper that accepts
-    **kwargs for the API-Specified function "nw" or "hamming"
+    kwargs for the API-Specified function "nw" or "hamming"
 
     Parameters
     ----------
@@ -303,17 +303,17 @@ def function_factory(metric = "nw", **kwargs):
     Returns
     -------
     distance_wrapper : function
-        function that accepts two string and **kwargs
+        function that accepts two string and kwargs
 
     """
     if metric == "nw":
-        def distance_wrapper(a,b):
+        def distance_wrapper(a, b):
             return(nw_metric(a, b, **kwargs))
     if metric == "hamming":
-        def distance_wrapper(a,b):
-            return(hm_metric(a,b,**kwargs))
+        def distance_wrapper(a, b):
+            return(hm_metric(a, b, **kwargs))
     if metric == "hamming2":
-        def distance_wrapper(a,b):
+        def distance_wrapper(a, b):
             return(float(SequencePair(a, b).hamming_distance) )
     return distance_wrapper
 
@@ -323,17 +323,17 @@ def get_random_amino_acid(n):
     Function that results in random amino acid seqs of length n
     for testing and benchmarking
     """
-    return(''.join([random.choice('GPAVLIMCFYWHKRQNEDST') for i in xrange(n)]))
+    return(''.join([random.choice('GPAVLIMCFYWHKRQNEDST') for i in range(n)]))
 
 def get_k_random_amino_acid_of_length_n(k = 1000, n = 20):
     """
     Function that results in a list of k amino acid seqs of length n
     for testing and benchmarking
     """
-    return([get_random_amino_acid(n) for i in xrange(k)])
+    return([get_random_amino_acid(n) for i in range(k)])
 
 
-def _partition(l,n):
+def _partition(l, n):
     """
     Function that takes a list and maximum number of elements,
     and break the list into sublists
@@ -348,7 +348,8 @@ def _partition(l,n):
     list of lists
 
     """
-    return([l[i:i + n] for i in xrange(0, len(l), n)])
+    n = int(n)
+    return([l[i:i + n] for i in range(0, len(l), n)])
 
 
 def get_pwdist_indices(sequences):
@@ -369,9 +370,9 @@ def get_pwdist_indices(sequences):
     """
     ind_tuples = []
     L = len(sequences)
-    for i, j in itertools.product(range(L), range(L)):
+    for i, j in itertools.product(list(range(L)), list(range(L))):
         if i <= j:
-            ind_tuples.append((i,j))
+            ind_tuples.append((i, j))
     return(ind_tuples)
 
 
@@ -401,7 +402,7 @@ def get_chunked_pwdist_indices(sequences, processes):
     ind_chunks = _partition(ind, chunk_size)
     return(ind_chunks)
 
-def _f_pwdist_serial_using_nw_metric(i,j):
+def _f_pwdist_serial_using_nw_metric(i, j):
     """
     Function for comparing (f_s) serial vs parallel processing speed.
     This function does distance matrix calculation on at a time.
@@ -421,7 +422,7 @@ def _f_pwdist_serial_using_nw_metric(i,j):
 
     """
     d = nw_metric(unique_seqs[i], unique_seqs[j])
-    return( (i,j,d, unique_seqs[i], unique_seqs[j]))
+    return( (i, j, d, unique_seqs[i], unique_seqs[j]))
 
 def _f_pwdist_parallel_using_nw_metric(indices):
     """
@@ -440,9 +441,9 @@ def _f_pwdist_parallel_using_nw_metric(indices):
 
     """
     output_tuples = []
-    for i,j in indices:
+    for i, j in indices:
         d = nw_metric(unique_seqs[i], unique_seqs[j])
-        output_tuples.append((i,j,d, unique_seqs[i], unique_seqs[j]))
+        output_tuples.append((i, j, d, unique_seqs[i], unique_seqs[j]))
     return(output_tuples)
 
 
@@ -471,7 +472,7 @@ def _pack_matrix(chunked_results, flatten = False):
         indices = chunked_results
     matrix_dim = max([x[0] for x in indices])+1
     pwdist = np.nan * np.zeros((matrix_dim, matrix_dim))
-    for i,j,d,x,y in indices:
+    for i, j, d, x, y in indices:
         pwdist[j, i] = d
         pwdist[i, j] = d
     return(pwdist)
@@ -528,7 +529,7 @@ class SequencePair:
         haming distance depends on scipy
 
     """
-    def __init__(self,s1,s2):
+    def __init__(self, s1, s2):
         if not isinstance(s1, str) and isinstance(s2, str):
             raise TypeError("s1 and s2 must be strings")
 
@@ -551,7 +552,7 @@ class SequencePair:
             if isinstance(self.a1, str):
                 # if so, THEN check that alignment length is equal to or greater
                 # (i.e. gaps) than the longest of the inputs
-                if ( len(self.a1) >= max(len(self.s1),len(self.s2)) ):
+                if ( len(self.a1) >= max(len(self.s1), len(self.s2)) ):
                     self.do_distance= True
                     self.run_hamming_distance_on_aligned_strings()
                 # Otherwise Hamming Distance Remains None
@@ -583,7 +584,7 @@ class SequencePair:
         d = self.hamming_distance_on_aligned_strings(x = self.a1, y = self.a2)
         self.hamming_distance = d
 
-    def align(self, x,y, open_penalty, extend_penalty, matrix = parasail.blosum62, ):
+    def align(self, x, y, open_penalty, extend_penalty, matrix = parasail.blosum62, ):
         """
         Function that takes two strings and returns a
         parasail result object. Uses:
@@ -649,13 +650,13 @@ class SequencePair:
         """
         if (len(x) != len(y)):
             raise AssertionError("string length of {} and {} should be equal \
-            if they were correctly aligned".format(x,y))
+            if they were correctly aligned".format(x, y))
 
         d = distance.hamming(u = list(x), v = list(y))
         hd = d * len(x)
         return(hd)
 
-def distance_wrapper_old(a,b):
+def distance_wrapper_old(a, b):
     return(float(SequencePair(a, b).hamming_distance) )
 # NOTE THAT THE apply_pairwise distance function below can be used with any
 # function that accepts two strings
@@ -690,11 +691,11 @@ def apply_pairwise_distance(sequences,
     # storage is a dictionary of dictionaries
     unique_seqs = sequences
     storage = dict.fromkeys(unique_seqs)
-    storage ={k:{} for k in storage.keys()}
+    storage ={k:{} for k in list(storage.keys())}
 
     init_index = 0
     final_index = len(unique_seqs)
-    rng = range(init_index, final_index)
+    rng = list(range(init_index, final_index))
 
     for i in rng:
         for j in rng:
@@ -702,7 +703,7 @@ def apply_pairwise_distance(sequences,
             pairwise_distance_function(unique_seqs[i], unique_seqs[j])
         # updates the start index by 1,updates the for loop range to avoid dups
         init_index = init_index + 1
-        rng = range(init_index,final_index)
+        rng = list(range(init_index, final_index))
     return(storage)
 
 def unpack_dd_to_kkv(dd):
@@ -772,7 +773,7 @@ def f(index):#= ["CAGQASQGNLIF","CAGQASQGNLIFA","CAGQASQGNLIAA","CAGQASQGNLIFAAA
         # storage is a dictionary of dictionaries
     unique_seqs_p1 =[unique_seqs[i] for i in index_p1]
     storage = dict.fromkeys(unique_seqs_p1)
-    storage ={k:{} for k in storage.keys()}
+    storage ={k:{} for k in list(storage.keys())}
     for i in index_p1:
         for j in index_p2:
             storage[unique_seqs[i]][unique_seqs[j]] = \
@@ -841,13 +842,13 @@ def apply_pairwise_distance_multiprocessing(sequences,
 
     chunks = 2*processes
     total_number_of_seqs = len(sequences)
-    index = range(0,total_number_of_seqs)
+    index = list(range(0, total_number_of_seqs))
     partition_size = total_number_of_seqs / chunks
     #assert total_number_of_seqs % chunks == 0, "chunk size not a multiple of unique seqs"
     # index is chunked into two parts (row, and column) so that
     # the pairwise distance task can be mapped to multiple processes
-    def partition(l,n):
-        return([l[i:i + n] for i in xrange(0, len(l), n)])
+    def partition(l, n):
+        return([l[i:i + n] for i in range(0, len(l), n)])
 
     def set_global(x):
         global unique_seqs
@@ -855,10 +856,10 @@ def apply_pairwise_distance_multiprocessing(sequences,
 
 
     index_p1 = partition(index, partition_size)
-    index_p2 = [range(i[0], total_number_of_seqs) for i in index_p1]
+    index_p2 = [list(range(i[0], total_number_of_seqs)) for i in index_p1]
     # part1 and part2 indices are passed as a tuple to each process,
     # memory and unique_sequence are shared in memory
-    index = [(index_p1[i],index_p2[i]) for i in range(chunks)]
+    index = [(index_p1[i], index_p2[i]) for i in range(chunks)]
     # Set up pool multiprocessing
 
     p = multiprocessing.Pool(processes = processes,
@@ -929,7 +930,7 @@ def unpack_pooled_dd_to_kkv(pooled_dd):
     apply_pairwise_distance_mulitprocessing()
 
     """
-    kkvs = [unpack_dd_to_kkv(pooled_dd[i]) for i in range(0,len(pooled_dd))]
+    kkvs = [unpack_dd_to_kkv(pooled_dd[i]) for i in range(0, len(pooled_dd))]
     flatten = lambda l: [item for sublist in l for item in sublist]
     kkv = {}
     for key in kkvs[0]:

@@ -13,7 +13,7 @@ def get_cdr3_and_j_match_counts( organism, ab, qseq, j_gene, min_min_j_matchlen 
     ## qseq starts at CA...
     assert qseq[0] == 'C'
 
-    num_genome_j_positions_in_loop = len(jg.cdrs[0].replace(gap_character,''))-2
+    num_genome_j_positions_in_loop = len(jg.cdrs[0].replace(gap_character, ''))-2
     #num_genome_j_positions_in_loop = all_num_genome_j_positions_in_loop[organism][ab][j_gene]
 
     if extended_cdr3: num_genome_j_positions_in_loop += 2 ## up to but not including GXG
@@ -41,13 +41,13 @@ def get_cdr3_and_j_match_counts( organism, ab, qseq, j_gene, min_min_j_matchlen 
     #print 'min_j_matchlen:',min_j_matchlen,'jatag:',jatag,'ntrim:',ntrim,'ja_seq:',ja_seq,'qseq',qseq
 
     if jatag not in aseq:
-        logger.error('whoah %s %s %s',ab,aseq,ja_seq )
+        logger.error('whoah %s %s %s', ab, aseq, ja_seq )
         errors.append( 'j{}tag_not_in_aseq'.format(ab) )
-        return '-',[100,0],errors
+        return '-', [100, 0], errors
     elif ja_seq.count( jatag ) != 1:
-        logger.error( 'whoah2 %s %s %s',ab,aseq,ja_seq )
+        logger.error( 'whoah2 %s %s %s', ab, aseq, ja_seq )
         errors.append( 'multiple_j{}tag_in_jseq'.format(ab) )
-        return '-',[100,0],errors
+        return '-', [100, 0], errors
     else:
         pos = aseq.find( jatag )
         looplen = pos - ntrim + num_genome_j_positions_in_loop
@@ -55,22 +55,22 @@ def get_cdr3_and_j_match_counts( organism, ab, qseq, j_gene, min_min_j_matchlen 
             aseq = aseq[3:]
             looplen -= 3 ## dont count CAX
         if len(aseq)<looplen:
-            logger.error('short %s %s %s',ab,aseq,ja_seq )
+            logger.error('short %s %s %s', ab, aseq, ja_seq )
             errors.append( ab+'seq_too_short' )
-            return '-',[100,0],errors
+            return '-', [100, 0], errors
 
         cdrseq = aseq[:looplen ]
 
     ## now count mismatches in the J gene, beyond the cdrseq
     j_seq = jg.protseq #fasta[ j_gene ] ## not sure why we do this again (old legacy code)
     if qseq.count( cdrseq ) > 1:
-        logger.error('multiple cdrseq occurrences %s %s'%(qseq,cdrseq))
+        logger.error('multiple cdrseq occurrences %s %s'%(qseq, cdrseq))
         errors.append('multiple_cdrseq_occ')
-        return '-',[100,0],errors
+        return '-', [100, 0], errors
     assert qseq.count(cdrseq) == 1
     start_counting_qseq = qseq.find(cdrseq)+len(cdrseq)
     start_counting_jseq = num_genome_j_positions_in_loop
-    j_match_counts = [0,0]
+    j_match_counts = [0, 0]
     #assert extended_cdr3 ## otherwise I think this count is not right?
     #print 'here',start_counting_qseq,start_counting_jseq,len(qseq)
     for qpos in range( start_counting_qseq, len(qseq)):
@@ -82,7 +82,7 @@ def get_cdr3_and_j_match_counts( organism, ab, qseq, j_gene, min_min_j_matchlen 
         else:
             j_match_counts[0] += 1
 
-    return cdrseq, j_match_counts,errors
+    return cdrseq, j_match_counts, errors
 
 
 
@@ -98,7 +98,7 @@ def parse_cdr3( organism, ab, qseq, v_gene, j_gene, q2v_align, extended_cdr3 = F
     ## what is the C position in this v gene?
     v_seq = vg.protseq #fasta[ v_gene ]
     v_alseq = vg.alseq #align_fasta[ v_gene ]
-    assert v_seq == v_alseq.replace(gap_character,'')
+    assert v_seq == v_alseq.replace(gap_character, '')
 
     alseq_cpos = vg.cdr_columns[-1][0] - 1 ## now 0-indexed
     #alseq_cpos = alseq_C_pos[organism][ab] - 1 ## now 0-indexed
@@ -107,10 +107,10 @@ def parse_cdr3( organism, ab, qseq, v_gene, j_gene, q2v_align, extended_cdr3 = F
     cpos = alseq_cpos - numgaps ## 0-indexed
     cpos_match = -1
 
-    v_match_counts = [0,0]
+    v_match_counts = [0, 0]
 
     qseq_len = len(qseq)
-    for (qpos,vpos) in sorted( q2v_align.iteritems() ):
+    for (qpos, vpos) in sorted( q2v_align.items() ):
         #print 'q2v-align:',qpos, vpos, cpos
         if qpos == len(qseq):
             continue ## from a partial codon at the end
@@ -118,19 +118,18 @@ def parse_cdr3( organism, ab, qseq, v_gene, j_gene, q2v_align, extended_cdr3 = F
             cpos_match = qpos
         elif vpos <= cpos:
             ## only count v mismatches here
-            if qseq[qpos] == v_seq[vpos]:
+            if qseq[int(qpos)] == v_seq[int(vpos)]:
                 v_match_counts[1] += 1
             else:
                 v_match_counts[0] += 1
 
-    if cpos_match<0 or qseq[ cpos_match ] != 'C':
+    if cpos_match<0 or qseq[ int(cpos_match) ] != 'C':
         ## problemo
         logger.error('failed to find blast match to C position')
         errors.append('no_V{}_Cpos_blastmatch'.format(ab))
-        return '-',[100,0],[100,0],errors
+        return '-', [100, 0], [100, 0], errors
 
-    cdrseq, j_match_counts, other_errors = get_cdr3_and_j_match_counts( organism, ab, qseq[ cpos_match: ], j_gene,
+    cdrseq, j_match_counts, other_errors = get_cdr3_and_j_match_counts( organism, ab, qseq[ int(cpos_match): ], j_gene,
                                                                         extended_cdr3 = extended_cdr3 )
 
     return cdrseq, v_match_counts, j_match_counts, errors+other_errors
-

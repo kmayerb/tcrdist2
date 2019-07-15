@@ -21,12 +21,12 @@ def blosum_character_distance(a, b, gap_penalty, params):
         # assert b in amino_acids
         # maxval = min( blosum[(a,a)], blosum[(b,b)] )
         # return maxval - blosum[(a,b)]
-        return params.distance_matrix[(a,b)]
+        return params.distance_matrix[(a, b)]
 
 def blosum_sequence_distance( aseq, bseq, gap_penalty, params):
     assert len(aseq) == len(bseq)
     dist = 0.0
-    for a,b in zip(aseq,bseq):
+    for a, b in zip(aseq, bseq):
         if a == ' ':
             assert b== ' '
         else:
@@ -37,12 +37,12 @@ def align_cdr3s( a, b, gap_character ):
     """Insert gaps into the shorter sequence,
     one at a time at the "best" location."""
     if len(a) == len(b):
-        return (a[:],b[:])
+        return (a[:], b[:])
 
     if len(a)<len(b): ## s0 is the shorter sequence
-        s0,s1 = a,b
+        s0, s1 = a, b
     else:
-        s0,s1 = b,a
+        s0, s1 = b, a
 
     lendiff = len(s1)-len(s0)
 
@@ -54,9 +54,9 @@ def align_cdr3s( a, b, gap_character ):
     for gappos in range(len(s0)-1):
         score=0
         for i in range(gappos+1):
-            score += blosum[ (s0[i],s1[i]) ]
-        for i in range(gappos+1,len(s0)):
-            score += blosum[ (s0[i],s1[i+lendiff]) ]
+            score += blosum[ (s0[i], s1[i]) ]
+        for i in range(gappos+1, len(s0)):
+            score += blosum[ (s0[i], s1[i+lendiff]) ]
         if score>best_score:
             best_score = score
             best_gappos = gappos
@@ -89,7 +89,7 @@ def sequence_distance_with_gappos( shortseq, longseq, gappos, params ):
     dist = 0.0
     count =0
     if ntrim < gappos:
-        for i in range(ntrim,gappos):
+        for i in range(ntrim, gappos):
             #print i,shortseq[i],longseq[i],params.distance_matrix[(shortseq[i],longseq[i])]
             dist += params.distance_matrix[ (shortseq[i], longseq[i] ) ]
             count += 1
@@ -100,11 +100,11 @@ def sequence_distance_with_gappos( shortseq, longseq, gappos, params ):
             dist += params.distance_matrix[ (shortseq[-1-i], longseq[-1-i] ) ]
             count += 1
     #print 'sequence_distance_with_gappos2:',gappos,ntrim,ctrim,remainder,dist
-    return dist,count
+    return dist, count
 
 
 def weighted_cdr3_distance( seq1, seq2, params ):
-    shortseq,longseq = (seq1,seq2) if len(seq1)<=len(seq2) else (seq2,seq1)
+    shortseq, longseq = (seq1, seq2) if len(seq1)<=len(seq2) else (seq2, seq1)
 
     ## try different positions of the gap
     lenshort = len(shortseq)
@@ -126,7 +126,7 @@ def weighted_cdr3_distance( seq1, seq2, params ):
         ## Use an earlier gappos if lenshort is less than 11.
         ##
         gappos = min( 6, 3 + (lenshort-5)/2 )
-        best_dist,count = sequence_distance_with_gappos( shortseq, longseq, gappos, params )
+        best_dist, count = sequence_distance_with_gappos( shortseq, longseq, gappos, params )
 
     else:
         ## the CYS and the first G of the GXG are 'aligned' in the beta sheet
@@ -162,14 +162,14 @@ def compute_all_v_region_distances(organism, params):
     rep_dists = {}
     for chain in 'AB': # don't compute inter-chain distances
         repseqs = []
-        for id,g in all_genes[organism].iteritems():
+        for id, g in all_genes[organism].items():
             if g.chain == chain and g.region == 'V':
                 merged_loopseq = ' '.join( g.cdrs[:-1])
                 repseqs.append( ( id, merged_loopseq  ) )
                 rep_dists[ id ] = {}
 
-        for r1,s1 in repseqs:
-            for r2,s2 in repseqs:
+        for r1, s1 in repseqs:
+            for r2, s2 in repseqs:
                 #if r1[2] != r2[2]: continue
                 try:
                     """Assume symmetry and check first if its already been calculated"""
@@ -198,18 +198,17 @@ def compute_auc( l0, l1, sign_factor=1 ):
     ## if sign_factor==1 then lower scores are better, otherwise it's the opposite
     ##
     if not l0:
-        return 0.0, [0,1], [0,0]
+        return 0.0, [0, 1], [0, 0]
     elif not l1:
-        return 1.0, [0,0,1], [0,1,1]
+        return 1.0, [0, 0, 1], [0, 1, 1]
 
-    l = [ (sign_factor*x,0) for x in l0 ] + [ (sign_factor*x,-1) for x in l1 ] ## in ties, take the false positive first
-    l.sort()
+    l = sorted([ (sign_factor*x, 0) for x in l0 ] + [ (sign_factor*x, -1) for x in l1 ]) ## in ties, take the false positive first
 
     xvals = []
     yvals = []
 
-    counts = [0,0]
-    totals = [len(l0),len(l1)]
+    counts = [0, 0]
+    totals = [len(l0), len(l1)]
 
     area=0.0
     width = 1.0/totals[1]
@@ -222,7 +221,7 @@ def compute_auc( l0, l1, sign_factor=1 ):
         yvals.append( yval )
         if tcr_class==1: area += yval * width
 
-    return area,xvals,yvals
+    return area, xvals, yvals
 
 def get_rank( val, l ): ## does not require that the list l is sorted
     num_lower = 0
@@ -284,7 +283,7 @@ def sort_and_compute_weighted_nbrdist_from_distances( l, nbrdist_percentile, don
 
     total_wt = 0.0
     nbrdist=0.0
-    for i,val in enumerate( l[:n] ):
+    for i, val in enumerate( l[:n] ):
         wt = 1.0 - float(i)/n
         total_wt += wt
         nbrdist += wt * val

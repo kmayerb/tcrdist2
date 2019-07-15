@@ -1,4 +1,4 @@
-from __future__ import absolute_import, division, print_function
+
 from os.path import join as pjoin
 
 # Format expected by setup.py and doc/source/conf.py: string of form "X.Y.Z"
@@ -79,4 +79,4 @@ PACKAGE_DATA = {'tcrdist': ['datasets/test_human_pairseqs.tsv',
                             'external/blast-2.2.16/bin/*',
                             'external/tablesorter/*']}
                             #]}#[pjoin('datasets', 'test_human_pairseqs.tsv'),pjoin('datasets', 'test_mouse_pairseqs.tsv'), pjoin('db', '*'), pjoin('external', '*')]}
-REQUIRES = ["numpy","pandas","scipy", "matplotlib","parasail"]
+REQUIRES = ["numpy", "pandas", "scipy", "matplotlib", "parasail"]

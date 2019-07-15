@@ -1,4 +1,4 @@
-from __future__ import absolute_import, division, print_function
+
 import os.path as op
 import numpy as np
 import pandas as pd
@@ -57,10 +57,10 @@ def test_mouse_vregion():
 def test_chain():
     tcrs = exampleBetaChains()
     pwmat = np.zeros((len(tcrs), len(tcrs)))
-    for i,j in itertools.product(range(len(tcrs)), range(len(tcrs))):
+    for i, j in itertools.product(list(range(len(tcrs))), list(range(len(tcrs)))):
         if j <= i:
-            pwmat[i,j] = td.distances.basicDistance('B', tcrs[i], tcrs[j])
-            pwmat[j,i] = pwmat[i,j]
+            pwmat[i, j] = td.distances.basicDistance('B', tcrs[i], tcrs[j])
+            pwmat[j, i] = pwmat[i, j]
 
 @tempSkip
 def test_compute_paired_chain_distance():

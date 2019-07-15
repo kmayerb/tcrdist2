@@ -131,14 +131,14 @@ def computeBasicPWDistances(chains, clonesDf, VRegionDists=None, params=None):
     
     nTCRs = clonesDf.shape[0]
     pwDist = np.zeros((nTCRs, nTCRs))
-    for i,j in itertools.product(range(nTCRs), range(nTCRs)):
+    for i, j in itertools.product(list(range(nTCRs)), list(range(nTCRs))):
         if i <= j:
             d = basicDistance(chains,
                               clonesDf.iloc[i],
                               clonesDf.iloc[j], 
                               VRegionDists=VRegionDists, params=params)
-            pwDist[i,j] = d
-            pwDist[j,i] = d
+            pwDist[i, j] = d
+            pwDist[j, i] = d
     pwDf = pd.DataFrame(pwDist, index=clonesDf.index, columns=clonesDf.index)
     return pwDf
     
@@ -210,7 +210,7 @@ def nearestNeighborDistance(chains, tcr, referenceTCRs, neighborPctile=10, neigh
     if pwDf is None or not tcrID in pwDf or not np.all([r in pwDf for r in referenceTCRs.index]):
         """Need to compute some or all distances first"""
         allD = np.zeros(len(referenceTCRs))
-        for i,refID in enumerate(referenceTCRs.index):
+        for i, refID in enumerate(referenceTCRs.index):
             if pwDf is None or tcrID not in pwDf or refID not in pwDf:
                 allD[i] = basicDistance(chains, tcr, referenceTCRs.loc[refID], VRegionDists=VRegionDists, params=params)
             else:

@@ -25,7 +25,7 @@ def install_blast_to_externals(download_from):
     if not isinstance(download_from, str):
         raise TypeError("the < download_from > arg must be a string")
 
-    if download_from not in ["ncbi_osx","ncbi_linux", "dropbox_osx", "dropbox_linux"]:
+    if download_from not in ["ncbi_osx", "ncbi_linux", "dropbox_osx", "dropbox_linux"]:
         raise KeyError("the < download_from > arg passed to install_blast_to_externals \
         must be one of the following: ncbi_osx, ncbi_linux, dropbox_osx, dropbox_linux")
 

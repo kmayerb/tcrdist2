@@ -323,16 +323,16 @@ def processNT(organism, chain, nuc, quals, use_parasail = True, try_parasail = T
                                                    extended_cdr3=True,
                                                    return_all_good_hits=True,
                                                    max_bit_score_delta_for_good_hits=50)
-    genes,evalues,status,all_good_hits_with_scores = res
-    labels = ['v%s_gene','v%s_rep', 'v%s_mm', 'j%s_gene', 'j%s_rep', 'j%s_mm', 'cdr3%s_plus']
-    tmp = {g:v for g,v in zip([lab % ch for lab in labels], genes)}
-    tmp.update({'%s_evalue' % k.lower():evalues[k][0] for k in evalues.keys()})
-    tmp.update({'%s_bitscore_gap' % k.lower():evalues[k][1] for k in evalues.keys()})
+    genes, evalues, status, all_good_hits_with_scores = res
+    labels = ['v%s_gene', 'v%s_rep', 'v%s_mm', 'j%s_gene', 'j%s_rep', 'j%s_mm', 'cdr3%s_plus']
+    tmp = {g:v for g, v in zip([lab % ch for lab in labels], genes)}
+    tmp.update({'%s_evalue' % k.lower():evalues[k][0] for k in list(evalues.keys())})
+    tmp.update({'%s_bitscore_gap' % k.lower():evalues[k][1] for k in list(evalues.keys())})
 
     tmp['%s_status' % ch] = 'OK' if not status else status
     tmp['%s_good_hits' % ch] = all_good_hits_with_scores
 
-    tmp['cdr3%s' % ch],tmp['cdr3%s_nucseq' % ch] = tmp['cdr3%s_plus' % ch].split('-')
+    tmp['cdr3%s' % ch], tmp['cdr3%s_nucseq' % ch] = tmp['cdr3%s_plus' % ch].split('-')
     tmp['cdr3%s_quals' % ch] = blast.get_qualstring( tmp['cdr3%s_plus' % ch], nuc, quals )
     tmp['v%s_mismatches' % ch] = tmp['v%s_mm' % ch][0]
     tmp['j%s_mismatches' % ch] = tmp['j%s_mm' % ch][0]
@@ -341,16 +341,16 @@ def processNT(organism, chain, nuc, quals, use_parasail = True, try_parasail = T
 
     hits = tmp['%s_good_hits' % ch]
     if  hits and len(hits) == 2 and hits[0] and hits[1]:
-        tmp['v%s_blast_hits' % ch] = ';'.join( '{}:{}'.format(x[0],x[1]) for x in hits[0] )
-        tmp['j%s_blast_hits' % ch] = ';'.join( '{}:{}'.format(x[0],x[1]) for x in hits[1] )
+        tmp['v%s_blast_hits' % ch] = ';'.join( '{}:{}'.format(x[0], x[1]) for x in hits[0] )
+        tmp['j%s_blast_hits' % ch] = ';'.join( '{}:{}'.format(x[0], x[1]) for x in hits[1] )
         va_genes = util.get_top_genes( tmp['v%s_blast_hits' % ch] ) ## a set
         ja_genes = util.get_top_genes( tmp['j%s_blast_hits' % ch] )
         tmp['v%s_genes' % ch] = ';'.join( sorted( va_genes ) )
         tmp['j%s_genes' % ch] = ';'.join( sorted( ja_genes ) )
         tmp['v%s_reps' % ch]  = ';'.join( sorted( util.get_top_reps( tmp['v%s_blast_hits' % ch], organism ) ) )
         tmp['j%s_reps' % ch]  = ';'.join( sorted( util.get_top_reps( tmp['j%s_blast_hits' % ch], organism ) ) )
-        tmp['v%s_countreps' % ch] = ';'.join( sorted( set( (util.get_mm1_rep_gene_for_counting(x,organism) for x in va_genes ))))
-        tmp['j%s_countreps' % ch] = ';'.join( sorted( set( (util.get_mm1_rep_gene_for_counting(x,organism) for x in ja_genes ))))
+        tmp['v%s_countreps' % ch] = ';'.join( sorted( set( (util.get_mm1_rep_gene_for_counting(x, organism) for x in va_genes ))))
+        tmp['j%s_countreps' % ch] = ';'.join( sorted( set( (util.get_mm1_rep_gene_for_counting(x, organism) for x in ja_genes ))))
 
     chain = objects.TCRChain(**tmp)
     return chain

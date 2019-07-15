@@ -35,7 +35,9 @@ def test_processNT_returns_complete_set_of_result():
     chainParasail = td.processNT('human', 'B', betaNT, betaQuals, use_parasail=True)
     ls_b = chainBlast.to_list() # had to create to_list() to get all kwargs in TCRChain
     ls_p = chainParasail.to_list()
-    assert(ls_b == ['jb_gene', 'b_good_hits', 'vb_evalue', 'jb_mm', 'vb_rep', 'vb_countreps', 'cdr3b', 'vb_alignlen', 'cdr3b_quals', 'vb_genes', 'jb_countreps', 'vb_bitscore_gap', 'vb_mismatches', 'cdr3b_nucseq', 'jb_alignlen', 'b_status', 'jb_blast_hits', 'vb_gene', 'jb_evalue', 'jb_reps', 'jb_bitscore_gap', 'jb_rep', 'vb_reps', 'jb_mismatches', 'cdr3b_plus', 'vb_blast_hits', 'jb_genes', 'vb_mm'])
+    print(ls_b)
+    print(ls_p)
+    assert( set(ls_b) == set(['jb_gene', 'b_good_hits', 'vb_evalue', 'jb_mm', 'vb_rep', 'vb_countreps', 'cdr3b', 'vb_alignlen', 'cdr3b_quals', 'vb_genes', 'jb_countreps', 'vb_bitscore_gap', 'vb_mismatches', 'cdr3b_nucseq', 'jb_alignlen', 'b_status', 'jb_blast_hits', 'vb_gene', 'jb_evalue', 'jb_reps', 'jb_bitscore_gap', 'jb_rep', 'vb_reps', 'jb_mismatches', 'cdr3b_plus', 'vb_blast_hits', 'jb_genes', 'vb_mm']))
     assert(ls_b == ls_p)
 
 #@tempSkip

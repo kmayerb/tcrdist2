@@ -1,4 +1,4 @@
-from __future__ import absolute_import, division, print_function
+
 import os.path as op
 import numpy as np
 import pandas as pd
@@ -19,10 +19,10 @@ betaQuals = '12.12.12.12.12.22.9.8.6.6.6.8.3.0.3.10.3.0.3.10.10.11.20.25.30.37.3
 @tempSkip
 def test_process_nt():
     chain = td.processing.processNT('human', 'A', alphaNT, alphaQuals)
-    assert type(chain) is td.TCRChain
+    assert isinstance(chain, td.TCRChain)
 
     chain = td.processing.processNT('human', 'B', betaNT, betaQuals)
-    assert type(chain) is td.TCRChain
+    assert isinstance(chain, td.TCRChain)
 
 @tempSkip
 def test_human_paired_dataset():

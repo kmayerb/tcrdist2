@@ -134,21 +134,21 @@ class TCRrep:
         f1 = lambda v : _map_gene_to_reference_seq(gene = v, cdr = 1, organism = self.organism)
         f2 = lambda v : _map_gene_to_reference_seq(gene = v, cdr = 2, organism = self.organism)
         if chain is "alpha":
-            self.cell_df['cdr1_a_aa'] = map(f0, self.cell_df.v_a_gene)
-            self.cell_df['cdr2_a_aa'] = map(f1, self.cell_df.v_a_gene)
-            self.cell_df['pmhc_a_aa'] = map(f2, self.cell_df.v_a_gene)
+            self.cell_df['cdr1_a_aa'] = list(map(f0, self.cell_df.v_a_gene))
+            self.cell_df['cdr2_a_aa'] = list(map(f1, self.cell_df.v_a_gene))
+            self.cell_df['pmhc_a_aa'] = list(map(f2, self.cell_df.v_a_gene))
         if chain is "beta":
-            self.cell_df['cdr1_b_aa'] = map(f0, self.cell_df.v_b_gene)
-            self.cell_df['cdr2_b_aa'] = map(f1, self.cell_df.v_b_gene)
-            self.cell_df['pmhc_b_aa'] = map(f2, self.cell_df.v_b_gene)
+            self.cell_df['cdr1_b_aa'] = list(map(f0, self.cell_df.v_b_gene))
+            self.cell_df['cdr2_b_aa'] = list(map(f1, self.cell_df.v_b_gene))
+            self.cell_df['pmhc_b_aa'] = list(map(f2, self.cell_df.v_b_gene))
         if chain is "gamma":
-            self.cell_df['cdr1_g_aa'] = map(f0, self.cell_df.v_g_gene)
-            self.cell_df['cdr2_g_aa'] = map(f1, self.cell_df.v_g_gene)
-            self.cell_df['pmhc_g_aa'] = map(f2, self.cell_df.v_g_gene)
+            self.cell_df['cdr1_g_aa'] = list(map(f0, self.cell_df.v_g_gene))
+            self.cell_df['cdr2_g_aa'] = list(map(f1, self.cell_df.v_g_gene))
+            self.cell_df['pmhc_g_aa'] = list(map(f2, self.cell_df.v_g_gene))
         if chain is "delta":
-            self.cell_df['cdr1_d_aa'] = map(f0, self.cell_df.v_d_gene)
-            self.cell_df['cdr2_d_aa'] = map(f1, self.cell_df.v_d_gene)
-            self.cell_df['pmhc_d_aa'] = map(f2, self.cell_df.v_d_gene)
+            self.cell_df['cdr1_d_aa'] = list(map(f0, self.cell_df.v_d_gene))
+            self.cell_df['cdr2_d_aa'] = list(map(f1, self.cell_df.v_d_gene))
+            self.cell_df['pmhc_d_aa'] = list(map(f2, self.cell_df.v_d_gene))
 
 
     def compute_pairwise_all(self,
@@ -212,14 +212,14 @@ class TCRrep:
         self._validate_chain(chain)
         # If compute_specific_region is None, then the behavior is to loop through the a list regions.
         if compute_specific_region is None:
-            index_col_from_chain = {'alpha' : ['cdr3_a_aa','cdr2_a_aa',
-                                               'cdr1_a_aa','pmhc_a_aa'],
-                                    'beta'  : ['cdr3_b_aa','cdr2_b_aa',
-                                               'cdr1_b_aa','pmhc_b_aa'],
-                                    'gamma' : ['cdr3_g_aa','cdr2_g_aa',
-                                               'cdr1_g_aa','pmhc_g_aa'],
-                                    'delta' : ['cdr3_d_aa','cdr2_d_aa',
-                                               'cdr1_d_aa','pmhc_d_aa']}
+            index_col_from_chain = {'alpha' : ['cdr3_a_aa', 'cdr2_a_aa',
+                                               'cdr1_a_aa', 'pmhc_a_aa'],
+                                    'beta'  : ['cdr3_b_aa', 'cdr2_b_aa',
+                                               'cdr1_b_aa', 'pmhc_b_aa'],
+                                    'gamma' : ['cdr3_g_aa', 'cdr2_g_aa',
+                                               'cdr1_g_aa', 'pmhc_g_aa'],
+                                    'delta' : ['cdr3_d_aa', 'cdr2_d_aa',
+                                               'cdr1_d_aa', 'pmhc_d_aa']}
         # Alternative behavior: is to loop over a single chain and region.
         else:
             index_col_from_chain = {}
@@ -334,10 +334,10 @@ class TCRrep:
         for k in replacement_weights:
             weights[k] = replacement_weights[k]
 
-        alpha_keys = [k for k in weights.keys() if k.endswith("a_aa_pw")]
-        beta_keys  = [k for k in weights.keys() if k.endswith("b_aa_pw")]
-        gamma_keys = [k for k in weights.keys() if k.endswith("g_aa_pw")]
-        delta_keys = [k for k in weights.keys() if k.endswith("d_aa_pw")]
+        alpha_keys = [k for k in list(weights.keys()) if k.endswith("a_aa_pw")]
+        beta_keys  = [k for k in list(weights.keys()) if k.endswith("b_aa_pw")]
+        gamma_keys = [k for k in list(weights.keys()) if k.endswith("g_aa_pw")]
+        delta_keys = [k for k in list(weights.keys()) if k.endswith("d_aa_pw")]
 
         full_keys = []
         if 'alpha' in chains:

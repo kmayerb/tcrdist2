@@ -51,7 +51,7 @@ def embedDistanceMatrix(dmatDf, method='kpca', n_components=2, **kwargs):
         tsneObj = TSNE(n_components=n_components, metric='precomputed', random_state=0, perplexity=kwargs['perplexity'])
         xy = tsneObj.fit_transform(dmat)
     else:
-        print('Method unknown: %s' % method)
+        print(('Method unknown: %s' % method))
         return
 
     assert xy.shape[0] == dmatDf.shape[0]
