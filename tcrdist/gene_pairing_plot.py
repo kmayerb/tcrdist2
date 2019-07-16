@@ -178,16 +178,7 @@ def plotPairings(df, cols, count_col=None, use_color_gradients=True, other_frequ
     is a color-stack showing all the TCR clones and how they break down into the different genes for that gene-type. Each clone
     is devoted a constant vertical height in pixels indicated in the text at the top (N pixels in "Nx y-pixel scale"). The curved
     segments joining neighboring gene-stacks show how the two gene distributions pair up, with the thickness of the segments
-    corresponding to the number of clones having those two segments (scaled by the indicated y-pixel scale). Significant gene-gene
-    pairings (positive or negative correlations with a P-value less than 1e-6) are labeled at the beginning and ending of the
-    corresponding segments. Gene-gene pairings which are not observed and for which this under-representation is significant
-    are indicated by dashed segments with P-value labels. Enrichments (depletions) of gene segments relative to
-    background are shown for all labeled genes by up (down) arrows where the number of arrowheads reflects the base-2
-    logarithm of the fold change, rounded down (one arrowhead means 2 <= fold change < 4,
-    two arrowheads means 4 <= fold change < 8, and so on).
-
-    The left-right ordering of the segment types is chosen so that VA and JA are on the left, VB and JB are on the right,
-    and the alpha-beta pairing with the largest adjusted mutual information is in the middle.
+    corresponding to the number of clones having those two segments (scaled by the indicated y-pixel scale). 
 
     Parameters
     ----------
