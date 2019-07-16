@@ -1,12 +1,11 @@
 import numpy as np
 import pandas as pd
 import itertools
-from scipy import stats
-
-import statsmodels.api as sm
+#from scipy import stats
+#import statsmodels.api as sm
 #from sklearn.metrics import adjusted_mutual_info_score
 
-from html_colors import get_html_colors
+from .html_colors import get_html_colors
 
 __all__ = ['plotPairings']
 
@@ -28,7 +27,7 @@ def _create_svg(cmds, width, height, background_color=None, use_xlink=False):
     out += '<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg" version="1.1" {} >\n'\
               .format(int(width),int(height),extra)
     if background_color:
-        out += _rectangle( (0,0), (width,height), background_color, 'white', 0 )
+        out += _rectangle( (0,0), (width, height), background_color, 'white', 0 )
     out += '\n'.join(cmds) + '\n'
     out += '</svg>\n'
     return out
@@ -68,11 +67,64 @@ def _linear_gradient_cmd(gradient_id_counter, x1, y1, x2, y2, offsets, colors, s
 
     return gradient_id_counter, id, cmd
 
-def _computeAssociations(df, cols, countCol='Count'):
+def _enrichment_glyph_cmds(center, arrow_length, arrow_width, enrichment, add_rectangle=False, box_color='gold' ):
+    cmds = []
+
+    num_heads = int(np.floor(np.abs(np.log(enrichment, 2.) ) ))
+    if num_heads<1:
+        return cmds
+
+    head_sep = 3. * arrow_width
+    head_width = 3. * arrow_width
+    head_slant = 1.
+
+    if enrichment>1: ## up arrow, text at the top
+        line_p0 = [ center[0], center[1] + arrow_length/2. ]
+        line_p1 = [ center[0], center[1] - arrow_length/2. ]
+        head_step = 1 * head_sep
+    else:
+        line_p0 = [ center[0], center[1] - arrow_length/2. ]
+        line_p1 = [ center[0], center[1] + arrow_length/2. ]
+        head_step = -1 * head_sep
+
+    if add_rectangle:
+        ## put a nice rounded rectangle around the outside
+        rect_x0 = center[0] - head_width - arrow_width
+        rect_y0 = center[1] - arrow_length/2 - arrow_width
+        rect_width = 2*(head_width+arrow_width)
+        rect_height = arrow_length + 2*arrow_width
+        rect_round = 3.0 * arrow_width
+
+        cmds.append( '<rect x="{:.3f}" y="{:.3f}" width="{:.3f}" height="{:.3f}" rx="{:.3f}" ry="{:.3f}" stroke="{}" fill="{}"/>'\
+                     .format( rect_x0, rect_y0, rect_width, rect_height, rect_round, rect_round,
+                              box_color, box_color ))
+
+    ## make the line
+    cmds.append( '<line x1="{:.3f}" y1="{:.3f}" x2="{:.3f}" y2="{:.3f}" stroke="black" stroke-width="{}"/>'\
+                 .format( line_p0[0], line_p0[1], line_p1[0], line_p1[1], arrow_width ) )
+
+    ## now make the heads
+    for head in range(num_heads):
+        for xsign in [1,-1]:
+            x1 = line_p0[0]
+            x2 = x1 + xsign * head_width
+            y1 = line_p1[1] + head * head_step
+            y2 = y1 + head_slant * head_step
+
+            cmds.append( '<line x1="{:.3f}" y1="{:.3f}" x2="{:.3f}" y2="{:.3f}" stroke="black" stroke-width="{}"/>'\
+                         .format( x1,y1,x2,y2, arrow_width ) )
+
+            if False: ## add shifted white line
+                y_shift = arrow_width * head_step / head_sep
+                cmds.append( '<line x1="{:.3f}" y1="{:.3f}" x2="{:.3f}" y2="{:.3f}" stroke="white" stroke-width="{}"/>'\
+                             .format( x1,y1+y_shift,x2,y2+y_shift, arrow_width ) )
+    return cmds
+
+def _computeAssociations(df, cols, count_col='Count'):
     res = []
     col1, col2 = cols
     for val1, val2 in itertools.product(df[col1].unique(), df[col2].unique()):
-        OR, pvalue, tab = _testAssociation(df, (col1, val1), (col2, val2), countCol=countCol)
+        OR, pvalue, tab = _testAssociation(df, (col1, val1), (col2, val2), count_col=count_col)
         tot = np.sum(tab)
         res.append({'OR':OR,
                     'pvalue':pvalue,
@@ -80,16 +132,16 @@ def _computeAssociations(df, cols, countCol='Count'):
                     'Col1':col2,
                     'Val0':val1,
                     'Val1':val2,
-                    '00':tab[0, 0] / tot,
-                    '01':tab[0, 1] / tot,
-                    '10':tab[1, 0] / tot,
-                    '11':tab[1, 1] / tot})
+                    '00':tab[0, 0],
+                    '01':tab[0, 1],
+                    '10':tab[1, 0],
+                    '11':tab[1, 1]})
     resDf = pd.DataFrame(res)
-    resDf.loc[:, 'qvalue'] = sm.stats.multipletests(resDf['pvalue'].values, method='fdr_bh')[1]
-    resDf = resDf.sort_values(by='pvalue', ascending=True)
+    # resDf.loc[:, 'qvalue'] = sm.stats.multipletests(resDf['pvalue'].values, method='fdr_bh')[1]
+    # resDf = resDf.sort_values(by='pvalue', ascending=True)
     return resDf
 
-def _testAssociation(df, node1, node2, countCol='Count'):
+def _testAssociation(df, node1, node2, count_col='Count'):
     """Test if the occurence of nodeA paired with nodeB is more/less common than expected.
 
     Parameters
@@ -106,23 +158,21 @@ def _testAssociation(df, node1, node2, countCol='Count'):
     col1, val1 = node1
     col2, val2 = node2
     
-    tmp = df[[col1, col2, countCol]].dropna()
-    #print(node1, node2, countCol)
+    tmp = df[[col1, col2, count_col]].dropna()
+    #print(node1, node2, count_col)
     #print(tmp)
 
     tab = np.zeros((2, 2))
-    tab[0, 0] = (((tmp[col1]!=val1) & (tmp[col2]!=val2)) * tmp[countCol]).sum()
-    tab[0, 1] = (((tmp[col1]!=val1) & (tmp[col2]==val2)) * tmp[countCol]).sum()
-    tab[1, 0] = (((tmp[col1]==val1) & (tmp[col2]!=val2)) * tmp[countCol]).sum()
-    tab[1, 1] = (((tmp[col1]==val1) & (tmp[col2]==val2)) * tmp[countCol]).sum()
+    tab[0, 0] = (((tmp[col1]!=val1) & (tmp[col2]!=val2)) * tmp[count_col]).sum()
+    tab[0, 1] = (((tmp[col1]!=val1) & (tmp[col2]==val2)) * tmp[count_col]).sum()
+    tab[1, 0] = (((tmp[col1]==val1) & (tmp[col2]!=val2)) * tmp[count_col]).sum()
+    tab[1, 1] = (((tmp[col1]==val1) & (tmp[col2]==val2)) * tmp[count_col]).sum()
 
-    """Add 1 to cells with zero"""
-    tab[tab==0] = 1
-    #OR, pvalue = fisherTest(tab)
-    OR, pvalue = stats.fisher_exact(tab)
+    # OR, pvalue = stats.fisher_exact(tab)
+    OR, pvalue = np.nan, np.nan
     return OR, pvalue, tab
 
-def plotPairings(df, cols, countCol=None, use_color_gradients=True, other_frequency_threshold=0.01):
+def plotPairings(df, cols, count_col=None, use_color_gradients=True, other_frequency_threshold=0.01):
     """Diagram depicts the gene-segment pairing structure of the dataset. The four
     genes (cols) are arrayed left to right. Below each gene-type label (eg "VA")
     is a color-stack showing all the TCR clones and how they break down into the different genes for that gene-type. Each clone
@@ -145,14 +195,21 @@ def plotPairings(df, cols, countCol=None, use_color_gradients=True, other_freque
         Contains gene segment data, one row per clone.
     cols : list
         List of columns for displaying frequency and pairings, in order from left to right.
-    countCol : str
+    count_col : str
         Optionally provide a count or frequency column for weighting the rows/clones
 
     Returns
     -------
     raw_svg : str
         Raw SVG txt that can be written to a file."""
+    
+    """Not implemented: enrichment should take into account the whole unbiased repertoire"""
+    enrichment_glyphs = False
 
+    if count_col is None:
+        df = df.assign(Count=1)
+        count_col = 'Count'
+    
     params = dict(min_ami_for_colorscale=0.114, # from shuffling experiments
                     max_ami_for_colorscale=0.5,
                     min_entropy_for_colorscale=0.0,
@@ -160,9 +217,7 @@ def plotPairings(df, cols, countCol=None, use_color_gradients=True, other_freque
                     min_jsd_for_colorscale=0.02259, ## from background vs background comparisons
                     max_jsd_for_colorscale=0.0,
                     min_gene_frequency_for_labels=0.05,
-                    reverse_gradients=False,
-                    pval_threshold_for_plotting_gene_correlations=1e-2,
-                    pval_threshold_for_svg_correlations=1e-6)
+                    reverse_gradients=False)
 
     gradient_id_counter = 0
 
@@ -172,58 +227,50 @@ def plotPairings(df, cols, countCol=None, use_color_gradients=True, other_freque
     top_margin = 50
     bottom_margin = 50
     yspacer = 50
+    diagram_height = 600
+    svg_height = diagram_height + top_margin + bottom_margin
 
     flat_band = 50
-    final_flat_band = flat_band if use_color_gradients else 2.5*flat_band
     middle_band = 400
     slope_weight = 100
-    pairing_svg_y_offset = top_margin
+    
+    ff = 'sans-serif'
 
-    ff = 'Droid Sans Mono'
-
-    # ypixel_scale = max(1, int( 0.5 + 600.0/df.shape[0] ) )
-    ypixel_scale = 100
-    pairing_svg_width = left_margin + right_margin + 3*(flat_band+middle_band) + final_flat_band
+    ypixel_scale = diagram_height / df[count_col].sum()
+    svg_width = left_margin + right_margin + (len(cols) - 1) * (flat_band + middle_band) + flat_band
 
     epitope_fontsize = 60
-    midpoint = left_margin + 2*flat_band + 1.5*middle_band
-    pairing_svg_cmds = []
+    midpoint = svg_width / 2
+    svg_cmds = []
     '''
-    pairing_svg_cmds.append( _make_text( '{}'.format(epitope, len(tcrs) ),
+    svg_cmds.append( _make_text( '{}'.format(epitope, len(tcrs) ),
                                                   [midpoint-0.5*0.6*epitope_fontsize*len(epitope),
-                                                   pairing_svg_y_offset+epitope_fontsize-20], epitope_fontsize,
+                                                   top_margin+epitope_fontsize-20], epitope_fontsize,
                                                   font_family=ff ) )
     '''
 
-    correlation_fontsize = 14.
-    correlation_fontheight = correlation_fontsize * 0.75
-
-    if countCol is None:
-        df = df.assign(Count=1)
-        countCol = 'Count'
-    
     """Compute marginal frequencies for each value within each column"""
-    tot = df[countCol].sum()
-    freqs = {}
+    tot = df[count_col].sum()
+    counts = {}
     for c in cols:
         """Assign "Other" to all values below a threshold"""
-        tmp = df.groupby(c)[countCol].agg(lambda v: np.sum(v) / tot).sort_values(ascending=False)
+        tmp = df.groupby(c)[count_col].agg(lambda v: np.sum(v) / tot).sort_values(ascending=False)
         ind = tmp.index[tmp < other_frequency_threshold]
         df.loc[df[c].isin(ind), c] = 'Other ' + c
-        freqs[c] = df.groupby(c)[countCol].agg(lambda v: np.sum(v) / tot).sort_values(ascending=False)
-        print(c)
-        print(freqs[c])
+        counts[c] = df.groupby(c)[count_col].agg(lambda v: np.sum(v)).sort_values(ascending=False)
+        #print(c)
+        #print(counts[c].sum())
 
     """For each consecutive pair of columns compute 2 x 2 table of frequencies, OR and Fisher's Exact p-value"""
     res = []
     for i in range(len(cols) - 1):
-        res.append(_computeAssociations(df, cols=(cols[i], cols[i+1]), countCol=countCol))
+        res.append(_computeAssociations(df, cols=(cols[i], cols[i+1]), count_col=count_col))
     resDf = pd.concat(res, axis=0, ignore_index=True)
     resDf = resDf.sort_values(by='pvalue').set_index(['Val0', 'Val1'])
-    print(resDf)
+    #print(resDf[['00', '01', '10', '11']].sum(axis=1))
 
     for ii in range(len(cols) - 1):
-        correlation_paths = []
+        top_margin = top_margin
         r0 = cols[ii]
         r1 = cols[ii+1]
 
@@ -232,287 +279,150 @@ def plotPairings(df, cols, countCol=None, use_color_gradients=True, other_freque
         text = segtype2greek_label[ r0 ]
         fontsize = 40.
         xtext = x0 + 0.5*flat_band - 0.5*0.6*fontsize*2
-        ytext = pairing_svg_y_offset+yspacer-6
+        ytext = top_margin + yspacer - 6
         ## hacking
         ytext -= 6
         if ii==0:
             xtext += 8
-        pairing_svg_cmds.append( _make_text( text, [ xtext, ytext ], fontsize, font_family=ff ) )
+        svg_cmds.append( _make_text( text, [ xtext, ytext ], fontsize, font_family=ff ) )
         if ii == (len(cols) - 2): ## add the final column label
             text = segtype2greek_label[ r1 ]
             xtext = x0+1.5*flat_band-0.5*0.6*fontsize*2+middle_band
             xtext -= 8
-            pairing_svg_cmds.append( _make_text( text, [ xtext, ytext ], fontsize, font_family=ff ) )
-        
-        '''
-        pairing_svg_cmds.append( _make_text( '(AMI: {:.2f})'.format(ami),
-                                                      [x0+flat_band+middle_band/2.5, pairing_svg_y_offset+yspacer-5],
-                                                      12, font_family=ff  ))
-        '''
+            svg_cmds.append( _make_text( text, [ xtext, ytext ], fontsize, font_family=ff ) )
 
-        
-        #vl = [ (y,x) for x,y in repcounts[r0].iteritems() ]
-        #jl = [ (y,x) for x,y in repcounts[r1].iteritems() ]
+        r0colors = dict(zip(counts[r0].index, get_html_colors(len(counts[r0]))))
+        r1colors = dict(zip(counts[r1].index, get_html_colors(len(counts[r1]))))
 
-        #vl.sort() ; vl.reverse()
-        #jl.sort() ; jl.reverse()
-
-        #a0colors = dict(zip( [x[1] for x in vl], html_colors.get_rank_colors_no_lights( len(vl) ) ) )
-        #a1colors = dict(zip( [x[1] for x in jl], html_colors.get_rank_colors_no_lights( len(jl) ) ) )
-        r0colors = dict(zip(freqs[r0].index, get_html_colors(len(freqs[r0]))))
-        r1colors = dict(zip(freqs[r1].index, get_html_colors(len(freqs[r1]))))
-        #print(r0colors)
-        #print(r1colors)
-        '''
-        reps2tcrs = {}
-        for t in tcrs:
-            vj = ( t[ rep_index[r0] ], t[ rep_index[r1] ] )
-            if vj not in reps2tcrs:reps2tcrs[vj] = []
-            reps2tcrs[vj].append( t )
-        '''
-
-        ## on the left, the V-segments, ordered by counts
-        ## on the right, J-segments, ordered by counts
-
-        ## need to assign a vertical range to each v/j segment
-        ## start with, one pixel per tcr
-        ##
-
-        a1counts = {}
-
-        yleft = yspacer + pairing_svg_y_offset
+        a1pixels = {}
+        yleft = yspacer + top_margin
         """Nested loops over the alleles (a0, a1) in the pair of columns, r0, r1"""
-        for a0, a0freq in freqs[r0].iteritems():
-            y0_right = yspacer + pairing_svg_y_offset
+        for a0, a0count in counts[r0].iteritems():
+            y0_right = yspacer + top_margin
             a0color = r0colors[a0]
-            for a1, a1freq in freqs[r1].iteritems():
+            for a1, a1count in counts[r1].iteritems():
                 a1color = r1colors[a1]
                 vj = (a0, a1)
                 a1color = r1colors[a1]
 
                 """Frequency of this allele pairing"""
-                freq_tcrs = resDf.loc[(a0, a1), '11']
-                num_tcrs_scaled = freq_tcrs * ypixel_scale
-                stroke_width = np.ceil(num_tcrs_scaled)
+                band_height = resDf.loc[(a0, a1), '11'] * ypixel_scale
+                if band_height > 0:
+                    """SVG paths with "stroke-width=0" throw errors for image magick"""
+                    """Make a spline"""
+                    yright = y0_right + a1pixels.get(a1, 0)
 
-                ## ok make a spline
-                yright = y0_right + a1counts.get(a1, 0)
-
-                #line/spline points
-                j_flat_band = flat_band if ii<(len(cols) - 2) else final_flat_band
-                points = [ (np.floor(x0), yleft + 0.5*num_tcrs_scaled ),
-                           (x0+flat_band, yleft + 0.5*num_tcrs_scaled ),
-                           (np.ceil(x0 + flat_band + middle_band), yright + 0.5*num_tcrs_scaled ),
-                           (np.ceil(x0 + flat_band + middle_band + j_flat_band), yright + 0.5*num_tcrs_scaled ) ]
+                    #line/spline points
+                    j_flat_band = flat_band
+                    points = [ (np.floor(x0), yleft + 0.5*band_height ),
+                               (x0+flat_band, yleft + 0.5*band_height ),
+                               (np.ceil(x0 + flat_band + middle_band), yright + 0.5*band_height ),
+                               (np.ceil(x0 + flat_band + middle_band + j_flat_band), yright + 0.5*band_height ) ]
 
 
-                path1_cmds = 'M {} {} L {} {} M {} {} C {} {}, {} {}, {} {}'\
-                    .format( points[0][0], points[0][1], ## start of v-line
-                             points[1][0], points[1][1], ## end point of v-line
-                             points[1][0], points[1][1],
-                             points[1][0] + slope_weight, points[1][1], ## control for spline start
-                             points[2][0] - slope_weight, points[2][1], ## control for spline end
-                             points[2][0], points[2][1] )
-
-                if use_color_gradients:
-                    path1a_cmds = 'M {} {} L {} {}'\
-                        .format( points[0][0], points[0][1],  ## start of v-line
-                                 points[1][0], points[1][1] ) ## end point of v-line
-                    pairing_svg_cmds.append( '<path d="{}" stroke="{}" stroke-width="{}" fill="none"/>'\
-                                             .format(path1a_cmds, a0color, stroke_width ) )
-                    ## define the gradient
-                    path1b_cmds = 'M {} {} C {} {}, {} {}, {} {}'\
-                        .format( points[1][0], points[1][1],
+                    path1_cmds = 'M {} {} L {} {} M {} {} C {} {}, {} {}, {} {}'\
+                        .format( points[0][0], points[0][1], ## start of v-line
+                                 points[1][0], points[1][1], ## end point of v-line
+                                 points[1][0], points[1][1],
                                  points[1][0] + slope_weight, points[1][1], ## control for spline start
                                  points[2][0] - slope_weight, points[2][1], ## control for spline end
                                  points[2][0], points[2][1] )
-                    #v_line_rhs_fraction = float(flat_band) / (flat_band + middle_band )
-                    offsets = [0, 25.0, 75.0, 100]
-                    #offsets = [0, 45.0, 55.0, 100]
-                    #offsets = [0, 90.0, 99.0, 100]
-                    if params['reverse_gradients']:
-                        colors = [a1color, a1color, a0color, a0color]
+
+                    if use_color_gradients and a0color != a1color:
+                        """NOTE: SVG throws an error if trying to apply a gradient to
+                        a perfectly horizontal or vertical line due to bounding box issues"""
+                        path1a_cmds = 'M {} {} L {} {}'\
+                            .format( points[0][0], points[0][1],  ## start of v-line
+                                     points[1][0], points[1][1] ) ## end point of v-line
+                        svg_cmds.append( '<path d="{}" stroke="{}" stroke-width="{}" fill="none"/>'\
+                                                 .format(path1a_cmds, a0color, band_height ) )
+                        ## define the gradient
+                        path1b_cmds = 'M {} {} C {} {}, {} {}, {} {}'\
+                            .format( points[1][0], points[1][1],
+                                     points[1][0] + slope_weight, points[1][1], ## control for spline start
+                                     points[2][0] - slope_weight, points[2][1], ## control for spline end
+                                     points[2][0], points[2][1] )
+                        #v_line_rhs_fraction = float(flat_band) / (flat_band + middle_band )
+                        offsets = [0, 25.0, 75.0, 100]
+                        #offsets = [0, 45.0, 55.0, 100]
+                        #offsets = [0, 90.0, 99.0, 100]
+                        if params['reverse_gradients']:
+                            colors = [a1color, a1color, a0color, a0color]
+                        else:
+                            colors = [a0color, a0color, a1color, a1color]
+                        gradient_id_counter, gradient_id, gradient_cmd = _linear_gradient_cmd(gradient_id_counter, 0, 0, 100, 0, offsets, colors )
+                        svg_cmds.append( gradient_cmd )
+                        svg_cmds.append( '<path d="{}" stroke="url(#{})" stroke-width="{}" fill="none"/>'\
+                                                 .format(path1b_cmds, gradient_id, band_height ) )
                     else:
-                        colors = [a0color, a0color, a1color, a1color]
-                    gradient_id_counter, gradient_id, gradient_cmd = _linear_gradient_cmd(gradient_id_counter, 0, 0, 100, 0, offsets, colors )
-                    pairing_svg_cmds.append( gradient_cmd )
-                    pairing_svg_cmds.append( '<path d="{}" stroke="url(#{})" stroke-width="{}" fill="none"/>'\
-                                             .format(path1b_cmds, gradient_id, stroke_width ) )
-                else:
-                    pairing_svg_cmds.append( '<path d="{}" stroke="{}" stroke-width="{}" fill="none"/>'\
-                                             .format(path1_cmds,a0color, stroke_width ) )
+                        svg_cmds.append( '<path d="{}" stroke="{}" stroke-width="{}" fill="none"/>'\
+                                                 .format(path1_cmds,a0color, band_height ) )
 
-                if ii == (len(cols) - 2): ## add the right-most flat band
-                    path2_cmds = 'M {} {} L {} {}'\
-                        .format( points[2][0], points[2][1], ## start of j-line
-                                 points[3][0], points[3][1] ) ## end of j-line
+                    if ii == (len(cols) - 2): ## add the right-most flat band
+                        path2_cmds = 'M {} {} L {} {}'\
+                            .format( points[2][0], points[2][1], ## start of j-line
+                                     points[3][0], points[3][1] ) ## end of j-line
 
-                    pairing_svg_cmds.append( '<path d="{}" stroke="{}" stroke-width="{}" fill="none"/>'\
-                                             .format(path2_cmds, a1color, stroke_width) )
+                        svg_cmds.append( '<path d="{}" stroke="{}" stroke-width="{}" fill="none"/>'\
+                                                 .format(path2_cmds, a1color, band_height) )
 
-                '''
-                if vj in epitope_correlations_svg[epitope] and not paper_figs:
-                    #print 'vj has correlations:',vj,epitope_correlations_svg[epitope][vj]
-                    if not num_tcrs:
-                        #print 'make dotted line!',vj
-                        if not ( no_pairing_text or paper_figs ):
-                            if paper_supp:
-                                assert use_color_gradients
-                                ## define the gradient
-                                path1b_cmds = 'M {} {} C {} {}, {} {}, {} {}'\
-                                    .format( points[1][0], points[1][1],
-                                             points[1][0] +slope_weight, points[1][1], ## control for spline start
-                                             points[2][0] -slope_weight, points[2][1], ## control for spline end
-                                             points[2][0], points[2][1] )
-                                #v_line_rhs_fraction = float(flat_band) / (flat_band + middle_band )
-                                offsets = [0, 25.0, 75.0, 100]
-                                #offsets = [0, 45.0, 55.0, 100]
-                                #offsets = [0, 90.0, 99.0, 100]
-                                colors = [a0color, a0color, a1color, a1color]
-                                gradient_id, gradient_cmd = _linear_gradient_cmd( 0, 0, 100, 0, offsets, colors )
-                                pairing_svg_cmds.append( gradient_cmd )
-                                pairing_svg_cmds.append( '<path d="{}" stroke="url(#{})" stroke-width="2" stroke-dasharray="5,5" fill="none"/>'\
-                                                         .format(path1b_cmds, gradient_id, stroke_width ) )
+                yleft += band_height
+                a1pixels[a1] = a1pixels.get(a1, 0) + band_height
+                y0_right += a1count * ypixel_scale
 
-                            else:
-                                dotted_path_cmds = 'M {} {} L {} {} M {} {} C {} {}, {} {}, {} {}'\
-                                    .format( points[0][0], points[0][1], ## start of v-line
-                                             points[1][0], points[1][1], ## end point of v-line
-                                             points[1][0], points[1][1],
-                                             points[1][0] +slope_weight, points[1][1], ## control for spline start
-                                             points[2][0] -slope_weight, points[2][1], ## control for spline end
-                                             points[2][0], points[2][1] )
-                                pairing_svg_cmds.append( '<path d="{}" stroke="{}" stroke-width="2" stroke-dasharray="5,5" fill="none"/>'\
-                                                         .format(path1_cmds,a0color ) )
+    """Label the alleles in the left stack (and right stack if ii==2)"""
+    fontsize = 20
+    fontheight = 0.75 * fontsize
+    fontwidth =  0.66 * fontsize
 
-                    ## new way, just use regular text elements
-                    ## pretend that the spline is actually a straight line between these points
-                    swf=0.4
-                    yshift = correlation_fontheight*0.5
-                    p0 = ( points[1][0]+slope_weight*swf, points[1][1]+yshift )
-                    p1 = ( points[2][0]-slope_weight*swf, points[2][1]+yshift )
+    min_height_for_labels = fontheight + 1
+    for ii in range(len(cols) - 1):
+        x0 = left_margin + ii*( flat_band + middle_band )
+        r0 = cols[ii]
+        r1 = cols[ii+1]
+        r0colors = dict(zip(counts[r0].index, get_html_colors(len(counts[r0]))))
+        r1colors = dict(zip(counts[r1].index, get_html_colors(len(counts[r1]))))
+        for jj, (r, rcolors) in enumerate([(r0, r0colors), (r1, r1colors)]):
+            if jj == 0 and ii > 0:
+                continue
+            
+            x = x0 + jj*(flat_band + middle_band)
+            ystart = yspacer + top_margin
+            for a, acount in counts[r].iteritems():
+                if acount*ypixel_scale < min_height_for_labels:
+                    #print(acount * ypixel_scale)
+                    break
 
-                    dx = p1[0]-p0[0]
-                    dy = p1[1]-p0[1]
+                midpoint =  ystart + acount * ypixel_scale * 0.5
+                text = a
+                lower_left = [x + 2, midpoint + fontheight / 2]
 
-                    ## so, what is the rotation we'll need?
-                    rotangle = math.atan2(dy,dx) * ( 180.0 / math.pi )
-
-                    step = 0.05
-                    lower_left  = [ p0[0] + step*dx, p0[1] + step*dy ]
-
-                    step = 0.95
-                    lower_right = [ p0[0] + step*dx, p0[1] + step*dy ]
-
-                    pval,enrich = epitope_correlations_svg[epitope][vj]
-
-                    ## write some curved text
-                    if enrich==0:
-                        msg = '0x ({:.0E})'.format(pval)
-                    elif enrich<0.1:
-                        msg = '{:.2f}x ({:.0E})'.format(enrich,pval)
-                    else:
-                        msg = '{:.1f}x ({:.0E})'.format(enrich,pval)
-
-                    fill1,fill2 = 'black','black'
-                    if a0color=='black':
-                        fill1 = 'gold'
-                    if a1color=='black' and use_color_gradients:
-                        fill2 = 'gold'
-
-
-                    cmd1 = '<text x="{:.3f}" y="{:.3f}" font-size="{}" font-family="{}" fill="{}" transform="rotate({:.3f},{:.3f},{:.3f})" >{}</text>\n'\
-                        .format( lower_left[0], lower_left[1], correlation_fontsize, ff, fill1,
-                                 rotangle, lower_left[0], lower_left[1], msg )
-
-                    cmd2 = '<text text-anchor="end" x="{:.3f}" y="{:.3f}" font-size="{}" font-family="{}" fill="{}" transform="rotate({:.3f},{:.3f},{:.3f})" >{}</text>\n'\
-                        .format( lower_right[0], lower_right[1], correlation_fontsize, ff, fill2,
-                                 rotangle, lower_right[0], lower_right[1], msg )
-
-                    correlation_paths.append( ( pval, (cmd1, cmd2) ) )
-                    #print 'corr cmd1:',vj,cmd1
-                    #print 'corr cmd2:',vj,cmd2
-                '''
-
-                yleft += num_tcrs_scaled
-                a1counts[a1] = a1counts.get(a1, 0) + num_tcrs_scaled
-                y0_right += a1freq * ypixel_scale
-
-        '''
-        ## try doing the p-val paths
-        correlation_paths.sort()
-        correlation_paths.reverse() ## go in decreasing order of p-val so the most significant are on top
-
-        ## now write the text
-        for (pval, cmds ) in correlation_paths:
-            pairing_svg_cmds.extend( cmds )
-
-        ## let's label the alleles in the left stack (and right stack if ii==2)
-        fontsize = 40 if paper_figs else 20.0 if paper_supp else 20
-        fontheight = 0.75*fontsize
-        fontwidth =  0.6 *fontsize
-
-        min_height_for_labels = fontheight+1
-
-        for jj,(r,ll,repcolors) in enumerate( [ (r0,vl,a0colors),(r1,jl,a1colors)]  ):
-            if ii<2 and jj>0:continue
-
-
-            ## label in white?
-            x = x0 + jj*(flat_band+middle_band)
-            ystart = yspacer+pairing_svg_y_offset
-
-            for ( count,rep) in ll:
-                if count*ypixel_scale < min_height_for_labels: break
-                #ystop    = ystart + count*ypixel_scale
-                midpoint =  ystart + count*ypixel_scale*0.5
-                text = rep[2:]
-
-                lower_left = [ x+2, midpoint+fontheight/2.0 ]
-
-                my_flat_band = final_flat_band if ii==2 and jj==1 else flat_band
-                bgcolor = repcolors[rep]
-                textcolor = 'black' if ((paper_figs or paper_supp) and bgcolor!= 'black') else 'white'
+                """Label in white?"""
+                bgcolor = rcolors[a]
                 textcolor = 'black' if bgcolor!= 'black' else 'white'
 
-                if True or paper_figs or paper_supp: ## center the text, unless on either side...
-                    text_width = fontwidth*len(text)
-                    lower_left_ha = {'left'  : lower_left,
-                                     'right' : [ x+my_flat_band-text_width, midpoint+fontheight/2.0 ],
-                                     'center': [ x+0.5*my_flat_band-0.5*text_width, midpoint+fontheight/2.0 ]}
-                    if jj==0 and ii==0: ## left-most guy
-                        ha = 'left'
-                    elif jj==1 and ii==2: ## right-most guy
-                        ha = 'right'
-                    else:
-                        ha = 'center'
-                    pairing_svg_cmds.append( _make_text( text, lower_left_ha[ha], fontsize, color=textcolor,
-                                                                  font_family=ff))
-
-
-                elif (True or jj==1) and fontwidth*len(text)>my_flat_band: # right-most set, dont want to over-run
-                    myfontsize=int(0.5+(my_flat_band-4)/(len(text)*0.6))
-                    pairing_svg_cmds.append( _make_text( text, lower_left, myfontsize, color=textcolor,
-                                                                  font_family=ff))
+                text_width = fontwidth * len(text)
+                lower_left_ha = {'left'  : lower_left,
+                                 'right' : [ x+flat_band-text_width, midpoint + fontheight/2 ],
+                                 'center': [ x+0.5*flat_band-0.5*text_width, midpoint+fontheight/2 ]}
+                if jj==0 and ii==0:
+                    """Left-most column"""
+                    ha = 'left'
+                elif jj==1 and ii==(len(cols) - 2):
+                    """Right-most column"""
+                    ha = 'right'
                 else:
-                    pairing_svg_cmds.append( _make_text( text, lower_left, fontsize, color=textcolor,
-                                                                  font_family=ff))
-
-
-
-                ## add an enrichment glyph?
-                if make_enrichment_glyphs:
-                    enrich = float( all_countrep_enrichment[ epitope ][ rep ][0][0] )
-                    if enrich>=2. or enrich<=0.5:
-                        ## add a glyph
-                        if paper_supp or paper_figs:
-                            arrow_length = 1.35 * min_height_for_labels
-                            arrow_width = 3.5
-                        else:
-                            arrow_length = 1.35 * min_height_for_labels
-                            arrow_width = 1.5
-                        #arrow_length = min_height_for_labels
-                        #arrow_width = 2.5
+                    ha = 'center'
+                # print(text, ii, jj, ha, lower_left_ha[ha])
+                svg_cmds.append( _make_text( text, lower_left_ha[ha], fontsize, color=textcolor,
+                                                              font_family=ff))
+                if enrichment_glyphs:
+                    """Add an enrichment glyph"""
+                    enrich = resDf['OR']
+                    if enrich >=2. or enrich <= 0.5:
+                        """Add a glyph"""
+                        arrow_length = 1.35 * min_height_for_labels
+                        arrow_width = 3.5
                         eg_sep = 14.0
                         if 'A' in r:
                             center = [ lower_left_ha[ha][0] + text_width + eg_sep, midpoint ]
@@ -521,31 +431,13 @@ def plotPairings(df, cols, countCol=None, use_color_gradients=True, other_freque
                             assert 'B' in r
                             center = [ lower_left_ha[ha][0] - eg_sep, midpoint ]
 
-                        pairing_svg_cmds += svg_basic.enrichment_glyph_cmds( center, arrow_length, arrow_width,
-                                                                             enrich )
-
-
-                ystart += count*ypixel_scale
-        '''
-
-        pairing_svg_y_offset += 2*yspacer + ypixel_scale
-        #pairing_svg_y_offset = top_margin
-
-    '''
-    if no_pairing_text:
-        tmpcmds = pairing_svg_cmds[:]
-        pairing_svg_cmds = []
-        for cmd in tmpcmds:
-            if '<text' in cmd:
-                print 'skip:',cmd
-            else:
-                pairing_svg_cmds.append( cmd )
-    '''
+                        svg_cmds += _enrichment_glyph_cmds(center, arrow_length, arrow_width, enrich)
+                ystart += acount * ypixel_scale
 
     bg_color = None # 'white'
-    rawsvg = _create_svg(pairing_svg_cmds,
-                         pairing_svg_width,
-                         pairing_svg_y_offset + bottom_margin,
+    rawsvg = _create_svg(svg_cmds,
+                         width=svg_width,
+                         height=svg_height,
                          background_color=bg_color)
     return rawsvg
 
@@ -558,8 +450,11 @@ if __name__ == '__main__':
                        'JB':np.random.choice(['TRBJ4', 'TRBJ2', 'TRBJ3','TRBJ5', 'TRBJ21', 'TRBJ13'], n)})
     df = df.assign(Count=1)
     df.loc[:10, 'Count'] = 10
+    svg = plotPairings(df, ['JA', 'VA', 'VB'], count_col='Count', enrichment_glyphs=True)
 
-    print(df)
-    svg = plotPairings(df, ['JA', 'VA', 'VB'], countCol='Count')
+    """
+    import subprocess
     with open('/home/agartlan/gitrepo/test.svg', 'w') as fh:
         fh.write(svg)
+    subprocess.check_call('convert -density 200 ../test.svg ../test.png', shell=True)
+    """
