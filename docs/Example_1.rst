@@ -1,5 +1,5 @@
-Example 1
-=========
+Detailed Example
+================
 
 The data for this example come from the paper "Quantifiable predictive features
 define epitope-specific T cell receptor repertoires" by Dash and colleagues (2017)
@@ -13,8 +13,8 @@ for 2442 paired alpha/beta T cell receptors
 from human and mouse subjects with predicted epitope specificities.
 
 
-1A: Compute Hamming Distances for Paired Alpha/Beta Chains
-----------------------------------------------------------
+Compute Hamming Distances for Paired Alpha/Beta Chains
+------------------------------------------------------
 .. image:: f2.png
 
 Data were downloaded as a tab separated flat
@@ -174,8 +174,8 @@ figure shown above directly from this tcrdist2 output is shown at the end of thi
 We now examine some of the flexibility of the tcrdist2 workflow.
 
 
-1B: Accessing Individual CDR Results
-------------------------------------
+Accessing Individual CDR Results
+--------------------------------
 
 In the introductory workflow, we combined the number of mismatches
 between 8 total CDRs and combined the results into a single distance metric.
@@ -229,8 +229,8 @@ By default, the most recently  generated tcrdist is stored as
 The following example illustrates the point.
 
 
-1C: Using Custom Weights and Stored Results
--------------------------------------------
+Using Custom Weights and Stored Results
+---------------------------------------
 
 .. code-block:: python
 
@@ -281,8 +281,8 @@ The following example illustrates the point.
                               'pmhc_b_aa_pw': 2}}
 
 
-1D: Computing Distances with Substitution Matrices
---------------------------------------------------
+Computing Distances with Substitution Matrices
+----------------------------------------------
 
 The introductory example used the Hamming Distance (number of aligned positions
 with mismatching information) to calculate pairwise distance between each receptor.
@@ -520,7 +520,7 @@ Steps 1-10 are identical to Example and 1 C.
 
 
 TODO: Bradley Metric
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 
 In the original investigation “Quantifiable predictive features define
@@ -587,7 +587,7 @@ regions used for receptor comparison.
 
 
 Additional Code for Plots
--------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 Examining the Results
