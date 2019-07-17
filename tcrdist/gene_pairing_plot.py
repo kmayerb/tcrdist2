@@ -441,7 +441,7 @@ if __name__ == '__main__':
                        'JB':np.random.choice(['TRBJ4', 'TRBJ2', 'TRBJ3','TRBJ5', 'TRBJ21', 'TRBJ13'], n)})
     df = df.assign(Count=1)
     df.loc[:10, 'Count'] = 10
-    svg = plotPairings(df, ['JA', 'VA', 'VB'], count_col='Count', enrichment_glyphs=True)
+    svg = plotPairings(df, ['JA', 'VA', 'VB'], count_col='Count')
 
     """
     import subprocess
