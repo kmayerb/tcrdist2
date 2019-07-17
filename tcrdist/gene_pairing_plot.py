@@ -11,8 +11,8 @@ __all__ = ['plotPairings']
 
 greek_alpha = '&#x3b1;'
 greek_beta  = '&#x3b2;'
-greek_gamma = '&#x393;'
-greek_delta = '&#x394;'
+greek_gamma = '&#x3b3;'
+greek_delta = '&#x3b4;'
 
 segtype2greek_label = { 'VA':'V'+greek_alpha, 'JA':'J'+greek_alpha,
                         'VB':'V'+greek_beta , 'JB':'J'+greek_beta,
@@ -267,7 +267,7 @@ def plotPairings(df, cols, count_col=None, use_color_gradients=True, other_frequ
 
         x0 = left_margin + ii*( flat_band + middle_band )
 
-        text = segtype2greek_label[ r0 ]
+        text = segtype2greek_label.get(r0, r0)
         fontsize = 40.
         xtext = x0 + 0.5*flat_band - 0.5*0.6*fontsize*2
         ytext = top_margin + yspacer - 6
@@ -277,7 +277,7 @@ def plotPairings(df, cols, count_col=None, use_color_gradients=True, other_frequ
             xtext += 8
         svg_cmds.append( _make_text( text, [ xtext, ytext ], fontsize, font_family=ff ) )
         if ii == (len(cols) - 2): ## add the final column label
-            text = segtype2greek_label[ r1 ]
+            text = segtype2greek_label.get(r1, r1)
             xtext = x0+1.5*flat_band-0.5*0.6*fontsize*2+middle_band
             xtext -= 8
             svg_cmds.append( _make_text( text, [ xtext, ytext ], fontsize, font_family=ff ) )
