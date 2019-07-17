@@ -4,6 +4,7 @@ import parasail
 from tcrdist import pairwise
 from tcrdist.cdr3s_human import pb_cdrs
 import warnings
+import pickle
 #from paths import path_to_matrices
 
 class TCRrep:
@@ -618,6 +619,18 @@ class TCRrep:
             else:
                 warnings.warn("No assignment for {} because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
 
+    def _drop_smats(self):
+        """
+        Need to drop ctypes if you are to pickle or copy this instance
+        """
+        smats = [ k for k in self.__dir__() if k.endswith("aa_smat") ]
+        for k in smats:
+            self.__dict__[k] = None
+
+    def _pickle(self, filename):
+        self._drop_smats()
+        pickle.dump(self,  open(filename , "wb") )
+        warnings.warn("all smats dropped because they are C objects that can't be pickled. reassign with _initialize_chain_specific_attributes()")
 
 
 
