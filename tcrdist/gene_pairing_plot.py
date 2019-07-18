@@ -194,6 +194,8 @@ def plotPairings(df, cols, count_col=None, use_color_gradients=True, other_frequ
     raw_svg : str
         Raw SVG txt that can be written to a file."""
     
+    df = df.copy()
+    
     """Not implemented: enrichment should take into account the whole unbiased repertoire"""
     enrichment_glyphs = False
 
