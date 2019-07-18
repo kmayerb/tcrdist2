@@ -7,7 +7,7 @@ import itertools
 
 from .html_colors import get_html_colors
 
-__all__ = ['plotPairings']
+__all__ = ['plot_pairings']
 
 greek_alpha = '&#x3b1;'
 greek_beta  = '&#x3b2;'
@@ -157,7 +157,7 @@ def _testAssociation(df, node1, node2, count_col='Count'):
         P-value associated with the Fisher's exact test that H0: OR = 1"""
     col1, val1 = node1
     col2, val2 = node2
-    
+
     tmp = df[[col1, col2, count_col]].dropna()
     #print(node1, node2, count_col)
     #print(tmp)
@@ -172,17 +172,17 @@ def _testAssociation(df, node1, node2, count_col='Count'):
     OR, pvalue = np.nan, np.nan
     return OR, pvalue, tab
 
-def plotPairings(df, cols, count_col=None, use_color_gradients=True, other_frequency_threshold=0.01):
+def plot_pairings(x, cols, count_col=None, use_color_gradients=True, other_frequency_threshold=0.01):
     """Diagram depicts the gene-segment pairing structure of the dataset. The four
     genes (cols) are arrayed left to right. Below each gene-type label (eg "VA")
     is a color-stack showing all the TCR clones and how they break down into the different genes for that gene-type. Each clone
     is devoted a constant vertical height in pixels indicated in the text at the top (N pixels in "Nx y-pixel scale"). The curved
     segments joining neighboring gene-stacks show how the two gene distributions pair up, with the thickness of the segments
-    corresponding to the number of clones having those two segments (scaled by the indicated y-pixel scale). 
+    corresponding to the number of clones having those two segments (scaled by the indicated y-pixel scale).
 
     Parameters
     ----------
-    df : pd.DataFrame
+    x: pd.DataFrame
         Contains gene segment data, one row per clone.
     cols : list
         List of columns for displaying frequency and pairings, in order from left to right.
@@ -193,14 +193,15 @@ def plotPairings(df, cols, count_col=None, use_color_gradients=True, other_frequ
     -------
     raw_svg : str
         Raw SVG txt that can be written to a file."""
-    
+
     """Not implemented: enrichment should take into account the whole unbiased repertoire"""
+    df = x.copy()
     enrichment_glyphs = False
 
     if count_col is None:
         df = df.assign(Count=1)
         count_col = 'Count'
-    
+
     params = dict(min_ami_for_colorscale=0.114, # from shuffling experiments
                     max_ami_for_colorscale=0.5,
                     min_entropy_for_colorscale=0.0,
@@ -224,7 +225,7 @@ def plotPairings(df, cols, count_col=None, use_color_gradients=True, other_frequ
     flat_band = 50
     middle_band = 400
     slope_weight = 100
-    
+
     ff = 'sans-serif'
 
     ypixel_scale = diagram_height / df[count_col].sum()
@@ -376,7 +377,7 @@ def plotPairings(df, cols, count_col=None, use_color_gradients=True, other_frequ
         for jj, (r, rcolors) in enumerate([(r0, r0colors), (r1, r1colors)]):
             if jj == 0 and ii > 0:
                 continue
-            
+
             x = x0 + jj*(flat_band + middle_band)
             ystart = yspacer + top_margin
             for a, acount in counts[r].iteritems():
@@ -441,7 +442,7 @@ if __name__ == '__main__':
                        'JB':np.random.choice(['TRBJ4', 'TRBJ2', 'TRBJ3','TRBJ5', 'TRBJ21', 'TRBJ13'], n)})
     df = df.assign(Count=1)
     df.loc[:10, 'Count'] = 10
-    svg = plotPairings(df, ['JA', 'VA', 'VB'], count_col='Count')
+    svg = plot_pairings(df, ['JA', 'VA', 'VB'], count_col='Count')
 
     """
     import subprocess

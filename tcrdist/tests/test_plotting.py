@@ -14,7 +14,7 @@ class test_repertoire(unittest.TestCase):
                            'JB':np.random.choice(['TRBJ4', 'TRBJ2', 'TRBJ3','TRBJ5', 'TRBJ21', 'TRBJ13'], n)})
         df = df.assign(Count=1)
         df.loc[:10, 'Count'] = 10
-        svg = tcrdist.plotting.plotPairings(df, ['JA', 'VA', 'VB', 'JB'], count_col='Count')
+        svg = tcrdist.plotting.plot_pairings(df, ['JA', 'VA', 'VB', 'JB'], count_col='Count')
         self.assertTrue(len(svg) > 0)
 
 if __name__ == '__main__':
