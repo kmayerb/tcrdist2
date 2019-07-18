@@ -172,7 +172,7 @@ def _testAssociation(df, node1, node2, count_col='Count'):
     OR, pvalue = np.nan, np.nan
     return OR, pvalue, tab
 
-def plot_pairings(x, cols, count_col=None, use_color_gradients=True, other_frequency_threshold=0.01):
+def plot_pairings(cell_df, cols, count_col=None, use_color_gradients=True, other_frequency_threshold=0.01):
     """Diagram depicts the gene-segment pairing structure of the dataset. The four
     genes (cols) are arrayed left to right. Below each gene-type label (eg "VA")
     is a color-stack showing all the TCR clones and how they break down into the different genes for that gene-type. Each clone
@@ -180,10 +180,12 @@ def plot_pairings(x, cols, count_col=None, use_color_gradients=True, other_frequ
     segments joining neighboring gene-stacks show how the two gene distributions pair up, with the thickness of the segments
     corresponding to the number of clones having those two segments (scaled by the indicated y-pixel scale).
 
+    Column names with format: VA or JB (for Valpha and Jbeta) will have the A, B, G, D replace with its greek character.
+
     Parameters
     ----------
-    x: pd.DataFrame
-        Contains gene segment data, one row per clone.
+    cell_df: pd.DataFrame
+        Contains gene segment data, one row per clone, optionally with a counts or frequency column.
     cols : list
         List of columns for displaying frequency and pairings, in order from left to right.
     count_col : str
@@ -193,9 +195,9 @@ def plot_pairings(x, cols, count_col=None, use_color_gradients=True, other_frequ
     -------
     raw_svg : str
         Raw SVG txt that can be written to a file."""
+    df = cell_df.copy()
 
     """Not implemented: enrichment should take into account the whole unbiased repertoire"""
-    df = x.copy()
     enrichment_glyphs = False
 
     if count_col is None:
@@ -323,6 +325,10 @@ def plot_pairings(x, cols, count_col=None, use_color_gradients=True, other_frequ
                     if use_color_gradients and a0color != a1color:
                         """NOTE: SVG throws an error if trying to apply a gradient to
                         a perfectly horizontal or vertical line due to bounding box issues"""
+                        if np.isclose(points[0][1], points[2][1], atol=1e-3):
+                            epsilon = 0.005
+                        else:
+                            epsilon = 0
                         path1a_cmds = 'M {} {} L {} {}'\
                             .format( points[0][0], points[0][1],  ## start of v-line
                                      points[1][0], points[1][1] ) ## end point of v-line
@@ -333,7 +339,7 @@ def plot_pairings(x, cols, count_col=None, use_color_gradients=True, other_frequ
                             .format( points[1][0], points[1][1],
                                      points[1][0] + slope_weight, points[1][1], ## control for spline start
                                      points[2][0] - slope_weight, points[2][1], ## control for spline end
-                                     points[2][0], points[2][1] )
+                                     points[2][0], points[2][1] + epsilon )
                         #v_line_rhs_fraction = float(flat_band) / (flat_band + middle_band )
                         offsets = [0, 25.0, 75.0, 100]
                         #offsets = [0, 45.0, 55.0, 100]
