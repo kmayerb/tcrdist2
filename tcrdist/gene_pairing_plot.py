@@ -322,6 +322,10 @@ def plotPairings(df, cols, count_col=None, use_color_gradients=True, other_frequ
                     if use_color_gradients and a0color != a1color:
                         """NOTE: SVG throws an error if trying to apply a gradient to
                         a perfectly horizontal or vertical line due to bounding box issues"""
+                        if np.isclose(points[0][1], points[2][1], atol=1e-3):
+                            epsilon = 0.005
+                        else:
+                            epsilon = 0
                         path1a_cmds = 'M {} {} L {} {}'\
                             .format( points[0][0], points[0][1],  ## start of v-line
                                      points[1][0], points[1][1] ) ## end point of v-line
@@ -332,7 +336,7 @@ def plotPairings(df, cols, count_col=None, use_color_gradients=True, other_frequ
                             .format( points[1][0], points[1][1],
                                      points[1][0] + slope_weight, points[1][1], ## control for spline start
                                      points[2][0] - slope_weight, points[2][1], ## control for spline end
-                                     points[2][0], points[2][1] )
+                                     points[2][0], points[2][1] + epsilon )
                         #v_line_rhs_fraction = float(flat_band) / (flat_band + middle_band )
                         offsets = [0, 25.0, 75.0, 100]
                         #offsets = [0, 45.0, 55.0, 100]
