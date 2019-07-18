@@ -1,3 +1,3 @@
-from .gene_pairing_plot import plotPairings
+from .gene_pairing_plot import plot_pairings
 
-__all__ = ['plotPairings']
+__all__ = ['plot_pairings']
