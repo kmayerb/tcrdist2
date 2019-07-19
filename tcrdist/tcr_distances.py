@@ -10,7 +10,34 @@ from .objects import DistanceParams
 logger = logging.getLogger('tcr_distances.py')
 
 def blosum_character_distance(a, b, gap_penalty, params):
-    if a== gap_character and b == gap_character:
+    """
+
+    TODO: verb_noun function rename to calculate_blosum_character_distance
+
+    calculates character to character score using blossum
+
+    Parameters
+    ----------
+    a : string
+        single uppercase character
+    b : string
+        single uppercase character
+    gap_penalty : integer
+        numeric integer for the gap penalty
+    params :  DistanceParams instance
+        class containing default parameters for alignment scoring.
+
+    Returns
+    -------
+    integer
+
+    Example
+    -------
+    >>> blosum_character_distance("A", "A", 4, objects.DistanceParams())
+    0
+
+    """
+    if a == gap_character and b == gap_character:
         return 0
     elif a == '*' and b == '*':
         return 0
@@ -24,6 +51,34 @@ def blosum_character_distance(a, b, gap_penalty, params):
         return params.distance_matrix[(a, b)]
 
 def blosum_sequence_distance( aseq, bseq, gap_penalty, params):
+    """
+    calculates a sequence to sequence distance score
+
+    TODO: verb_noun function rename to calculate_blosum_sequence_distance
+
+    Parameters
+    ----------
+    aseq :
+        string of amino acid sequence with possible gaps
+
+    bseq : string
+        string of amino acid sequences with possible gaps
+
+    gap_penalty : integer
+
+    params : objects.DistanceParams instance
+        class containing default parameters for alignment scoring.
+
+    Returns
+    -------
+    dist : integer
+
+    Example
+    -------
+    >>> blosum_sequence_distance("ABC", "ABC", 4, objects.DistanceParams())
+    0
+
+    """
     assert len(aseq) == len(bseq)
     dist = 0.0
     for a, b in zip(aseq, bseq):
@@ -33,9 +88,30 @@ def blosum_sequence_distance( aseq, bseq, gap_penalty, params):
             dist += blosum_character_distance( a, b, gap_penalty, params)
     return dist
 
+
 def align_cdr3s( a, b, gap_character ):
-    """Insert gaps into the shorter sequence,
-    one at a time at the "best" location."""
+    """
+
+    Insert gaps into the shorter sequence,
+    one at a time at the "best" location.
+
+    Parameters
+    ----------
+    a : string
+        string of amino acids
+    b : string
+        string of amino acids
+    gap_character : string
+        character indicating a gap in the aligned sequences
+
+    Returns
+    -------
+    dist : tuple
+        tuple with two strings
+
+
+
+    """
     if len(a) == len(b):
         return (a[:], b[:])
 
@@ -46,8 +122,8 @@ def align_cdr3s( a, b, gap_character ):
 
     lendiff = len(s1)-len(s0)
 
-    best_score=-1000
-    best_gappos=0 # in case len(s0) == 1
+    best_score = -1000
+    best_gappos = 0 # in case len(s0) == 1
 
     # the gap comes after s0[gappos]
 
@@ -82,12 +158,29 @@ def align_cdr3s( a, b, gap_character ):
 ##
 ## DOES NOT INCLUDE THE GAP PENALTY
 ##
+
 def sequence_distance_with_gappos( shortseq, longseq, gappos, params ):
+    """
+    Sequence distance calculated with a gap position
+
+    Parameters
+    ----------
+    shortseq : string
+        string of amino acid sequence with possible gaps
+    longseq : string
+        string of amino acid sequences with possible gaps
+    gappos: integer
+        gap position
+    params : objects.DistanceParams instance
+        class containing default parameters for alignment scoring.
+    """
+    gappos = int(gappos)
     ntrim = 3 if params.trim_cdr3s else 0
     ctrim = 2 if params.trim_cdr3s else 0
     remainder = len(shortseq)-gappos
     dist = 0.0
     count =0
+
     if ntrim < gappos:
         for i in range(ntrim, gappos):
             #print i,shortseq[i],longseq[i],params.distance_matrix[(shortseq[i],longseq[i])]
@@ -104,19 +197,33 @@ def sequence_distance_with_gappos( shortseq, longseq, gappos, params ):
 
 
 def weighted_cdr3_distance( seq1, seq2, params ):
+    """
+    weighted_cdr3_distance
+
+    Parameters
+    ----------
+    seq1 : string
+        string of amino acid sequence with possible gaps
+    seq2 : string
+        string of amino acid sequences with possible gaps
+    params : objects.DistanceParams instance
+        class containing default parameters for alignment scoring.
+    """
     shortseq, longseq = (seq1, seq2) if len(seq1)<=len(seq2) else (seq2, seq1)
 
     ## try different positions of the gap
     lenshort = len(shortseq)
-    lenlong = len(longseq)
-    lendiff = lenlong - lenshort
+    lenlong  = len(longseq)
+    lendiff  = lenlong - lenshort
 
-#    assert lenshort>3 ##JCC testing
+
     assert lenshort > 1##JCC testing
     assert lendiff>=0
+
+
     if params.trim_cdr3s:
         """NOTE: Minimum length of cdr3 protein carried into clones file is currently set in the read_sanger_data.py script!"""
-        assert lenshort > 3+2 ## something to align... 
+        assert lenshort > 3+2 ## something to align...
 
     if not params.align_cdr3s:
         ## if we are not aligning, use a fixed gap position relative to the start of the CDR3
@@ -289,5 +396,3 @@ def sort_and_compute_weighted_nbrdist_from_distances( l, nbrdist_percentile, don
         nbrdist += wt * val
 
     return nbrdist / total_wt
-
-

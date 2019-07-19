@@ -31,6 +31,10 @@ for rowi, row in dbDf.iterrows():
     all_genes[g.organism][g.id] = g
 
 
+
+
+#####  WHAT IS THE CODE BELOW THIS POINT DOING??? 
+
 for organism, genes in list(all_genes.items()):
 
     for ab in 'AB':
@@ -167,6 +171,8 @@ for organism, genes in list(all_genes.items()):
             genes[id].mm1_rep = rep # just so we have an mm1_rep field defined...
             assert jloopseqs[id] == jloopseqs[ rep ]
             logger.debug('jrep %s %15s %15s %15s'%(organism, id, rep, jloopseqs[id]))
+
+
 
 def get_cdr3_and_j_match_counts( organism, ab, qseq, j_gene, min_min_j_matchlen = 3,
                                  extended_cdr3 = False ):

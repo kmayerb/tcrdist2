@@ -26,6 +26,7 @@ from .setup_blast import install_blast_to_externals
 from .pairwise import *
 from . import mappers
 from . import vis_tools
+from . import repertoire_db
 
 
 
@@ -39,5 +40,6 @@ __all__ = ['processing',
            'embedding',
            'pairwise',
            'repertoire',
+           'repertoire_db',
            'mappers',
            'vis_tools']

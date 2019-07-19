@@ -4,6 +4,8 @@ from scipy.spatial import distance
 import itertools
 import random
 import numpy as np
+from . import objects
+from . import tcr_distances
 
 """
 Flexible tools for parallelized computation of pairwise distance.
@@ -162,9 +164,9 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
         raise RuntimeError(error_message)
 
     error_message = "with apply_pw_distance_metric_w_multiprocessing() metric \
-    must be one of the following: 'nw','hamming','custom'."
+    must be one of the following: 'nw','hamming','tcrdist_cdr3', 'tcrdist_cdr1', 'custom'."
 
-    if metric not in ("nw", "hamming", "custom"):
+    if metric not in ("nw", "hamming", "custom", 'tcrdist_cdr3', 'tcrdist_cdr1'):
         raise ValueError(error_message)
 
     error_message = "with apply_pw_distance_metric_w_multiprocessing() \
@@ -203,6 +205,7 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
                              initargs=(sequences, distance_wrapper_new,))
 
     # map function to the parralel processes
+
     multiprocessed_result  = p.map(f, indices)
     p.close()
     p.join()
@@ -290,6 +293,66 @@ def hm_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
     hamming_distance = len(xy_t.traceback.comp)-xy.matches
     return hamming_distance
 
+def tcrdist_cdr3_metric(s1,s2, **kwargs):
+    """
+    Metric closed to the original metric in the Dash et al. 2017
+    Nature Paper applied to the cdr3 region
+
+    Parameters
+    ----------
+    s1: string
+        string containing amino acid letters
+
+    s2: string
+        string containing amino acid letters
+
+    Returns
+    -------
+    dist : integer
+
+
+    Examples
+    --------
+    >>> tcrdist_cdr3_metric('CALDNVLYF','CAASEHLYGSSGNKLIF')
+    132
+    >>> tcrdist_cdr3_metric('CAASEHLYGSSGNKLIF','CAASEHLYGSSGNKLIF')
+    0
+
+    """
+    params = objects.DistanceParams()
+    dist   = tcr_distances.weighted_cdr3_distance(s1, s2, params)
+    return(int(dist))
+
+def tcrdist_cdr1_metric(s1,s2, **kwargs):
+    """
+    Metric approximating the original metric in the Dash et al. 2017
+    Nature Paper applied to the cdr1 cdr2 and cdr2.5 regions
+
+    Parameters
+    ----------
+    s1: string
+        string containing amino acid letters
+
+    s2: string
+        string containing amino acid letters
+
+    Returns
+    -------
+    dist : integer
+
+
+    Examples
+    --------
+
+    """
+    params = objects.DistanceParams()
+    dist   = tcr_distances.blosum_sequence_distance(s1,
+                                                    s2,
+                                                    params.gap_penalty_v_region,
+                                                    params)
+    return(int(dist))
+
+
 def function_factory(metric = "nw", **kwargs):
     """
     The function factory produces an appropriate distance wrapper that accepts
@@ -312,6 +375,12 @@ def function_factory(metric = "nw", **kwargs):
     if metric == "hamming":
         def distance_wrapper(a, b):
             return(hm_metric(a, b, **kwargs))
+    if metric == "tcrdist_cdr3":
+        def distance_wrapper(a, b):
+            return(tcrdist_cdr3_metric(a, b, **kwargs))
+    if metric == "tcrdist_cdr1":
+        def distance_wrapper(a, b):
+            return(tcrdist_cdr1_metric(a, b, **kwargs))
     if metric == "hamming2":
         def distance_wrapper(a, b):
             return(float(SequencePair(a, b).hamming_distance) )

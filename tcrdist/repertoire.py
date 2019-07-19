@@ -2,10 +2,16 @@ import numpy as np
 import pandas as pd
 import parasail
 from tcrdist import pairwise
-from tcrdist.cdr3s_human import pb_cdrs
+#from tcrdist.cdr3s_human import pb_cdrs
 import warnings
 import pickle
+from tcrdist import repertoire_db
+
 #from paths import path_to_matrices
+
+
+#This replaces: from tcrdist.cdr3s_human import pb_cdrs
+pb_cdrs = repertoire_db.generate_pbr_cdr()
 
 class TCRrep:
     """
@@ -36,6 +42,8 @@ class TCRrep:
     paired_tcrdist_weights : dictionary
         CDR weights used to generate the most recent output of
         TCRrep.compute_paired_tcrdist`
+    all_genes : dictionary
+        dictionary of reference TCRs
 
     Methods
     -------
@@ -48,12 +56,16 @@ class TCRrep:
         a chain. Alternatively can compute distance between a
     compute_paired_tcrdist()
         calculate weighted pairwise distance across all CDRs
-
+    generate_ref_genes_from_db()
+        generates all_genes attribute a dictionary of reference TCRs
 
 
     """
-
-    def __init__(self, cell_df, chains=['alpha', 'beta'], organism = "human"):
+    def __init__(self,
+                 cell_df,
+                 chains=['alpha', 'beta'],
+                 organism = "human",
+                 db_file = "alphabeta_db.tsv"):
         self.cell_df = cell_df
         self.chains = chains
         self.organism = organism
@@ -65,13 +77,19 @@ class TCRrep:
         self.paired_tcrdist_weights = None
         self.meta_cols = None
         self.project_id = "<Your TCR Repertoire Project>"
+        self.all_genes = None
+
         # VALIDATION OF INPUTS
         # check that chains are valid.
         self._validate_chains()
         # check that  is a pd.DataFrame
         self._validate_cell_df()
-        # INITIsALIZATION OF SPECIFIC ATTRIBUTES BASED ON SELECTED CHAINS
+
+        # INIT OF SPECIFIC ATTRIBUTES BASED ON SELECTED CHAINS
         self._initialize_chain_specific_attributes()
+        # INIT the REFERENCE DB see repertoire_db.py
+        self.generate_ref_genes_from_db(db_file)
+
 
 
     def __repr__(self):
@@ -87,6 +105,49 @@ class TCRrep:
     def __len__(self):
         return self.cell_df.shape[0]
 
+    def generate_ref_genes_from_db(self, db_file = "alphabeta_db.tsv"):
+        """
+
+        Responsible for generating the all_genes attribute containing all
+        the reference TCR data.
+
+        Parameters
+        ----------
+        db_file : string
+
+        Returns an ordered dictionary of reference sequences
+
+        """
+        self.all_genes = repertoire_db.RefGeneSet(db_file).all_genes
+
+    def _map_gene_to_reference_seq2(self,
+                                    organism,
+                                    gene,
+                                    cdr,
+                                    attr ='cdrs_no_gaps'):
+        """
+        internal function that looks up the cdr sequence (gapped or ungapped)
+        from the self.all_genes library
+
+        Parameter
+        ---------
+
+        organism : string
+            mouse or human
+        gene : string
+            specifies the TCR gene such as 'TRAV1*01'
+        cdr : int
+            0 - CDR1, 1-CDR2 and 2 - CDR2.5
+        attr : string
+            'cdrs_no_gaps' or 'cdrs_aligned' with gaps from IMGT
+        """
+        try:
+            aa_string = self.all_genes[organism][gene].__dict__[attr][cdr]
+        except KeyError:
+            aa_string = None
+        return(aa_string)
+
+
     def deduplicate(self):
         """
         With attribute self.index_col calls _deduplicate() and assigns
@@ -95,7 +156,7 @@ class TCRrep:
         self.clone_df = _deduplicate(self.cell_df, self.index_cols)
         return self
 
-    def infer_cdrs_from_v_gene(self, chain):
+    def infer_cdrs_from_v_gene(self, chain, imgt_aligned = False):
         """
         Function taking TCR v-gene name to infer the amino amino_acid
         sequence of cdr1, cdr2, and pmhc loop regions.
@@ -104,6 +165,10 @@ class TCRrep:
     	----------
         chain : string
             'alpha', 'beta', 'gamma', or 'delta'
+        imgt_aligned : boolean
+            if True cdr1, cdr2, cdr2.5 will be returned with gaps
+            and by definition will be the same length. MSH.......ET
+
 
         Returns
     	-------
@@ -123,7 +188,19 @@ class TCRrep:
         sequence of the cdr1, cdr2, and pmhc region (pmhc refers to the
         pMHC-facing loop between CDR2 and CDR3 (IMGT alignment columns 81 - 86.
         These sequences are based up on lookup from the dictionary here:
-        from tcrdist.cdr3s_human import pb_cdrs
+
+        originally: from tcrdist.cdr3s_human import pb_cdrs
+
+        now:
+
+        self.generate_ref_genes_from_db(db_file)
+
+        imgt_aligned : boolean
+            if True cdr1, cdr2, cdr2.5 will be returned with gaps
+            and by definition will be the same length.
+            MSH.......ET
+            FNH.......DT
+            LGH.......NA
 
         References
         ----------
@@ -131,9 +208,33 @@ class TCRrep:
         IMGT definitions of cdr1, cdr2, and pMHC-facing can be found here
         http://www.imgt.org/IMGTScientificChart/Nomenclature/IMGT-FRCDRdefinition.html
         """
-        f0 = lambda v : _map_gene_to_reference_seq(gene = v, cdr = 0, organism = self.organism)
-        f1 = lambda v : _map_gene_to_reference_seq(gene = v, cdr = 1, organism = self.organism)
-        f2 = lambda v : _map_gene_to_reference_seq(gene = v, cdr = 2, organism = self.organism)
+
+        if not imgt_aligned:
+            f0 = lambda v : self._map_gene_to_reference_seq2(gene = v,
+                                                             cdr = 0,
+                                                             organism = self.organism,
+                                                             attr ='cdrs_no_gaps')
+            f1 = lambda v : self._map_gene_to_reference_seq2(gene = v,
+                                                             cdr = 1,
+                                                             organism = self.organism,
+                                                             attr ='cdrs_no_gaps')
+            f2 = lambda v : self._map_gene_to_reference_seq2(gene = v,
+                                                             cdr = 2,
+                                                             organism = self.organism,
+                                                             attr ='cdrs_no_gaps')
+        else:
+            f0 = lambda v : self._map_gene_to_reference_seq2(gene = v,
+                                                             cdr = 0,
+                                                             organism = self.organism,
+                                                             attr ='cdrs')
+            f1 = lambda v : self._map_gene_to_reference_seq2(gene = v,
+                                                             cdr = 1,
+                                                             organism = self.organism,
+                                                             attr ='cdrs')
+            f2 = lambda v : self._map_gene_to_reference_seq2(gene = v,
+                                                             cdr = 2,
+                                                             organism = self.organism,
+                                                             attr ='cdrs')
         if chain is "alpha":
             self.cell_df['cdr1_a_aa'] = list(map(f0, self.cell_df.v_a_gene))
             self.cell_df['cdr2_a_aa'] = list(map(f1, self.cell_df.v_a_gene))
@@ -150,6 +251,10 @@ class TCRrep:
             self.cell_df['cdr1_d_aa'] = list(map(f0, self.cell_df.v_d_gene))
             self.cell_df['cdr2_d_aa'] = list(map(f1, self.cell_df.v_d_gene))
             self.cell_df['pmhc_d_aa'] = list(map(f2, self.cell_df.v_d_gene))
+
+
+
+
 
 
     def compute_pairwise_all(self,
@@ -661,6 +766,7 @@ def _map_gene_to_reference_seq(organism = "human",
     except KeyError:
         aa_string = None
     return aa_string
+
 
 def _deduplicate(cell_df, index_cols):
     """
