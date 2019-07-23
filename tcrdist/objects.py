@@ -98,8 +98,7 @@ class DistanceParams(DotDict):
         distance weight to v regions (default 1)
     weight_cdr3_region : int
         distance weights to the cdr3 (default 3)
-        the default scoring described in Dash et al. : distance (a, a) = 0;
-        distance (a ,b) = min (4, 4 BLOSUM62 (a,  b))
+
     distance_matrix : dict
 
     align_cdr3s  : boolean
@@ -134,18 +133,7 @@ class DistanceParams(DotDict):
     weight_cdr3_region : int
         distance weights to the cdr3 (default 3)
         the default scoring described in Dash et al.
-        "The mismatch distance is defined based on the BLOSUM62 (ref. 37)
-        substitution matrix as follows:
-        distance (a, a) = 0;
-        distance (a, b) = min (4, 4-BLOSUM62 (a, b)),
-        where 4 is 1 unit greater than the most favourable BLOSUM62 score for a
-        mismatch, and a and b are amino acids.
-        This has the effect of reducing the mismatch distance penalty for
-        amino acids with positive (that is, favourable) BLOSUM62 scores
-        (for example,: dist(I, V) = 1; dist(D, E) = 2; dist(Q, K) = 3),
-        where I, V, D, E, Q and K are the single letter amino acid codes
-        for isoleucine, valine, aspartate, glutamate, glutamine and lysine,
-        respectively.
+        
 
     """
     def __init__(self, config_string=None):
