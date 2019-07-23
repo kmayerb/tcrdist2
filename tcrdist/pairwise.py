@@ -66,6 +66,7 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
         strings. To be used metric is set to 'custom'.  See Notes.
     processes : int
         number of available cpus defaults to multiprocessing.cpu_count()
+        use processes = 1 to turn off multiprocessing
 
 
     Returns
@@ -191,24 +192,29 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
         distance_wrapper_new = user_function
     else:
         distance_wrapper_new = function_factory(metric = metric, **kwargs )
+    
+    if processes > 1:
+        def set_global(x, dw):
+            global unique_seqs
+            unique_seqs = x
 
-    def set_global(x, dw):
-        global unique_seqs
-        unique_seqs = x
+            global distance_wrapper
+            distance_wrapper = dw
 
-        global distance_wrapper
-        distance_wrapper = dw
+        # creates pool, and runs intializer functoin
+        p = multiprocessing.Pool(processes = processes,
+                                 initializer = set_global,
+                                 initargs=(sequences, distance_wrapper_new,))
 
-    # creates pool, and runs intializer functoin
-    p = multiprocessing.Pool(processes = processes,
-                             initializer = set_global,
-                             initargs=(sequences, distance_wrapper_new,))
+        # map function to the parralel processes
+        multiprocessed_result  = p.map(f, indices)
+        p.close()
+        p.join()
+    else:
+        """Don't bother with multiprocessing pool, also helps because multiprocessing
+        fails in some circumstances (e.g. Windows/Jupyter Qt console)"""
+        multiprocessed_result  = map(f, indices)
 
-    # map function to the parralel processes
-
-    multiprocessed_result  = p.map(f, indices)
-    p.close()
-    p.join()
     return(flatten(multiprocessed_result))
 
 
