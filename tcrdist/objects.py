@@ -99,7 +99,7 @@ class DistanceParams(DotDict):
     weight_cdr3_region : int
         distance weights to the cdr3 (default 3)
         the default scoring described in Dash et al. : distance (a, a) = 0;
-        distance (a, b) = min (4, 4-BLOSUM62 (a, b))
+        distance (a ,b) = min (4, 4 BLOSUM62 (a,  b))
     distance_matrix : dict
 
     align_cdr3s  : boolean
