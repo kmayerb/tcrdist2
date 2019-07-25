@@ -34,7 +34,7 @@ def _prep_counts(cdf, xcols, ycol='NBR', count_col=None):
     if count_col is None:
         cdf = cdf.assign(Count=1)
         count_col = 'Count'
-    counts = cdf.groupby(xcols + [ycol])[count_col].agg(np.sum).unstack(ycol).fillna(0)
+    counts = cdf.groupby(xcols + [ycol], sort=True)[count_col].agg(np.sum).unstack(ycol).fillna(0)[[0, 1]]
     return counts
 
 def _chi2NBR(res_df, count_cols):
@@ -56,22 +56,29 @@ def _chi2_fishersNBR(counts):
     res['chisq'], res['pvalue'], dof, expected = chi2_contingency(counts.values)
     for rowi, rowj in itertools.combinations(range(counts.shape[0]), 2):
         lab = '%s vs %s' % (labels[rowi], labels[rowj])
-        OR, p = fishersapi.fishers_vec(np.array([counts.iloc[rowi, 0]]),
-                                       np.array([counts.iloc[rowi, 1]]),
-                                       np.array([counts.iloc[rowj, 0]]),
-                                       np.array([counts.iloc[rowj, 1]]),
+        # OR = ((a/b) / (c/d)) or a*d/b*c
+        """It is assumed here that the number clones in the neighborhood is in col_j = 1"""
+        OR, p = fishersapi.fishers_vec(counts.iloc[rowi, 1],
+                                       counts.iloc[rowi, 0],
+                                       counts.iloc[rowj, 1],
+                                       counts.iloc[rowj, 0],
                                        alternative='two-sided')
-        res.update({'OR %s' % lab: OR[0],
-                    'pvalue %s' % lab: p[0]})
+        RR = (counts.iloc[rowi, 1] / (counts.iloc[rowi, 1] + counts.iloc[rowi, 0])) / (counts.iloc[rowj, 1] / (counts.iloc[rowj, 1] + counts.iloc[rowj, 0]))
+        res.update({'RR %s' % lab: RR,
+                    'OR %s' % lab: OR,
+                    'pvalue %s' % lab: p})
     return res
 
 def _fisherNBR(res_df, count_cols):
-    OR, p = fishersapi.fishers_vec(res_df[count_cols[0]].values,
-                                   res_df[count_cols[1]].values,
-                                   res_df[count_cols[2]].values,
-                                   res_df[count_cols[3]].values,
-                                   alternative='two-sided')
-    return {'OR':OR, 'pvalue':p}
+    a = res_df[count_cols[0]].values
+    b = res_df[count_cols[1]].values
+    c = res_df[count_cols[2]].values
+    d = res_df[count_cols[3]].values
+
+    OR, p = fishersapi.fishers_vec(a, b, c, d, alternative='two-sided')
+    """It is assumed here that the number clones in the neighborhood is in col_j = 1 (i.e. b, d)"""
+    RR = (b / (a + b)) / (d / (c + d))
+    return {'RR':RR, 'OR':OR, 'pvalue':p}
 
 def _glmCatNBR(df, x_cols, y_col='NBR', count_col=None, l2_alpha=0, nperms=100):
     if count_col is None:
@@ -178,55 +185,56 @@ def neighborhoodDiff(clone_df, pwmat, x_cols, count_col='count', test='chi2', kn
 
     if test_only is None:
         test_only = clone_df.index
-
-    res = []
-    for clonei in test_only:
-        ii = np.nonzero(clone_df.index == clonei)[0][0]
-        if not knn_neighbors is None:
-            if knn_neighbors < 1:
-                frac = knn_neighbors
-                K = int(knn_neighbors * n)
-                print('Using K = %d (%1.0f%% of %d)' % (K, 100*frac, n))
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        res = []
+        for clonei in test_only:
+            ii = np.nonzero(clone_df.index == clonei)[0][0]
+            if not knn_neighbors is None:
+                if knn_neighbors < 1:
+                    frac = knn_neighbors
+                    K = int(knn_neighbors * n)
+                    print('Using K = %d (%1.0f%% of %d)' % (K, 100*frac, n))
+                else:
+                    K = knn_neighbors
+                R = np.partition(pwmat[ii, :], knn_neighbors)[knn_neighbors]
             else:
-                K = knn_neighbors
-            R = np.partition(pwmat[ii, :], knn_neighbors)[knn_neighbors]
-        else:
-            R = knn_radius
-        y = (pwmat[ii, :] <= R).astype(float)
-        K = np.sum(y)
+                R = knn_radius
+            y = (pwmat[ii, :] <= R).astype(float)
+            K = np.sum(y)
 
-        cdf = clone_df.assign(**{ycol:y})[[ycol, count_col] + x_cols]
-        counts = _prep_counts(cdf, x_cols, ycol, count_col)
+            cdf = clone_df.assign(**{ycol:y})[[ycol, count_col] + x_cols]
+            counts = _prep_counts(cdf, x_cols, ycol, count_col)
 
-        out = {'CTS%d' % i:v for i,v in enumerate(counts.values.ravel())}
+            out = {'CTS%d' % i:v for i,v in enumerate(counts.values.ravel())}
 
-        uY = [1, 0]
-        out.update({'x_col_%d' % i:v for i,v in enumerate(x_cols)})
-        for i,xvals in enumerate(counts.index.tolist()):
-            if type(xvals) is tuple:
-                val = '|'.join(xvals)
-            else:
-                val = xvals
-            out.update({'x_val_%d' % i:val,
-                        'x_freq_%d' % i: counts.loc[xvals, 1] / counts.loc[xvals].sum()})
-        
-        out.update({'index':clonei,
-                    'neighbors':list(clone_df.index[np.nonzero(y)[0]]),
-                    'K_neighbors':K,
-                    'R_radius':R})
+            uY = [1, 0]
+            out.update({'x_col_%d' % i:v for i,v in enumerate(x_cols)})
+            for i,xvals in enumerate(counts.index.tolist()):
+                if type(xvals) is tuple:
+                    val = '|'.join(xvals)
+                else:
+                    val = xvals
+                out.update({'x_val_%d' % i:val,
+                            'x_freq_%d' % i: counts.loc[xvals, 1] / counts.loc[xvals].sum()})
+            
+            out.update({'index':clonei,
+                        'neighbors':list(clone_df.index[np.nonzero(y)[0]]),
+                        'K_neighbors':K,
+                        'R_radius':R})
 
-        if test == 'logistic':
-            glm_res = _glmCatNBR(cdf, x_cols, y_col=ycol, count_col=count_col, **kwargs)
-            out.update(glm_res)
-        elif test == 'chi2+fishers':
-            comb_res = _chi2_fishersNBR(counts)
-            out.update(comb_res)
-        res.append(out)
+            if test == 'logistic':
+                glm_res = _glmCatNBR(cdf, x_cols, y_col=ycol, count_col=count_col, **kwargs)
+                out.update(glm_res)
+            elif test == 'chi2+fishers':
+                comb_res = _chi2_fishersNBR(counts)
+                out.update(comb_res)
+            res.append(out)
 
-    res_df = pd.DataFrame(res)
-    if test in ['fishers', 'chi2']:
-        out = test_func(res_df, count_cols=[c for c in res_df.columns if c.startswith('CTS')])
-        res_df = res_df.assign(**out)
+        res_df = pd.DataFrame(res)
+        if test in ['fishers', 'chi2']:
+            out = test_func(res_df, count_cols=[c for c in res_df.columns if c.startswith('CTS')])
+            res_df = res_df.assign(**out)
 
     for c in [c for c in res_df.columns if 'pvalue' in c]:
         res_df = res_df.assign(**{c.replace('pvalue', 'FWERp'):adjustnonnan(res_df[c].values, method='holm'),
