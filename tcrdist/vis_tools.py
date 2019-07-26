@@ -1,5 +1,8 @@
 import matplotlib
 import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
+
 
 
 def bostock_cat_colors(color_sets = ["set3"]):
@@ -132,3 +135,33 @@ def cluster_viz(px,
     g.ax_col_dendrogram.legend(loc="center", ncol = 4)
     g.cax.set_position([.97, .2, .03, .45])
     g.fig.suptitle(title, fontsize=20)
+
+
+def single_roc(roc, key, **kwargs):
+    """
+    Parameters
+    ----------
+    df : DataFrame
+        pandas DataFrame
+
+    Yields
+    ------
+    plot commands
+
+    """
+    thr = roc['thr']
+    fpr = roc['fpr']
+    tpr = roc['tpr']
+    ind_50 = np.where(thr < .5)[0][0]
+
+    plt.plot(roc['fpr'], roc['tpr'],
+             lw=1, label='({} AUC = {})'.format(key, round(roc['roc_auc'][0],2)), **kwargs)
+    #plt.plot(roc['fpr'], roc['tpr'],lw=lw)
+    plt.plot([0, 1], [0, 1], color='black', lw=.5, linestyle='--')
+    plt.xlim([-0.01, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title(key)
+    plt.legend(loc="lower right")
+    plt.scatter(fpr[[ind_50]], tpr[[ind_50]], label= 'P({} > 0.5)'.format({key}))

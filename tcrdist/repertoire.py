@@ -145,6 +145,7 @@ class TCRrep:
             aa_string = self.all_genes[organism][gene].__dict__[attr][cdr]
         except KeyError:
             aa_string = None
+            warnings.warn("{} gene was not recognized in reference db no cdr seq could be inferred".format(gene))
         return(aa_string)
 
 
