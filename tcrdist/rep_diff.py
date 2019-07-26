@@ -7,12 +7,14 @@ import patsy
 
 from scipy.stats import chi2_contingency
 from scipy.stats.contingency import expected_freq
+import scipy.cluster.hierarchy as sch
+from scipy.spatial import distance
 
 import fishersapi
 
 from .pvalue_adjustment import adjustnonnan
 
-__all__ = ['neighborhoodDiff']
+__all__ = ['neighborhoodDiff', 'hclusterDiff']
 
 """TODO: Parallelize permutation test for L2-penalized logistic regression"""
 '''
@@ -230,6 +232,136 @@ def neighborhoodDiff(clone_df, pwmat, x_cols, count_col='count', test='chi2', kn
                 comb_res = _chi2_fishersNBR(counts)
                 out.update(comb_res)
             res.append(out)
+
+        res_df = pd.DataFrame(res)
+        if test in ['fishers', 'chi2']:
+            out = test_func(res_df, count_cols=[c for c in res_df.columns if c.startswith('CTS')])
+            res_df = res_df.assign(**out)
+
+    for c in [c for c in res_df.columns if 'pvalue' in c]:
+        res_df = res_df.assign(**{c.replace('pvalue', 'FWERp'):adjustnonnan(res_df[c].values, method='holm'),
+                                  c.replace('pvalue', 'FDRq'):adjustnonnan(res_df[c].values, method='fdr_bh')})
+    return res_df
+
+def hclusterDiff(clone_df, pwmat, x_cols, count_col='count', test='chi2', min_n=20, method='complete', **kwargs):
+    """Tests for association of categorical variables in x_cols with each cluster/node
+    in a hierarchical clustering of clones with distances in pwmat.
+
+    Use Fisher's exact test (test='fishers') to detect enrichment/association of the neighborhood
+    with one variable.
+
+    Tests the 2 x 2 table for each clone:
+
+            Neighborhood
+             Y   N
+           ---------
+         1 | a | b |
+    VAR    |-------|
+         0 | c | d |
+           ---------
+
+    Use the chi-squared test (test='chi2') or logistic regression (test='logistic') to detect association across multiple variables.
+    Note that with small clusters Chi-squared tests and logistic regression are unreliable. It is possible
+    to pass an L2 penalty to the logistic regression using l2_alpha in kwargs, howevere this requires a permutation
+    test (nperms also in kwargs) to compute a value.
+
+    Params
+    ------
+    clone_df : pd.DataFrame [nclones x metadata]
+        Contains metadata for each clone.
+    pwmat : np.ndarray [nclones x nclones]
+        Square distance matrix for defining neighborhoods
+    x_cols : list
+        List of columns to be tested for association with the neighborhood
+    count_col : str
+        Column in clone_df that specifies counts.
+        Default none assumes count of 1 cell for each row.
+    test : str
+        Specifies Fisher's exact test ("fishers"), Chi-squared ("chi2") or
+        logistic regression ("glm") for testing the association.
+        Also "chi2+fishers" tests the global null using Chi2 and all pairwise
+        combinations of variable values using Fisher's.
+    min_n : int
+        Minimum size of a cluster for it to be tested.
+    kwargs : dict
+        Arguments for the various test functions (currently only logistic
+        regression, which takes l2_alpha and nperms)
+
+    Returns
+    -------
+    res_df : pd.DataFrame [nclusters x results]
+        Results from testing each cluster.
+    Z : linkage matrix [clusters, 4]
+        Clustering result returned from scipy.cluster.hierarchy.linkage"""
+    if test == 'fishers':
+        test_func = _fisherNBR
+        assert len(x_cols) == 1
+    elif test in ['chisq', 'chi2']:
+        test_func = _chi2NBR
+    elif test == 'glm':
+        test_func = _glmNBR
+
+    n = clone_df.shape[0]
+    assert n == pwmat.shape[0]
+    assert n == pwmat.shape[1]
+    ycol = 'NBR'
+
+    compressedDmat = distance.squareform(pwmat)
+    Z = sch.linkage(compressedDmat, method=method)
+
+    clusters = {}
+    for i, merge in enumerate(Z):
+        cid = 1 + i + Z.shape[0]
+        clusters[cid] = [merge[0], merge[1]]
+
+    def _get_indices(clusters, i):
+        if i <= Z.shape[0]:
+            return [int(i)]
+        else:
+            return _get_indices(clusters, clusters[i][0]) + _get_indices(clusters, clusters[i][1])
+
+    members = {i:_get_indices(clusters, i) for i in range(Z.shape[0] + 1, max(clusters.keys()) + 1)}
+
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        res = []
+        for cid, m in members.items():
+            not_m = [i for i in range(n) if not i in m]
+            y = np.zeros(n)
+            y[m] = 1
+            
+            K = np.sum(y)
+            if K >= min_n and K < (n-min_n):
+                R = np.max(pwmat[m, :][:, m])
+
+                cdf = clone_df.assign(**{ycol:y})[[ycol, count_col] + x_cols]
+                counts = _prep_counts(cdf, x_cols, ycol, count_col)
+
+                out = {'CTS%d' % i:v for i,v in enumerate(counts.values.ravel())}
+
+                uY = [1, 0]
+                out.update({'x_col_%d' % i:v for i,v in enumerate(x_cols)})
+                for i,xvals in enumerate(counts.index.tolist()):
+                    if type(xvals) is tuple:
+                        val = '|'.join(xvals)
+                    else:
+                        val = xvals
+                    out.update({'x_val_%d' % i:val,
+                                'x_freq_%d' % i: counts.loc[xvals, 1] / counts.loc[xvals].sum()})
+                
+                out.update({'cid':cid,
+                            'members_index':list(clone_df.index[m]),
+                            'members_i':m,
+                            'K_neighbors':K,
+                            'R_radius':R})
+
+                if test == 'logistic':
+                    glm_res = _glmCatNBR(cdf, x_cols, y_col=ycol, count_col=count_col, **kwargs)
+                    out.update(glm_res)
+                elif test == 'chi2+fishers':
+                    comb_res = _chi2_fishersNBR(counts)
+                    out.update(comb_res)
+                res.append(out)
 
         res_df = pd.DataFrame(res)
         if test in ['fishers', 'chi2']:
