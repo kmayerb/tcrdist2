@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import itertools
+import warnings
 
 import statsmodels.api as sm
 import patsy
