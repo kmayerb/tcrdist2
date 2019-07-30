@@ -41,6 +41,15 @@ Pradyot Dash, Andrew J. Fiore-Gartland, Tomer Hertz, George C. Wang, Shalini Sha
 [Nature (2017) doi:10.1038/nature22383](https://doi.org/10.1038/nature22383).
 
 
+OLGA: fast computation of generation probabilities of B- and T-cell receptor
+amino acid sequences and motifs
+
+Zachary Sethna, Yuval Elhanati, Curtis G Callan, Aleksandra M Walczak, Thierry Mora
+
+[Bioinformatics (2019)] (https://doi.org/10.1093/bioinformatics/btz035)
+
+(tcrdist2 incorporates OLGA for generation probability estimates)
+
 
 Parasail: SIMD C library for global, semi-global, and local pairwise sequence alignments
 
@@ -48,4 +57,4 @@ Daily, Jeff.
 
 [BMC Bioinformatics 2016, 17(1), 1-11. doi:10.1186/s12859-016-0930-z](http://dx.doi.org/10.1186/s12859-016-0930-z)
 
-(tcrdist2 relies heavily on Parasail for fast sequence alignment)
+(tcrdist2 depends on Parasail for fast sequence alignment)
