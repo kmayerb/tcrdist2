@@ -115,10 +115,10 @@ class test_olga_in_python3(unittest.TestCase):
 
     def test_olga_update_to_python3_pgens_human_beta_naive(self):
         """
-        Providing Only CDR3 Beta No V J Gene Usage Information (naive) for 100 Sequences
+        Providing Only cdr3 Beta No V J Gene Usage Information (naive) for 100 Sequences
         """
         my_olga_model = pgen.OlgaModel(chain_folder = 'human_T_beta', recomb_type = "VDJ")
-        r = my_olga_model.compute_aa_CDR3_pgens(human_b.cdr3_b_aa,
+        r = my_olga_model.compute_aa_cdr3_pgens(human_b.cdr3_b_aa,
                                                 None,
                                                 None)
         r = np.array(r)
@@ -126,10 +126,10 @@ class test_olga_in_python3(unittest.TestCase):
 
     def test_olga_update_to_python3_pgens_human_beta_with_vj_specified(self):
         """
-        Providing Only CDR3 Beta and V J gene usage for 100 Sequence
+        Providing Only cdr3 Beta and V J gene usage for 100 Sequence
         """
         my_olga_model = pgen.OlgaModel(chain_folder = 'human_T_beta', recomb_type = "VDJ")
-        r = my_olga_model.compute_aa_CDR3_pgens(human_b.cdr3_b_aa,
+        r = my_olga_model.compute_aa_cdr3_pgens(human_b.cdr3_b_aa,
                                                 human_b.v_b_gene,
                                                 human_b.j_b_gene)
 
@@ -144,10 +144,10 @@ class test_olga_in_python3(unittest.TestCase):
 
     def test_olga_update_to_python3_pgens_human_alpha_naive(self):
         """
-        Providing Only CDR3 alpha No Gene Usage for 10 Sequences
+        Providing Only cdr3 alpha No Gene Usage for 10 Sequences
         """
         my_olga_model = pgen.OlgaModel(chain_folder = 'human_T_alpha', recomb_type = "VJ")
-        r = my_olga_model.compute_aa_CDR3_pgens(human_a.cdr3_a_aa,
+        r = my_olga_model.compute_aa_cdr3_pgens(human_a.cdr3_a_aa,
                                                 None,
                                                 None)
         print("FOR HUMAN INSPECTION")
@@ -162,10 +162,10 @@ class test_olga_in_python3(unittest.TestCase):
 
     def test_olga_update_to_python3_pgens_human_alpha_with_vj_specified(self):
         """
-        Providing CDR3 alpha and V J gene usage for 10 Sequence
+        Providing cdr3 alpha and V J gene usage for 10 Sequence
         """
         my_olga_model = pgen.OlgaModel(chain_folder = 'human_T_alpha', recomb_type = "VJ")
-        r = my_olga_model.compute_aa_CDR3_pgens(human_a.cdr3_a_aa,
+        r = my_olga_model.compute_aa_cdr3_pgens(human_a.cdr3_a_aa,
                                                 human_a.v_a_gene,
                                                 human_a.j_a_gene)
 

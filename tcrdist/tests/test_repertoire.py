@@ -54,8 +54,8 @@ class test_repertoire(unittest.TestCase):
                              'cdr2_a_aa', 'pmhc_a_aa', 'cdr3_b_aa', 'cdr1_b_aa',
                              'cdr2_b_aa', 'pmhc_b_aa']
         testrep.deduplicate()
-        testrep.infer_olga_aa_CDR3_pgens(chain = "alpha")
-        testrep.infer_olga_aa_CDR3_pgens(chain = "beta")
+        testrep.infer_olga_aa_cdr3_pgens(chain = "alpha")
+        testrep.infer_olga_aa_cdr3_pgens(chain = "beta")
         print(testrep.clone_df.cdr3_a_aa_pgen)
         self.assertTrue(isinstance(testrep.clone_df.cdr3_a_aa_pgen, pd.Series))
         self.assertTrue(np.all([ isinstance(testrep.clone_df.cdr3_a_aa_pgen, pd.Series),
@@ -70,9 +70,9 @@ class test_repertoire(unittest.TestCase):
                              'cdr2_a_aa', 'pmhc_a_aa', 'cdr3_b_aa', 'cdr1_b_aa',
                              'cdr2_b_aa', 'pmhc_b_aa']
         testrep.deduplicate()
-        testrep.infer_olga_aa_CDR3_pgens(chain = "alpha",
+        testrep.infer_olga_aa_cdr3_pgens(chain = "alpha",
                                          cdr3_only = True)
-        testrep.infer_olga_aa_CDR3_pgens(chain = "beta",
+        testrep.infer_olga_aa_cdr3_pgens(chain = "beta",
                                          cdr3_only = True)
         print(testrep.clone_df.cdr3_a_aa_pgen)
         self.assertTrue(np.all([ isinstance(testrep.clone_df.cdr3_a_aa_pgen, pd.Series),

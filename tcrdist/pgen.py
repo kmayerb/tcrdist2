@@ -85,7 +85,7 @@ class OlgaModel:
     def __repr__(self):
         return "tcrdist.pgen.OlgaModel set to recomb_type: '{}' and chain_folder: '{}'".format(self.recomb_type, self.chain_folder)
 
-    def compute_aa_CDR3_pgen(self, CDR3_seq, V_usage_mask_in = None, J_usage_mask_in = None):
+    def compute_aa_cdr3_pgen(self, CDR3_seq, V_usage_mask_in = None, J_usage_mask_in = None):
         """Compute Pgen for the amino acid sequence CDR3_seq.
 
         ORIGINAL DOC STRING FROM OLGA:
@@ -126,7 +126,7 @@ class OlgaModel:
         pgen_estimate = self.pgen_model.compute_aa_CDR3_pgen(CDR3_seq, V_usage_mask_in, J_usage_mask_in)
         return(pgen_estimate)
 
-    def compute_aa_CDR3_pgens(self, CDR3_seq, V_usage_mask_in = None, J_usage_mask_in = None):
+    def compute_aa_cdr3_pgens(self, CDR3_seq, V_usage_mask_in = None, J_usage_mask_in = None):
         """
         function for computing many generation probabilities. The assumption is that
         data will come from a pd.DataFrame as lists which can contain either
@@ -158,7 +158,7 @@ class OlgaModel:
         input_tuples  = [(CDR3_seq[i], V_usage_mask_in[i], J_usage_mask_in[i] ) \
                          for i in range(l)]
 
-        pgen_estimates = [self.compute_aa_CDR3_pgen(x,y,z) for x,y,z in input_tuples]
+        pgen_estimates = [self.compute_aa_cdr3_pgen(x,y,z) for x,y,z in input_tuples]
         return(pgen_estimates)
 
 

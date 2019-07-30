@@ -255,7 +255,7 @@ class TCRrep:
             self.cell_df['pmhc_d_aa'] = list(map(f2, self.cell_df.v_d_gene))
 
 
-    def infer_olga_aa_CDR3_pgens(self,
+    def infer_olga_aa_cdr3_pgens(self,
                                  chain,
                                  cdr3_only = False,
                                  chain_folder = None,
@@ -376,7 +376,7 @@ class TCRrep:
         my_olga_model = pgen.OlgaModel(chain_folder = chain_folder,
                                        recomb_type = recomb_type)
         # computes pgen from clone_df
-        olga_pgens = my_olga_model.compute_aa_CDR3_pgens(cdr3s,
+        olga_pgens = my_olga_model.compute_aa_cdr3_pgens(cdr3s,
                                                          v_genes,
                                                          j_genes)
 
