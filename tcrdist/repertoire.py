@@ -6,6 +6,7 @@ from tcrdist import pairwise
 import warnings
 import pickle
 from tcrdist import repertoire_db
+from tcrdist import pgen
 
 #from paths import path_to_matrices
 
@@ -254,7 +255,141 @@ class TCRrep:
             self.cell_df['pmhc_d_aa'] = list(map(f2, self.cell_df.v_d_gene))
 
 
+    def infer_olga_aa_CDR3_pgens(self,
+                                 chain,
+                                 cdr3_only = False,
+                                 chain_folder = None,
+                                 recomb_type = None):
+        """
+        Infer the probability of generation using the Olga Code base
+        (Sethna et al. 2018) updated to python 3 for use with tcrdist.
 
+        Parameters
+        ----------
+        chain : string
+            'alpha', 'beta' (TODO: create default models for 'gamma' and 'delta')
+        cdr3_only : boolean
+            (optional) if True, the amino acid cdr3 probability of generation statistic
+            will be calculated without using the V or J gene usage statistics
+        chain_folder : string
+            (optional) specifies the OLGA default model folder containing a
+            generative model. When None (which is recommended), the default
+            folder is chosen based on the chain argument.
+        recomb_type : string
+            (optional) 'VDJ' or 'VJ' specifying the OLGA recombination model.
+            When None (which is recommended), the default folder is chosen based
+            on the chain argument.
+
+        Returns
+        -------
+        olga_pgens : pd.Series
+            containing the probability of generation, this output is also assigned
+            to clone_df.cdr3_[a|b|g|d]_aa_pgen
+
+        Notes
+        -----
+        tcrdist2 authors UPDATED THE FOLLOWING CODE TO PYTHON 3
+        USING COMMIT e825c333f0f9a4eb02132e0bcf86f0dca9123114 (Jan 18, 2019)
+
+        ORIGINAL OLGA CODE CAN BE FOUND AT:
+        https://github.com/zsethna/OLGA
+
+        """
+
+        assert(isinstance(self.clone_df, pd.DataFrame)), "this function requires a valid TCRrep.clone_df has been instantiated"
+
+        # The Nested If Statements assigns cdr3s, v_genes, j_genes based on chain, organism and other optional args
+        if chain == "alpha":
+            if (chain_folder is None):
+                if self.organism is 'human':
+                    chain_folder = "human_T_alpha"
+                elif self.organism is 'mouse':
+                    raise ValueError("SORRY: OLGA default files do not yet support mouse alpha TCRs")
+                    chain_folder = "mouse_T_alpha"
+            if (recomb_type is None):
+                recomb_type = "VJ"
+            cdr3s = self.clone_df.cdr3_a_aa
+
+            if not cdr3_only:
+                v_genes = self.clone_df.v_a_gene
+                j_genes = self.clone_df.j_a_gene
+            else:
+                v_genes = None
+                j_genes = None
+
+        if chain == "beta":
+            if (chain_folder is None):
+                if self.organism is 'human':
+                    chain_folder = "human_T_beta"
+                elif self.organism is 'mouse':
+                    chain_folder = "mouse_T_beta"
+            if (recomb_type is None):
+                recomb_type = "VDJ"
+            cdr3s = self.clone_df.cdr3_b_aa
+
+            if not cdr3_only:
+                v_genes = self.clone_df.v_b_gene
+                j_genes = self.clone_df.j_b_gene
+            else:
+                v_genes = None
+                j_genes = None
+
+        if chain  ==  "gamma":
+            raise ValueError("SORRY: OLGA default files do not yet support gamma TCRs")
+            if (chain_folder is None):
+                if self.organism is 'human':
+                    chain_folder = "human_T_gamma"
+                elif self.organism is 'mouse':
+                    chain_folder = "mouse_T_gamma"
+            if (recomb_type is None):
+                recomb_type = None # ??? Not sure what is teh most appropriate model
+            cdr3s = self.clone_df.cdr3_g_aa
+
+            if not cdr3_only:
+                v_genes = self.clone_df.v_g_gene
+                j_genes = self.clone_df.j_g_gene
+            else:
+                v_genes = None
+                j_genes = None
+
+        if chain  ==  "delta":
+            raise ValueError("SORRY:OLGA default files do not yet support delta TCRs")
+            if (chain_folder is None):
+                if (chain_folder is None):
+                    if self.organism is 'human':
+                        chain_folder = "human_T_delta"
+                    elif self.organism is 'mouse':
+                        chain_folder = "mouse_T_delta"
+            if (recomb_type is None):
+                recomb_type = None # ??? Not sure what is teh most appropriate model
+            cdr3s = self.clone_df.cdr3_d_aa
+
+            if not cdr3_only:
+                v_genes = self.clone_df.v_d_gene
+                j_genes = self.clone_df.j_d_gene
+            else:
+                v_genes = None
+                j_genes = None
+
+
+        # initializes the appropriate olga genomic model
+        my_olga_model = pgen.OlgaModel(chain_folder = chain_folder,
+                                       recomb_type = recomb_type)
+        # computes pgen from clone_df
+        olga_pgens = my_olga_model.compute_aa_CDR3_pgens(cdr3s,
+                                                         v_genes,
+                                                         j_genes)
+
+        if chain is "alpha":
+            self.clone_df['cdr3_a_aa_pgen'] = pd.Series(olga_pgens)
+        if chain is "beta":
+            self.clone_df['cdr3_b_aa_pgen'] = pd.Series(olga_pgens)
+        if chain is "gamma":
+            self.clone_df['cdr3_g_aa_pgen'] = pd.Series(olga_pgens)
+        if chain is "delta":
+            self.clone_df['cdr3_d_aa_pgen'] = pd.Series(olga_pgens)
+
+        return(pd.Series(olga_pgens))
 
 
 

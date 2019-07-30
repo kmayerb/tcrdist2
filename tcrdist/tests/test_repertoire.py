@@ -32,6 +32,51 @@ class test_repertoire(unittest.TestCase):
         self.assertTrue(isinstance(testrep.clone_df, pd.DataFrame))
 
 
+    def test_repertoire_infer_cdrs_from_v_gene(self):
+        testrep = TCRrep(cell_df = example_df, chains = ["alpha", "beta"])
+        testrep.infer_cdrs_from_v_gene(chain = "alpha")
+        testrep.infer_cdrs_from_v_gene(chain = "beta")
+        testrep.index_cols =['epitope', 'subject', 'cdr3_a_aa', 'cdr1_a_aa',
+                             'cdr2_a_aa', 'pmhc_a_aa', 'cdr3_b_aa', 'cdr1_b_aa',
+                             'cdr2_b_aa', 'pmhc_b_aa']
+        testrep.deduplicate()
+        self.assertTrue(np.all([isinstance(testrep.clone_df['cdr1_a_aa'], pd.Series),
+                                isinstance(testrep.clone_df['cdr1_b_aa'], pd.Series),
+                                isinstance(testrep.clone_df['cdr2_a_aa'], pd.Series),
+                                isinstance(testrep.clone_df['cdr2_b_aa'], pd.Series)]))
+
+    def test_repertoire_infer_olga_pgen_from_cdr3_and_vj_genes(self):
+        testrep = TCRrep(cell_df = example_df, chains = ["alpha", "beta"])
+        testrep.infer_cdrs_from_v_gene(chain = "alpha")
+        testrep.infer_cdrs_from_v_gene(chain = "beta")
+        testrep.index_cols =['epitope', 'subject', 'v_a_gene', 'j_a_gene',
+                             'v_b_gene', 'j_b_gene', 'cdr3_a_aa', 'cdr1_a_aa',
+                             'cdr2_a_aa', 'pmhc_a_aa', 'cdr3_b_aa', 'cdr1_b_aa',
+                             'cdr2_b_aa', 'pmhc_b_aa']
+        testrep.deduplicate()
+        testrep.infer_olga_aa_CDR3_pgens(chain = "alpha")
+        testrep.infer_olga_aa_CDR3_pgens(chain = "beta")
+        print(testrep.clone_df.cdr3_a_aa_pgen)
+        self.assertTrue(isinstance(testrep.clone_df.cdr3_a_aa_pgen, pd.Series))
+        self.assertTrue(np.all([ isinstance(testrep.clone_df.cdr3_a_aa_pgen, pd.Series),
+                                isinstance(testrep.clone_df.cdr3_b_aa_pgen, pd.Series)]))
+
+    def test_repertoire_infer_olga_pgen_from_cdr3_only_genes(self):
+        testrep = TCRrep(cell_df = example_df, chains = ["alpha", "beta"])
+        testrep.infer_cdrs_from_v_gene(chain = "alpha")
+        testrep.infer_cdrs_from_v_gene(chain = "beta")
+        testrep.index_cols =['epitope', 'subject', 'v_a_gene', 'j_a_gene',
+                             'v_b_gene', 'j_b_gene', 'cdr3_a_aa', 'cdr1_a_aa',
+                             'cdr2_a_aa', 'pmhc_a_aa', 'cdr3_b_aa', 'cdr1_b_aa',
+                             'cdr2_b_aa', 'pmhc_b_aa']
+        testrep.deduplicate()
+        testrep.infer_olga_aa_CDR3_pgens(chain = "alpha",
+                                         cdr3_only = True)
+        testrep.infer_olga_aa_CDR3_pgens(chain = "beta",
+                                         cdr3_only = True)
+        print(testrep.clone_df.cdr3_a_aa_pgen)
+        self.assertTrue(np.all([ isinstance(testrep.clone_df.cdr3_a_aa_pgen, pd.Series),
+                                 isinstance(testrep.clone_df.cdr3_b_aa_pgen, pd.Series)]))
 
     def test_repertoire_full_use_case(self):
         """
