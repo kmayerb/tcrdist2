@@ -1,6 +1,7 @@
 MIT License
 
-Copyright (c) 2017 Philip Harlan Bradley and Jeremy Chase Crawford
+Copyright (c) 2019 by Philip Harlan Bradley, Jeremy Chase Crawford,
+Andrew Fiore-Gartland and Koshlan Mayer-Blackwell.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
