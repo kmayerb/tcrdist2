@@ -83,37 +83,38 @@ class test_comparability(unittest.TestCase):
                                  metric = 'tcrdist_cdr3',
                                  compute_specific_region = 'cdr3_a_aa',
                                  #user_function = tcrdist_metric_align_cdr3s_false,
-                                 processes = NCPUS)
+
+                                 processes = 1)
         pb1.compute_pairwise_all(chain = "alpha",                        # 11
                                  metric = "tcrdist_cdr1",
                                  compute_specific_region = 'cdr1_a_aa',
-                                 processes = NCPUS)
+                                 processes = 1)
         pb1.compute_pairwise_all(chain = "alpha",                        # 11
                                  metric = "tcrdist_cdr1",
                                  compute_specific_region = 'cdr2_a_aa',
-                                 processes = NCPUS)
+                                 processes = 1)
         pb1.compute_pairwise_all(chain = "alpha",                        # 11
                                  metric = "tcrdist_cdr1",
                                  compute_specific_region = 'pmhc_a_aa',
-                                 processes = NCPUS)
+                                 processes = 1)
 
         pb1.compute_pairwise_all(chain = "beta",                         # 12
                                  metric = 'tcrdist_cdr3',
                                  #user_function = tcrdist_metric_align_cdr3s_false,
                                  compute_specific_region = 'cdr3_b_aa',
-                                 processes = NCPUS)
+                                 processes = 1)
         pb1.compute_pairwise_all(chain = "beta",                         # 12
                                  metric = "tcrdist_cdr1",
                                  compute_specific_region = 'cdr1_b_aa',
-                                 processes = NCPUS)
+                                 processes = 1)
         pb1.compute_pairwise_all(chain = "beta",                         # 12
                                  metric = "tcrdist_cdr1",
                                  compute_specific_region = 'cdr2_b_aa',
-                                 processes = NCPUS)
+                                 processes = 1)
         pb1.compute_pairwise_all(chain = "beta",                         # 12
                                  metric = "tcrdist_cdr1",
                                  compute_specific_region = 'pmhc_b_aa',
-                                 processes = NCPUS)
+                                 processes = 1)
 
         pb1.compute_paired_tcrdist()
 
