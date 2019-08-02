@@ -4,6 +4,13 @@ import os
 
 path_to_scripts = op.dirname(op.realpath(__file__))
 
+# paths for accessing olga content
+path_to_tcrdist = op.dirname(op.realpath(__file__))
+path_to_olga = op.join(path_to_tcrdist , "olga")
+assert op.isdir( path_to_olga )
+path_to_olga_default_models = op.join(path_to_tcrdist , "olga", "default_models")
+assert op.isdir( path_to_olga_default_models )
+
 ##
 ## the directories db/ and external/ do not live in the github repository
 ## They will hopefully get created when you run the setup.py script.
