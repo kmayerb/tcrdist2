@@ -27,6 +27,7 @@ from .pairwise import *
 from . import mappers
 from . import vis_tools
 from . import repertoire_db
+from . import rep_diff as stats
 
 
 
