@@ -918,7 +918,7 @@ def apply_pairwise_distance_multiprocessing(sequences,
     chunks = 2*processes
     total_number_of_seqs = len(sequences)
     index = list(range(0, total_number_of_seqs))
-    partition_size = total_number_of_seqs / chunks
+    partition_size = total_number_of_seqs // chunks
     #assert total_number_of_seqs % chunks == 0, "chunk size not a multiple of unique seqs"
     # index is chunked into two parts (row, and column) so that
     # the pairwise distance task can be mapped to multiple processes

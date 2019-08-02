@@ -123,18 +123,18 @@ class test_SequencePair(unittest.TestCase):
         b =['CAGQASQGNLIAA', 'CAGQASQGNLIFAAA', 'CAGQASQGNLIFAAAAA', 'CAGQASQGNLIAA', 'CAGQASQGNLIF']
         self.assertTrue(a == b)
 
-    #def test_apply_pairwise_distance_multiprocessing(self):
-    #    sequences = ["CAGQASQGNLIF","CAGQASQGNLIF","CAGQASQGNLIFA", \
-    #    "CAGQASQGNLIAA","CAGQASQGNLIFAAA","CAGQASQGNLIFAAAAA", "CAGQASQGNLIFG"]
-
-    #    unique_seqs = pairwise.select_unique_sequences(sequences)
-    #    d = pairwise.apply_pairwise_distance_multiprocessing(sequences = unique_seqs,  processes = 1)
-    #    kkv = pairwise.unpack_pooled_dd_to_kkv(pooled_dd = d)
-        #a = kkv['key2'][0:5]
-        #b =['CAGQASQGNLIAA','CAGQASQGNLIFAAA','CAGQASQGNLIFAAAAA','CAGQASQGNLIAA','CAGQASQGNLIF']
-        #a = kkv['key2'][0:5]
-        # =['CAGQASQGNLIAA','CAGQASQGNLIFAAA','CAGQASQGNLIFAAAAA','CAGQASQGNLIAA','CAGQASQGNLIF']
-    #    self.assertTrue(kkv)
+    def test_apply_pairwise_distance_nonmultiprocessing(self):
+        sequences = ["CAGQASQGNLIF", "CAGQASQGNLIF", "CAGQASQGNLIFA", \
+        "CAGQASQGNLIAA", "CAGQASQGNLIFAAA", "CAGQASQGNLIFAAAAA"]
+        # define it explicitly here since this is test for hamming values
+        def my_distance_wrapper(a, b):
+            return(float(pairwise.SequencePair(a, b).hamming_distance) )
+        unique_seqs = pairwise.select_unique_sequences(sequences)
+        d = pairwise.apply_pairwise_distance_multiprocessing(unique_seqs, processes=1)
+        kkv = pairwise.unpack_dd_to_kkv(dd = d)
+        a = kkv['value'][0:5]
+        b = [0.0, 2.0, 4.0, 2.0, 0.0]
+        self.assertTrue(a==b)
 
 
 if __name__ == '__main__':
