@@ -35,6 +35,7 @@ is particularly illustrative.
    Repertoire
    Pairwise
    Processing
+   Neighborhood
    WhatIsNew
 
 

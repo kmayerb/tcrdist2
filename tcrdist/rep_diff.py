@@ -233,7 +233,7 @@ def _glmCatNBR(df, x_cols, y_col='NBR', count_col=None, l2_alpha=0, nperms=100):
 
         perm_values = ((np.abs(res.params[:, None]) < np.abs(rparams)).sum(axis=1) + 1) / (nperms + 1)
         out = {'%s_pvalue' % c:v for c,v in zip(X.columns, perm_values) if not 'Intercept' in c}
-    
+
     out.update({'%s_coef' % c:res.params[c] for c in X.columns if not 'Intercept' in c})
     out.update({'%s_OR' % c:np.exp(res.params[c]) for c in X.columns if not 'Intercept' in c})
     return out
@@ -248,13 +248,15 @@ def neighborhoodDiff(clone_df, pwmat, x_cols, count_col='count', test='chi2', kn
 
     Tests the 2 x 2 table for each clone:
 
-          Neighborhood
-             Y   N
-           ---------
-         1 | a | b |
-    VAR    |-------|
-         0 | c | d |
-           ---------
+    +----+----+-------+--------+
+    |         |  Neighborhood  |
+    |         +-------+--------+
+    |         | Y     |    N   |
+    +----+----+-------+--------+
+    |VAR |  1 | a     |    b   |
+    |    +----+-------+--------+
+    |    |  0 | c     |    d   |
+    +----+----+-------+--------+
 
     Use the chi-squared test (test='chi2') or logistic regression (test='logistic') to detect association across multiple variables.
     Note that with sparse neighborhoods Chi-squared tests and logistic regression are unreliable. It is possible
@@ -263,7 +265,7 @@ def neighborhoodDiff(clone_df, pwmat, x_cols, count_col='count', test='chi2', kn
 
     Use the Cochran-Mantel-Haenszel test (test='chm') to test stratified 2 x 2 tables: one VAR vs. neighborhood, over sever strata
     defined in other variables. Use x_cols[0] as the primary (binary) variable and other x_cols for the categorical
-    strata-defining variables. This tests the overall null that OR = 1 for x_cols[0]. A test is also performed 
+    strata-defining variables. This tests the overall null that OR = 1 for x_cols[0]. A test is also performed
     for homogeneity of the ORs among the strata (Breslow-Day test).
 
     Params
@@ -349,7 +351,7 @@ def neighborhoodDiff(clone_df, pwmat, x_cols, count_col='count', test='chi2', kn
                     val = xvals
                 out.update({'x_val_%d' % i:val,
                             'x_freq_%d' % i: counts.loc[xvals, 1] / counts.loc[xvals].sum()})
-            
+
             out.update({'index':clonei,
                         'neighbors':list(clone_df.index[np.nonzero(y)[0]]),
                         'K_neighbors':K,
@@ -385,13 +387,15 @@ def hclusterDiff(clone_df, pwmat, x_cols, count_col='count', test='chi2', min_n=
 
     Tests the 2 x 2 table for each clone:
 
-            Neighborhood
-             Y   N
-           ---------
-         1 | a | b |
-    VAR    |-------|
-         0 | c | d |
-           ---------
+    +----+----+-------+--------+
+    |         |  Neighborhood  |
+    |         +-------+--------+
+    |         | Y     |    N   |
+    +----+----+-------+--------+
+    |VAR |  1 | a     |    b   |
+    |    +----+-------+--------+
+    |    |  0 | c     |    d   |
+    +----+----+-------+--------+
 
     Use the chi-squared test (test='chi2') or logistic regression (test='logistic') to detect association across multiple variables.
     Note that with small clusters Chi-squared tests and logistic regression are unreliable. It is possible
@@ -400,7 +404,7 @@ def hclusterDiff(clone_df, pwmat, x_cols, count_col='count', test='chi2', min_n=
 
     Use the Cochran-Mantel-Haenszel test (test='chm') to test stratified 2 x 2 tables: one VAR vs. cluster, over sever strata
     defined in other variables. Use x_cols[0] as the primary (binary) variable and other x_cols for the categorical
-    strata-defining variables. This tests the overall null that OR = 1 for x_cols[0]. A test is also performed 
+    strata-defining variables. This tests the overall null that OR = 1 for x_cols[0]. A test is also performed
     for homogeneity of the ORs among the strata (Breslow-Day test).
 
     Params
@@ -467,7 +471,7 @@ def hclusterDiff(clone_df, pwmat, x_cols, count_col='count', test='chi2', min_n=
             not_m = [i for i in range(n) if not i in m]
             y = np.zeros(n)
             y[m] = 1
-            
+
             K = np.sum(y)
             if K >= min_n and K < (n-min_n):
                 R = np.max(pwmat[m, :][:, m])
@@ -486,7 +490,7 @@ def hclusterDiff(clone_df, pwmat, x_cols, count_col='count', test='chi2', min_n=
                         val = xvals
                     out.update({'x_val_%d' % i:val,
                                 'x_freq_%d' % i: counts.loc[xvals, 1] / counts.loc[xvals].sum()})
-                
+
                 out.update({'cid':cid,
                             'members_index':list(clone_df.index[m]),
                             'members_i':m,
