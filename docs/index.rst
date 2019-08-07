@@ -36,6 +36,7 @@ is particularly illustrative.
    Pairwise
    Processing
    Neighborhood
+   Plotting
    WhatIsNew
 
 

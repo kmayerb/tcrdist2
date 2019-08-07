@@ -180,7 +180,7 @@ def plot_pairings(cell_df, cols, count_col=None, use_color_gradients=True, other
     segments joining neighboring gene-stacks show how the two gene distributions pair up, with the thickness of the segments
     corresponding to the number of clones having those two segments (scaled by the indicated y-pixel scale).
 
-    Column names with format: VA or JB (for Valpha and Jbeta) will have the A, B, G, D replace with its greek character.
+    Column names with format: VA or JB (for Valpha and Jbeta) will have the A, B, G, D replaced with its greek character.
 
     Parameters
     ----------
