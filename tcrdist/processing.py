@@ -36,13 +36,13 @@ from functools import partial
     # compute_probs.rearrangementProb()
     # find_clones.findClones()
 
-from tcrdist import objects
-from tcrdist import blast
-from tcrdist import util
-from tcrdist import tcr_sampler   # added to include tcr_sampler in the namespace
-from tcrdist import translation   # added to include get_translation in the namespace
-from tcrdist import compute_probs # added to include rearrangementProb in the namespace
-from tcrdist import find_clones   # added to include findClones in the namespace
+from . import objects
+from . import blast
+from . import util
+from . import tcr_sampler   # added to include tcr_sampler in the namespace
+from . import translation   # added to include get_translation in the namespace
+from . import compute_probs # added to include rearrangementProb in the namespace
+from . import find_clones   # added to include findClones in the namespace
 
 # from .compute_probs import *   # This causes an fatal error, so turned off for intial testing
 # from .find_clones import findClones
