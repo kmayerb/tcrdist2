@@ -206,7 +206,7 @@ organism_chains_with_missing_probs = []
 try:
     all_trim_probs, all_trbd_nucseq, all_countrep_pseudoprobs, organism_chains_with_missing_probs = _process_probs_from_files()
 except:
-    logger.warning('Unable to load db with tcr probs')    
+    logger.warning('Unable to load db with tcr probs')
 
 def get_alpha_trim_probs( organism, v_trim, j_trim, vj_insert ):
     if (organism, 'A') in organism_chains_with_missing_probs:
@@ -227,6 +227,7 @@ def get_beta_trim_probs( organism, d_id, v_trim, d0_trim, d1_trim, j_trim, vd_in
     d_trim_tag = 'B_D{}_d01_trim'.format(d_id)
     total_prob = all_trim_probs[organism][d_trim_tag].get(dd, 0)
     #total_prob = trim_probs[d_trim_tag][dd] ## what about full trims?? will get an error
+    beta_prob_tags_single = ['v_trim', 'j_trim', 'vd_insert', 'dj_insert']
     for ( val, tag ) in zip( [v_trim, j_trim, vd_insert, dj_insert], beta_prob_tags_single ):
         probs = all_trim_probs[organism]['B_'+tag] ## a dictionary for beta (a list for alpha)
         if val not in probs:

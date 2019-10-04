@@ -362,7 +362,7 @@ def alpha_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protse
     else:
 
         for i in range( len(v_nucseq)):
-            i_aa = i/3 ## which aa do we code for?
+            i_aa = i//3 ## which aa do we code for?
             len_codon = (i%3) + 1
             if i_aa >= len(cdr3_protseq): break
             start = 3*i_aa
@@ -380,7 +380,7 @@ def alpha_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protse
 
         ## how about J?
         for i in range( len_j_nucseq):
-            i_aa = i/3 ## which aa do we code for?
+            i_aa = i//3 ## which aa do we code for?
             len_codon = (i%3) + 1
             if i_aa >= len(cdr3_protseq): break
             end   = len(j_nucseq)-3*i_aa
@@ -502,7 +502,7 @@ def beta_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protseq
     else:
         ## V
         for i in range( len(v_nucseq)):
-            i_aa = i/3 ## which aa do we code for?
+            i_aa = i//3 ## which aa do we code for?
             len_codon = (i%3) + 1
             if i_aa >= len(cdr3_protseq): break
             start = 3*i_aa
@@ -520,7 +520,7 @@ def beta_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protseq
 
         ## J
         for i in range( len_j_nucseq):
-            i_aa = i/3 ## which aa do we code for?
+            i_aa = i//3 ## which aa do we code for?
             len_codon = (i%3) + 1
             if i_aa >= len(cdr3_protseq): break
             end   = len(j_nucseq)-3*i_aa
@@ -704,7 +704,7 @@ def sample_alpha_sequences( organism, nsamples, v_gene, j_gene, force_aa_length 
         cdr3_len = v_nucseq_len + j_nucseq_len + n_insert - ( vtrim + jtrim )
 
         if in_frame_only and (cdr3_len%3 != 0): continue
-        if force_aa_length and force_aa_length != cdr3_len/3: continue
+        if force_aa_length and force_aa_length != cdr3_len//3: continue
 
         vj_insert = ''
         for i in range(n_insert): vj_insert += random.choice( bases )
@@ -715,7 +715,7 @@ def sample_alpha_sequences( organism, nsamples, v_gene, j_gene, force_aa_length 
 
         ## check for stop codons?
         protseq = ''
-        for i in range(cdr3_len/3):
+        for i in range(cdr3_len//3):
             protseq += genetic_code[ cdr3_seq[ 3*i : 3*i+3 ] ]
         if '*' in protseq and no_stop_codons:
             continue
@@ -802,7 +802,7 @@ def sample_beta_sequences( organism, nsamples, v_gene, j_gene, force_aa_length =
                    ( vtrim+jtrim+n_d0_trim+n_d1_trim )
 
         if in_frame_only and (cdr3_len%3 != 0): continue
-        if force_aa_length and force_aa_length != cdr3_len/3: continue
+        if force_aa_length and force_aa_length != cdr3_len//3: continue
 
         vd_insert = ''
         for i in range(n_vd_insert): vd_insert += random.choice( bases )
@@ -819,7 +819,7 @@ def sample_beta_sequences( organism, nsamples, v_gene, j_gene, force_aa_length =
 
         ## check for stop codons?
         protseq = ''
-        for i in range(cdr3_len/3):
+        for i in range(cdr3_len//3):
             protseq += genetic_code[ cdr3_seq[ 3*i : 3*i+3 ] ]
         if '*' in protseq and no_stop_codons:
             continue
@@ -853,4 +853,3 @@ def sample_tcr_sequences( organism, nsamples, v_gene, j_gene,
         return sample_beta_sequences( organism, nsamples, v_gene, j_gene, force_aa_length = force_aa_length,
                                       in_frame_only = in_frame_only, no_stop_codons = no_stop_codons,
                                       max_tries = max_tries, include_annotation = include_annotation )
-

@@ -26,16 +26,6 @@ from functools import partial
 # from .blast import parse_unpaired_dna_sequence_blastn, get_qualstring
 # from .objects import TCRChain, TCRClone
 
-    # INTERNAL NOTE
-    # for readability tcrdist2 embraces
-    # from tcrdist import module syntax
-    # inline calls to these functions are module.function(), if we want to change that later we can.
-    # examples:
-    # tcr_sampler.tcr_sampler()
-    # translation.get_translation()
-    # compute_probs.rearrangementProb()
-    # find_clones.findClones()
-
 from . import objects
 from . import blast
 from . import util
