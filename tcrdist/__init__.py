@@ -10,7 +10,7 @@ logging.basicConfig(filename='tcrdist.log',
 logger = logging.getLogger('__init__.py')
 logger.debug('Beginning package imports')
 
-from . import processing
+#from . import processing
 from .hello import *
 from .processing import processNT, computeProbs, samplerProb
 from .tcr_sampler import alpha_cdr3_protseq_probability, beta_cdr3_protseq_probability
