@@ -1,6 +1,6 @@
 futures==3.2.0
 matplotlib==1.4.3
-numpy==1.11
+numpy
 pandas==0.20.3
 parasail==1.1.16
 scikit-learn==0.17.1
