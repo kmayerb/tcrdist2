@@ -12,7 +12,8 @@ def install_nextgen_data_to_db(download_file = "new_nextgen_chains_mouse_A.tsv",
 
     Returns
     -------
-    installs to tcrdist/db/alphabeta_db.tsv_files/*
+    curl_url_cmd : string
+        the command for installing to tcrdist/db/alphabeta_db.tsv_files/*
 
     """
     if not isinstance(download_from, str):
@@ -28,6 +29,7 @@ def install_nextgen_data_to_db(download_file = "new_nextgen_chains_mouse_A.tsv",
                     "new_nextgen_chains_human_B.tsv" : 'https://www.dropbox.com/s/8ysciqrcywdsryp/new_nextgen_chains_human_B.tsv?dl=1'}
         if download_file not in address.keys():
             raise ValueError("download_file must be in {}".format(" ".join(map(str,address.keys))))
+
     # Where the file is to be installed
     path_file = os.path.realpath(__file__)
     path = os.path.dirname(path_file)
