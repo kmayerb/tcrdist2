@@ -8,6 +8,7 @@ test_data = [('new_nextgen_chains_mouse_A.tsv', 'https://www.dropbox.com/s/pkpr6
              ('new_nextgen_chains_human_B.tsv', 'https://www.dropbox.com/s/8ysciqrcywdsryp/new_nextgen_chains_human_B.tsv?dl=1', None)
          ]
 @tempSkip
+@pytest.mark.skipif("sys.platform == 'win32'")
 @pytest.mark.parametrize("input, expect, expected_error", test_data)
 def test_setub_db_nextgen_data_to_db(input, expect, expected_error):
     try:

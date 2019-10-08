@@ -149,7 +149,7 @@ def analyze_junction( organism, v_gene, j_gene, cdr3_protseq, cdr3_nucseq, force
     if num_matched_v + num_matched_j > len(cdr3_nucseq):
         ## some overlap!
         extra = num_matched_v + num_matched_j - len(cdr3_nucseq )
-        fake_v_trim = extra/2 ## now deterministic
+        fake_v_trim = extra//2 ## now deterministic
         fake_j_trim = extra - fake_v_trim
         num_matched_v -= fake_v_trim
         num_matched_j -= fake_j_trim
@@ -347,7 +347,7 @@ def alpha_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protse
                 ## some overlap!
                 extra = max_v + max_j - len(cdr3_nucseq )
                 #print 'TRIM extra',extra
-                fake_v_trim = extra/2 ## now dterministic
+                fake_v_trim = extra//2 ## now dterministic
                 fake_j_trim = extra - fake_v_trim
                 max_v -= fake_v_trim
                 max_j -= fake_j_trim
