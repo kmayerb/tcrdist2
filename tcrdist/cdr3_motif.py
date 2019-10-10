@@ -1,9 +1,12 @@
+# base python imports (e.g., os, sys)
 import os
 import sys
-
+# scientific python imports (e.g., numpy, pandas,)
+import pandas as pd
+# tcrdist specific imports
 from .paths import path_to_current_db_files
-from . import util
 from .all_genes import all_genes
+from . import util
 from . import find_cdr3_motifs_in_tcrdist2
 from . import setup_db
 
@@ -127,15 +130,27 @@ class TCRMotif():
     75.0
     """
     def __init__(self, clones_df, organism, chains, epitopes):
-
-        self.params= {}
+        """
+        Parameters
+        ----------
+        clones_df : DataFrame
+            must contain the following minimum set of headers
+            ['epitope','va_rep','ja_rep','vb_rep','jb_rep','cdr3a','cdr3b']
+        organism  : string
+            specifies the reference organism. e.g., "mouse", "human"
+        chains : list
+            list of strings specifying the TCR chains. e.g., ["A","B"]
+        epitopes
+            list of strings specifying the epitope(s) to consider e.g., ["PA"]
+        motifs_df : DataFrame
+            discovered motifs after successfully running self.find_cdr3_motifs()
+        """
 
         self.clones_df                = clones_df # provided by the dear-user
-        self.chain                    = "A"
-        self.chains                   = ['A', "B"]
-        self.organism                 = "mouse"
-        self.epitopes                 = ['PA']
-
+        #self.chain                    = #"A"
+        self.chains                   = chains    #['A',"B"]
+        self.organism                 = organism # "mouse"
+        self.epitopes                 = epitopes  #['PA']
 
         self.all_tcrs                 = None  # set by self.generate_all_tcrs()
         self.ng_tcrs                  = None  # set by self.generate_ng_tcrs()
@@ -171,6 +186,7 @@ class TCRMotif():
         self.pseudocount              = 0.0
 
         # set params to param dict which will be used as **kwargs
+        self.params= {}
         self._set_params()
         self.generate_all_tcrs() # This is the entire clones file
         self.generate_ng_tcrs()  # This is based on next gen sequence files
@@ -332,9 +348,9 @@ class TCRMotif():
 
                 num_chains += 1
 
-            ng_tcrs[ab] = ab_chains
-            self.ng_tcrs = ng_tcrs
-            return ng_tcrs
+                ng_tcrs[ab] = ab_chains
+        self.ng_tcrs = ng_tcrs
+        return ng_tcrs
 
 
     def _populate_all_tcrs_df_from_clones_df(self, clones_df, organism):

@@ -122,8 +122,10 @@ def get_j_cdr3_nucseq( organism, j_gene, paranoid = False ):
             # tmp.la_mc.whoah:whoah  5 act: c  97.8 exp: t   1.1 TRAJ24*01 TRAJ24*01 93
             # tmp.la_mc.whoah:whoah  6 act: t  98.9 exp: g   0.0 TRAJ24*01 TRAJ24*01 93
             # tmp.la_mc.whoah:whoah: expected: tgaactggccagtttggggaaactgcagttt consensus: gacaactgccagtttggggaaactgcagttt TRAJ24*01 93
-            assert j_nucseq == 'tgaactggccagtttggggaaactgcagttt'
-            j_nucseq         = 'gacaactgccagtttggggaaactgcagttt'
+            try:
+                assert j_nucseq == 'tgaactggccagtttggggaaactgcagttt'
+            except:
+                j_nucseq         = 'gacaactgccagtttggggaaactgcagttt'
             ## take the consensus
             ## given that there's an indel (and the alignment to the genome starts at j sequence position 3)
             ## it's hard to tell what to do at the beginning...

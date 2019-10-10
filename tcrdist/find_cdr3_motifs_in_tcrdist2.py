@@ -2,6 +2,7 @@ import os
 import sys
 import re
 import random
+import pandas as pd
 
 from .paths import path_to_current_db_files
 from . import util
@@ -20,7 +21,7 @@ def find_cdr3_motif(
             clones_file             = "/Users/kmayerbl/PycharmProjects/tcrdist2/tcrdist2to3/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv",
             organism                = "mouse",
             epitopes                = ['PA'],
-            chains                  = ['A'],
+            chains                  = ['A','B'],
             all_tcrs                = None,         # set by self.generate_all_tcrs()
             ng_tcrs                 = None,
             min_count               = 10,
@@ -313,10 +314,7 @@ def find_cdr3_motif(
                             if prog.search(seq):
                                 ng_count += 1
                         expected = float(random_count)/random_ratio
-                        try:
-                            ng_expected = float(ng_count)/ng_ratio # zero divison error occurs here. KMB - NEED TO FIND OUT WHY, THE EXCEPT IS A HACK FOR TESTING
-                        except ZeroDivisionError:
-                            ng_expected = float(ng_count)/0.000001
+                        ng_expected = float(ng_count)/ng_ratio
 
                         expected_for_chi_squared = max( max( min_expected, expected ), ng_expected )
                         chi_squared = (count-expected_for_chi_squared)**2/expected_for_chi_squared
