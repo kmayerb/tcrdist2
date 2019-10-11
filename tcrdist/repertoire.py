@@ -158,6 +158,18 @@ class TCRrep:
         self.clone_df = _deduplicate(self.cell_df, self.index_cols)
         return self
 
+    def tcr_motif_clones_df(self):
+        """
+        Use this function to create a clones_df input appropriate to TCRMotif.
+
+        It make use of a mapper to ensure proper columns and column names
+
+        Example
+        -------
+        TCRMotif(clones_df = TCRRep.tcr_motif_clones_df())
+        """
+        return _map_clone_df_to_TCRMotif_clone_df(self.clone_df)
+
     def infer_cdrs_from_v_gene(self, chain, imgt_aligned = False):
         """
         Function taking TCR v-gene name to infer the amino amino_acid
@@ -947,6 +959,52 @@ def _compute_pairwise(sequences, metric = "nw", processes = 2, user_function = N
     pw_full = pw_df.loc[sequences, sequences]
     pw_full_np = pw_full.values
     return(pw_full_np)
+
+def _map_clone_df_to_TCRMotif_clone_df(df):
+    """
+    Converts clone_df DataFrame used in tcrdist2 to the input clones_df
+    DataFrame required by TCRMotif().
+
+    Parameters
+    ----------
+    df : DataFrame
+        must contain columns ['subject','epitope', 'v_a_gene', 'j_a_gene',
+                              'v_b_gene', 'j_b_gene', 'cdr3_a_aa','cdr3_b_aa']
+
+    Returns
+    -------
+    df : DataFrame
+        modified DataFrame with subset and renamed columns
+
+    Example
+    -------
+    >>> df = pd.DataFrame([[1,2,3,4,5,6,7,8,9,10]],
+                        columns = [ 'subject','epitope',
+                                    'v_a_gene', 'j_a_gene',
+                                    'v_b_gene', 'j_b_gene',
+                                    'cdr3_a_aa','cdr3_b_aa',
+                                    'cdr2_a_aa', 'cdr2_b_aa'])
+    >>> print(_map_clone_df_to_TCRMotif_clone_df(df))
+        subject  epitope  va_rep  ja_rep  vb_rep  jb_rep  cdr3a  cdr3b
+    0        1        2       3       4       5       6      7      8
+    """
+    columns_conversion_dict =   {'subject'  : 'subject',
+                                 'epitope'  : 'epitope',
+                                 'v_a_gene' : 'va_rep',
+                                 'j_a_gene' : 'ja_rep',
+                                 'v_b_gene' : 'vb_rep',
+                                 'j_b_gene' : 'jb_rep',
+                                 'cdr3_a_aa': 'cdr3a',
+                                 'cdr3_b_aa': 'cdr3b' }
+
+    if not np.all([n in df.columns for n in columns_conversion_dict.keys()]):
+        missing = [n for n in columns_conversion_dict.keys() if n not in df.columns ]
+        raise KeyError("clone_df must have columns names: {}".format(" , ".join(missing)))
+
+    df = df[columns_conversion_dict.keys()]\
+        .rename(columns = columns_conversion_dict).copy()\
+
+    return(df)
 
 
 """

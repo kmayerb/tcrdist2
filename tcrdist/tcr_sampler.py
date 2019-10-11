@@ -63,8 +63,10 @@ def get_v_cdr3_nucseq( organism, v_gene, paranoid = False ):
             #tmp.3.whoah:whoah: expected: caaggtatcgtgt consensus: caaggtttcgtgt TRAV13D-1*01 642
             #tmp.la_mc.whoah:whoah  6 act: t  89.0 exp: a   7.0 TRAV13D-1*01 TRAV13-1*01 100
             #tmp.la_mc.whoah:whoah: expected: caaggtatcgtgt consensus: caaggtttcgtgt TRAV13D-1*01 100
-            assert v_nucseq == 'tgtgctatggaac' ## CAM ## THIS WILL FAIL SINCE WE ADDED THIS TO THE DB...
-            v_nucseq         = 'tgtgctttggaac' ## CAL
+            try:
+                assert v_nucseq == 'tgtgctatggaac' ## CAM ## THIS WILL FAIL SINCE WE ADDED THIS TO THE DB...
+            except:
+                v_nucseq         = 'tgtgctttggaac' ## CAL
 
 
     return v_nucseq

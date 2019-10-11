@@ -158,7 +158,7 @@ class TCRMotif():
 
         # Default Control Attributes
         self.min_count                = 10
-        self.max_ng_lines             = 10000
+        self.max_ng_lines             = 5000000 #100000 # Could be as high a 900,000, not sure what was used
         self.max_motif_len            = 100
         self.nsamples                 = 25
         self.min_expected             = .25
@@ -191,6 +191,13 @@ class TCRMotif():
         self.generate_all_tcrs() # This is the entire clones file
         self.generate_ng_tcrs()  # This is based on next gen sequence files
 
+    def __repr__(self):
+        def paste(l, sep = " "):
+            return sep.join(map(str,l))
+
+        return 'tcrdist.cdr3_motif.TCRMotif\n   epitopes: {}\n   organism: {}\n   chains: {}'.\
+                format(paste(self.epitopes), self.organism, paste(self.chains))
+
     def find_cdr3_motifs(self,
                          epitopes = None,
                          organism = None,
@@ -204,12 +211,15 @@ class TCRMotif():
             organism = self.organism
         if chains is None:
             chains = self.chains
-        if all_tcrs is None:
-            all_tcrs = self.all_tcrs
-        if ng_tcrs is None:
-            ng_tcrs  = self.ng_tcrs
 
         self._set_params() # makes sure that the latest params are used
+
+        if all_tcrs is None:
+            self.generate_all_tcrs() # This is done to ensure that new_params are used
+            all_tcrs = self.all_tcrs
+        if ng_tcrs is None:
+            self.generate_ng_tcrs()  # This is done to ensure that new_params are used
+            ng_tcrs  = self.ng_tcrs
 
         motifs_df = find_cdr3_motifs_in_tcrdist2.find_cdr3_motif(epitopes = epitopes,
                                                                 organism = organism,
