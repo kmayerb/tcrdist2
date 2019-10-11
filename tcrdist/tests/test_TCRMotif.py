@@ -1,13 +1,16 @@
 import pytest
 import pandas as pd
+import sys
 
 from tcrdist.cdr3_motif import TCRMotif
 
+@pytest.mark.skipif(sys.platform.startswith("win") or sys.platform.startswith("lin"), reason = "MAC ONLY TEST WITH FILES INSTALL")
 def test_TCRMotif_generates_all_tcrs():
     clones_df_test = pd.read_csv("mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv", sep="\t")
     motif = TCRMotif(clones_df = clones_df_test, organism = "mouse", chains = ["A","B"], epitopes =["PA"])
     assert isinstance(motif.all_tcrs, dict)
 
+@pytest.mark.skipif(sys.platform.startswith("win") or sys.platform.startswith("lin"), reason = "MAC ONLY TEST WITH FILES INSTALL")
 def test_TCRMotif_generates_ng_tcrs():
     clones_df_test = pd.read_csv("mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv", sep="\t")
     motif = TCRMotif(clones_df = clones_df_test, organism = "mouse", chains = ["A","B"], epitopes =["PA"])
@@ -15,6 +18,7 @@ def test_TCRMotif_generates_ng_tcrs():
     assert len(motif.ng_tcrs['B'].keys()) > 0
     assert len(motif.ng_tcrs['A'].keys()) > 0
 
+@pytest.mark.skipif(sys.platform.startswith("win") or sys.platform.startswith("lin"), reason = "MAC ONLY TEST WITH FILES INSTALL")
 def test_integration_TCRrep_with_TCRMotif():
     import pandas as pd
     import tcrdist as td
