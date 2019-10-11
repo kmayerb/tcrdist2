@@ -4,8 +4,8 @@ TCRMotif_Explained
 
 October 10, 2019
 
-`TCRMotif` is a tcrdist2 class for running the find_cdr3_motif_ from Dash et al. 
-in tcrdist2.
+`TCRMotif` is a tcrdist2 class for running the find_cdr3_motif_ algorithm
+from Dash et al. in tcrdist2.
 
 .. _find_cdr3_motif: https://github.com/phbradley/tcr-dist/blob/master/find_cdr3_motifs.py
 
