@@ -42,3 +42,10 @@ def install_nextgen_data_to_db(download_file = "new_nextgen_chains_mouse_A.tsv",
     print("RUNNING: {}\n".format(curl_url_cmd) )
     os.system(curl_url_cmd)
     return(curl_url_cmd)
+
+def install_all_next_gen():
+    for fn in ["new_nextgen_chains_mouse_A.tsv",
+                 "new_nextgen_chains_mouse_B.tsv" ,
+                 "new_nextgen_chains_human_A.tsv",
+                 "new_nextgen_chains_human_B.tsv" ]:
+        install_nextgen_data_to_db(fn)

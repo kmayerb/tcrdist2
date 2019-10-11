@@ -12,11 +12,6 @@ from . import tcr_sampler
 from .amino_acids import amino_acids
 from .all_genes import all_genes
 
-
-
-#from .parse_tsv import parse_tsv_line
-
-
 def find_cdr3_motif(
             clones_file             = "/Users/kmayerbl/PycharmProjects/tcrdist2/tcrdist2to3/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv",
             organism                = "mouse",
