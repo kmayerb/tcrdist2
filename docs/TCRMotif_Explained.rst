@@ -20,7 +20,7 @@ log-file.
 Using TCRMotif Directly on a Clones File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: ipython3
+.. code:: python
 
     import pandas as pd
     from tcrdist.cdr3_motif import TCRMotif
@@ -68,7 +68,7 @@ These can all be modified by directly changing the class attributes. e.g.,
 The updated parameters will be used at runtime ``TCRMotif.find_cdr3_motifs()``. e.g.,
 
 
-.. code:: ipython3
+.. code:: python
 
     import pandas as pd
     from tcrdist.cdr3_motif import TCRMotif
@@ -84,7 +84,7 @@ Combining TCRrep and TCRMotif
 TCRMotif can be combined with the tcrdist2 interface. Here is an example
 of a motif scan on data take from vdjDB
 
-.. code:: ipython3
+.. code:: python
 
     import pandas as pd
 
@@ -126,7 +126,7 @@ because its very time consuming, but here is an example for reference.
 Also note that identifyClones function may be more stringent compared
 with the deduplicate method in tcrdist2.
 
-.. code:: ipython3
+.. code:: python
 
     import pandas as pd
 
