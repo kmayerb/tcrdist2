@@ -141,3 +141,17 @@ with the deduplicate method in tcrdist2.
     clones_df.head()
     tm_ex = TCRMotif(clones_df = clones_df, organism = "mouse", chains = ["A","B"], epitopes = ["PA"])
     tm_ex.find_cdr3_motifs()
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+tcrdist.cdr3_motif
+~~~~~~~~~~~~~~~~~~
+
+.. automodule:: tcrdist.cdr3_motif
+
+.. autoclass:: TCRMotif
+    :members: find_cdr3_motifs, generate_all_tcrs, generate_ng_tcrs
+    :show-inheritance:
