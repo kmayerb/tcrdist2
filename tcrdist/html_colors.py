@@ -14,6 +14,24 @@ starter_colors = ['red',
                   'olive',
                   'maroon']
 
+COLOR_BREWER = False
+
+if COLOR_BREWER:
+    CB_RED    = cb_n12_paired[0]
+    CB_GREEN  = cb_n12_paired[1]
+    CB_BLUE   = cb_n12_paired[2]
+    CB_ORANGE = cb_n12_paired[3]
+    CB_PURPLE = cb_n12_paired[4]
+    CB_BROWN  = cb_n12_paired[5]
+else:
+    CB_RED    = 'red'
+    CB_GREEN  = 'green'
+    CB_BLUE   = 'blue'
+    CB_ORANGE = 'orange'
+    CB_PURPLE = 'purple'
+    CB_BROWN  = 'brown'
+
+
 
 colors_string = """AliceBlue 	#F0F8FF	 	Shades	Mix
 AntiqueWhite 	#FAEBD7	 	Shades	Mix
@@ -157,6 +175,9 @@ WhiteSmoke 	#F5F5F5	 	Shades	Mix
 Yellow 	#FFFF00	 	Shades	Mix
 YellowGreen 	#9ACD32	 	Shades	Mix"""
 
+
+
+
 def rgb_from_hex( hex ):
     assert hex[0] == '#' and len(hex)==7
     return ( int(hex[1:3], 16),
@@ -218,3 +239,93 @@ def get_html_colors(num, exclude_lights=True, rseed=2):
 
     return colors
 
+html_colors = []
+html_colors_no_whites = []
+html_colors_no_lights = []
+all_rgb = {}
+
+for line in colors_string.split('\n'):
+    l = line.split()
+    colorname = l[0].lower()
+    if colorname == 'rebeccapurple': continue ## matplotlib doesnt like this one...
+    hex = l[1]
+
+    r,g,b = rgb_from_hex( hex )
+
+    lowername = colorname.lower()
+    html_colors.append( lowername )
+    all_rgb[ lowername ] = (r,g,b)
+
+    avg_rgb= sum((r,g,b))/3.0
+
+
+    if 'white' not in lowername:
+        html_colors_no_whites.append( lowername )
+
+    if 'white' not in lowername and avg_rgb<210:
+        html_colors_no_lights.append( lowername )
+
+
+import random
+initial_random_state = random.getstate()
+
+random.seed(2)
+
+if COLOR_BREWER:
+
+    starter_colors = cb_n12_paired
+    starter_colors_rgbs = [ rgb_from_hex(x) for x in starter_colors ]
+
+    min_rgb_sum = min( ( sum(x) for x in starter_colors_rgbs ) )
+
+    for c,rgb in zip( starter_colors, starter_colors_rgbs ):
+        #print c, rgb in all_rgb.values()
+        all_rgb[c] = rgb
+
+    other_colors = [ x for x in html_colors_no_whites if all_rgb[x] not in starter_colors_rgbs and sum(all_rgb[x]) >= min_rgb_sum ]
+    other_colors_no_lights = [ x for x in html_colors_no_lights if all_rgb[x] not in starter_colors_rgbs and sum(all_rgb[x]) >= min_rgb_sum ]
+
+    print('min_rgb_sum:',min_rgb_sum,'other_colors:',len(other_colors),'other_colors_no_lights:',len(other_colors_no_lights))
+
+else:
+    starter_colors = ['red',
+                      'green',
+                      'blue',
+                      'cyan',
+                      'magenta',
+                      'black',
+                      'lime',
+                      'purple',
+                      'gold',
+                      'olive',
+                      'maroon',
+    ]
+    for c in starter_colors:
+        assert c in html_colors_no_whites
+
+    other_colors = [ x for x in html_colors_no_whites if x not in starter_colors ]
+    other_colors_no_lights = [ x for x in html_colors_no_lights if x not in starter_colors ]
+
+random.shuffle( other_colors )
+rank_colors = starter_colors + other_colors
+
+random.shuffle( other_colors_no_lights )
+rank_colors_no_lights = starter_colors + other_colors_no_lights
+
+random.setstate(initial_random_state)
+
+def get_rank_colors( num ):
+    n_rank_colors = len(rank_colors)
+    colors = []
+
+    for i in range( num ):
+        colors.append( rank_colors[ i%n_rank_colors ] )
+    return colors
+
+def get_rank_colors_no_lights( num ):
+    n_rank_colors = len(rank_colors_no_lights)
+    colors = []
+
+    for i in range( num ):
+        colors.append( rank_colors_no_lights[ i%n_rank_colors ] )
+    return colors

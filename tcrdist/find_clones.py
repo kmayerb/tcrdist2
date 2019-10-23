@@ -11,6 +11,36 @@ from . import logo_tools
 __all__ = ['findClones']
 
 def getAllTCRs(psDf):
+    """
+    Parameters
+    ----------
+    psDF : pd.DataFrame
+
+    Returns
+    -------
+
+    all_tcrs : dict
+        a mess of a dictionary of dictionaries keyed like as follows
+        key0: (epitope, subject)
+            key1: ('TRAV35*01', 'TRAJ42*01', 'TRBV12-3*01', 'TRBJ1-2*01', 'tgtgctgggcaagcaagccaaggaaatctcatcttt', 'tgtgccagcagtatacaggccctattgaccttc')
+                list[{key3}]
+        {tuple:{ hexduple: [[{}],[{}],  ] } }
+
+
+        [('pp65', 'human_subject0010')]
+            [('TRAV35*01', 'TRAJ42*01', 'TRBV12-3*01', 'TRBJ1-2*01', 'tgtgctgggcaagcaagccaaggaaatctcatcttt', 'tgtgccagcagtatacaggccctattgaccttc')]
+
+        dict_keys(['id', 'epitope', 'subject', 'va_gene', 'va_rep', 'va_mm', 'ja_gene', 'ja_rep', 'ja_mm', 'cdr3a_plus', 'va_evalue', 'ja_evalue', 'va_bitscore_gap', 'ja_bitscore_gap', 'a_status', 'a_good_hits', 'cdr3a', 'cdr3a_nucseq', 'cdr3a_quals', 'va_mismatches', 'ja_mismatches', 'va_alignlen', 'ja_alignlen', 'va_blast_hits', 'ja_blast_hits', 'va_genes', 'ja_genes', 'va_reps', 'ja_reps', 'va_countreps', 'ja_countreps', 'vb_gene', 'vb_rep', 'vb_mm', 'jb_gene', 'jb_rep', 'jb_mm', 'cdr3b_plus', 'vb_evalue', 'jb_evalue', 'vb_bitscore_gap', 'jb_bitscore_gap', 'b_status', 'b_good_hits', 'cdr3b', 'cdr3b_nucseq', 'cdr3b_quals', 'vb_mismatches', 'jb_mismatches', 'vb_alignlen', 'jb_alignlen', 'vb_blast_hits', 'jb_blast_hits', 'vb_genes', 'jb_genes', 'vb_reps', 'jb_reps', 'vb_countreps', 'jb_countreps', 'organism', 'TCRID', 'a_indels', 'a_nucseq_prob', 'a_protseq_prob', 'b_indels', 'b_nucseq_prob', 'b_protseq_prob', 'cdr3a_new_nucseq', 'cdr3a_protseq_masked', 'cdr3a_protseq_prob', 'cdr3b_new_nucseq', 'cdr3b_protseq_masked', 'cdr3b_protseq_prob', 'ja_rep_prob', 'jb_rep_prob', 'va_rep_prob', 'vb_rep_prob', 'cdr3a_min_qual', 'cdr3b_min_qual', 'cdr3_min_qual'])
+
+
+
+    Notes
+    -----
+    one of the reason this code is so cryptic is objects returned by functions like this!!!!!
+    all_tcrs could contain objects with attributed
+
+    """
+
     all_tcrs = {}
     for rowi, row in psDf.iterrows():
         l = row.to_dict()
@@ -28,7 +58,7 @@ def getAllTCRs(psDf):
         l['cdr3a_min_qual'] = min( [int(x) for x in l['cdr3a_quals'].split('.') ] )
         l['cdr3b_min_qual'] = min( [int(x) for x in l['cdr3b_quals'].split('.') ] )
         l['cdr3_min_qual'] = min( l['cdr3a_min_qual'], l['cdr3b_min_qual'] )
-        
+
         genesets = []
         for ab in 'ab':
             for vj in 'vj':
@@ -57,6 +87,19 @@ def count_mismatches( a, b):
     return mismatches
 
 def get_common_genes( tcrs ):
+    """
+    Parameters
+    ----------
+    tcrs :
+
+    Returns
+    -------
+    all_genesets
+
+    Notes
+    -----
+    Causing trouble with parasail: attempting to document
+    """
     all_genesets = []
     first_genesets = tcrs[0][1]
     for ii in range(4):
@@ -74,9 +117,9 @@ def get_common_genes( tcrs ):
 def findClones(psDf, min_quality_for_singletons=20, average_clone_scores=False, none_score_for_averaging=9.6):
     segtypes_lowercase = ['va', 'ja', 'vb', 'jb']
     organism = psDf.organism.iloc[0]
-    
+
     all_tcrs = getAllTCRs(psDf)
-    
+
     total_clones, skipcount = (0, 0)
     for em in all_tcrs:
         nbrs = {}
@@ -185,7 +228,7 @@ def findClones(psDf, min_quality_for_singletons=20, average_clone_scores=False, 
                         minq_size = len(all_tcrs[em][t1]) if q1<q2 else len(all_tcrs[em][t2])
                         min_size = min( len(all_tcrs[em][t1]), len(all_tcrs[em][t2]) )
 
-                        
+
                         tmp = 'merge1: {:2d} {} {} {:2d} {} {} {}'\
                                  .format( q1, mismatches, new_mismatches, len(all_tcrs[em][t1]),
                                          cdr3_nucseq_prob1, new_nucseq1, ' '.join(t1[:4]) )
@@ -284,7 +327,7 @@ def findClones(psDf, min_quality_for_singletons=20, average_clone_scores=False, 
 
             outl['members'] = ';'.join(members)
             outl['clone_size'] = clone_size
-            
+
             if average_clone_scores:
                 for tsvtag in average_clone_scores:
                     scores = []

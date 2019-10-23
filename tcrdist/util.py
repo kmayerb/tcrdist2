@@ -4,6 +4,8 @@ import logging
 
 from .all_genes import all_genes
 from . import cdr3s_human
+from . import basic
+from . import html_colors
 
 logger = logging.getLogger('util.py')
 
@@ -166,7 +168,7 @@ def assign_label_reps_and_colors_based_on_most_common_genes_in_repertoire( tcr_i
     ## assumes that each element of tcr_infos is a dictionary with fields that would have come from parse_tsv_line
     ## uses the *_countreps info that was filled in by read_pair_seqs.py
     ## the _label_rep* fields get over-written if they were present
-    for segtype in segtypes_lowercase:
+    for segtype in basic.segtypes_lowercase:
         countreps_tag = segtype+'_countreps'
         rep_tag       = segtype+'_label_rep'
         color_tag     = segtype+'_label_rep_color' ## where we will store the rep info

@@ -42,6 +42,25 @@ aa_charge['E'] = -1.0
 aa_charge['X'] = 0.0
 
 
+groups = dict( zip( amino_acids, amino_acids ) )
+
+groups['k'] = '[KR]'
+groups['d'] = '[DE]'
+groups['n'] = '[NQ]'
+groups['s'] = '[ST]'
+groups['f'] = '[FYWH]'
+groups['a'] = '[AGSP]'
+groups['v'] = '[VILM]'
+
+begin = '^'
+end = '$'
+X = '[A-Z]'
+dot = '.'
+
+groups[begin] = begin
+groups[end  ] = end
+groups[dot] = X
+
 if __name__ == '__main__':
 
     ## covariation between different HP scales
@@ -58,4 +77,3 @@ if __name__ == '__main__':
     print(('r_ges_kd:', r_ges_kd))
     print(('r_ges_hp:', r_ges_hp))
     print(('r_kd_hp:', r_kd_hp))
-

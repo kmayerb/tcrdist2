@@ -19,8 +19,8 @@ import warnings
 tcrdist_to_tcrdist2_mapping = OrderedDict([('id', 'id'),
                                            ('epitope', 'epitope'),
                                            ('subject', 'subject'),
-                                           ('cdr3a', 'cdr3_a_aa'),
-                                           ('cdr3b', 'cdr3_b_aa'),
+                                           ('cdr3a'  , 'cdr3_a_aa'),
+                                           ('cdr3b'  , 'cdr3_b_aa'),
                                            ('ja_gene', 'j_a_gene'),
                                            ('va_gene', 'v_a_gene'),
                                            ('jb_gene', 'j_b_gene'),
@@ -64,7 +64,85 @@ vdjdb_to_tcrdist2_mapping_TRB = OrderedDict([('complex.id', 'complex_id'),
                                         ('Score', 'score')])
 
 
+tcrdist_clone_df_to_tcrdist2_mapping = OrderedDict([ ('clone_id'  , 'clone_id' ),
+                                                     ('subject'   , 'subject'  ),
+                                                     ('cdr3a'     , 'cdr3_a_aa'),
+                                                     ('cdr3b'     , 'cdr3_b_aa'),
+                                                     ('clone_size', 'count'    ),
+                                                     ('epitope'   , 'epitope'  ),
+                                                     ('ja_rep'    , 'j_a_gene' ),
+                                                     ('jb_rep'    , 'j_b_gene' ),
+                                                     ('subject'   , 'subject'  ),
+                                                     ('va_rep'    , 'v_a_gene' ),
+                                                     ('vb_rep'    , 'v_b_gene' ),
+                                                     ('cdr3a_nucseq', 'cdr3_a_nucseq'),
+                                                     ('cdr3b_nucseq', 'cdr3_b_nucseq'),
+                                                     ('va_countreps', 'va_countreps'),
+                                                     ('ja_countreps', 'ja_countreps'),
+                                                     ('vb_countreps', 'vb_countreps'),
+                                                     ('jb_countreps', 'jb_countreps'),
+                                                     ('va_gene'     , 'va_gene'),
+                                                     ('ja_gene'     , 'ja_gene'),
+                                                     ('vb_gene'     , 'vb_gene'),
+                                                     ('jb_gene'     , 'jb_gene')])
 
+
+tcrdist2_to_tcrdist_clone_df_mapping = OrderedDict([('clone_id', 'clone_id'),
+                                                     ('subject', 'subject'),
+                                                     ('cdr3_a_aa', 'cdr3a'),
+                                                     ('cdr3_b_aa', 'cdr3b'),
+                                                     ('count', 'clone_size'),
+                                                     ('epitope', 'epitope'),
+                                                     ('j_a_gene', 'ja_rep'),
+                                                     ('j_b_gene', 'jb_rep'),
+                                                     ('v_a_gene', 'va_rep'),
+                                                     ('v_b_gene', 'vb_rep'),
+                                                     ('cdr3_a_nucseq', 'cdr3a_nucseq'),
+                                                     ('cdr3_b_nucseq', 'cdr3b_nucseq'),
+                                                     ('va_countreps', 'va_countreps'),
+                                                     ('ja_countreps', 'ja_countreps'),
+                                                     ('vb_countreps', 'vb_countreps'),
+                                                     ('jb_countreps', 'jb_countreps'),
+                                                     ('va_gene'     , 'va_gene'),
+                                                     ('ja_gene'     , 'ja_gene'),
+                                                     ('vb_gene'     , 'vb_gene'),
+                                                     ('jb_gene'     , 'jb_gene')])
+
+
+def generic_pandas_mapper(df,mapping):
+    """
+    Parameters
+    ----------
+    df : DataFrame
+        Input DataFrame
+    mapping : OrderedDict
+        defines columns to select and rename
+
+    Returns
+    -------
+    df2 : DataFrame
+        Renamed DataFrame
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from collections import OrderedDict
+    >>> df = pd.DataFrame({"a":[1,2],"b":[3,4]})
+    >>> mapper = OrderedDict([('a', 'ardvark')])
+    >>> generic_pandas_mapping(df, mapper)
+           ardvark
+    0        1
+    1        2
+    """
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("df must be a Pandas DataFrame")
+    if not isinstance(mapping, OrderedDict):
+        raise TypeError('mapping must be and OrderedDict')
+    if not all([elem in df.keys() for elem in list(mapping.keys())]):
+        raise KeyError('all mapping keys must be columns of input df')
+
+    df2 = df[mapping.keys()].rename(columns = mapping).copy()
+    return(df2)
 
 def vdjdb_to_tcrdist2(pd_df):
     """

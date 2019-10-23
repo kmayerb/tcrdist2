@@ -102,8 +102,10 @@ def get_j_cdr3_nucseq( organism, j_gene, paranoid = False ):
             # tmp.la_mc.whoah:whoah  2 act: g  79.6 exp: c   5.3 TRAJ47*01 TRAJ47*01 113
             # tmp.la_mc.whoah:whoah 24 act: t  99.1 exp: g   0.9 TRAJ47*01 TRAJ47*01 113
             # tmp.la_mc.whoah:whoah: expected: tgcactatgcaaacaagatgatctgt consensus: tggactatgcaaacaagatgatcttt TRAJ47*01 113
-            assert j_nucseq == 'tgcactatgcaaacaagatgatctgt' ## C at end
-            j_nucseq         = 'tggactatgcaaacaagatgatcttt' ## F at end
+            try:
+                assert j_nucseq == 'tgcactatgcaaacaagatgatctgt' ## C at end
+            except:    
+                j_nucseq         = 'tggactatgcaaacaagatgatcttt' ## F at end
         elif j_gene == 'TRAJ24*01':
             # -----------------------------------
             # ../../../tmp.blat:unaligned: J 0 TRAJ24*01

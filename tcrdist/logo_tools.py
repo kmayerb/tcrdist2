@@ -1,7 +1,7 @@
 import sys
 import logging
 
-from .amino_acids import amino_acids
+from . import amino_acids
 
 logger = logging.getLogger('logo_tools.py')
 
@@ -94,4 +94,3 @@ def reverse_complement( seq ):
         newseq += base_partner[ seq[ pos ] ]
     assert len( newseq ) == L
     return newseq
-
