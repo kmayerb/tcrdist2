@@ -16,7 +16,6 @@ def test_StoreIO_init__with_no_args():
     assert S.c is None
     assert S.d is None
 
-
 def test_StoreIO_init__with_complete_args():
     """
     test that StoreIO can be initialized with all valid args
@@ -225,26 +224,26 @@ def test_StoreIO_type_coerce():
     S._type_coerce("a", S.valid_attrs_type[0])
     assert isinstance(S.a, int)
 
-def test_StoreIO_coerce_attributes():
+def test_StoreIO_coerce_attrs():
     abcd = namedtuple('abcd', ['a','b','c','d'])
     x = abcd('1','2','3','4')
     S = StoreIO(**x._asdict())
-    assert S._coerce_attributes()
+    assert S._coerce_attrs()
 
-def test_StoreIO_coerce_attributes_then_validate_attrs():
+def test_StoreIO_coerce_attrs_then_validate_attrs():
     abcd = namedtuple('abcd', ['a','b','c','d'])
     x = abcd('1','2','3','4')
     S = StoreIO(**x._asdict())
-    S._coerce_attributes()
+    S._coerce_attrs()
     assert S._validate_attrs()
 
-def test_StoreIO_coerce_attributes_then_validate_attrs__with_partial_set():
+def test_StoreIO_coerce_attrs_then_validate_attrs__with_partial_set():
     abc = namedtuple('abc', ['a','b','c'])
     x = abc('1','2','3')
     S = StoreIO(**x._asdict())
     assert isinstance(S.a, str)
     assert isinstance(S.c, str)
-    S._coerce_attributes()
+    S._coerce_attrs()
     assert isinstance(S.a, int)
     assert isinstance(S.c, int)
     assert S._validate_attrs()
@@ -254,7 +253,7 @@ def test_StoreIO_coerce__raises_custom_ValueError_if_coercion_is_impossible():
     x = abcd('A','B','C','D')
     S = StoreIO(**x._asdict())
     with pytest.raises(ValueError) as excinfo:
-        S._coerce_attributes()
+        S._coerce_attrs()
     assert str(excinfo.value) == "Cannot coerce StoreIO.a to <class 'int'>"
 
 def test_StoreIO_coerce__raises_custom_ValueError_to_prevent_float_to_int_coercion():
@@ -263,7 +262,7 @@ def test_StoreIO_coerce__raises_custom_ValueError_to_prevent_float_to_int_coerci
     S = StoreIO(**x._asdict())
     #with pytest.raises(ValueError) as excinfo:
     with pytest.raises(ValueError):
-        S._coerce_attributes()
+        S._coerce_attrs()
 
 def test_StoreIOMotif_init():
     StoreIOMotif_instance = StoreIOMotif()
@@ -341,7 +340,7 @@ def test_StoreIOMotif_successfully_coerces_types_from_string_inputs():
     assert isinstance(StoreIOMotif_instance.nseqs          , str)
     assert isinstance(StoreIOMotif_instance.v_rep_counts   , str)
     assert isinstance(StoreIOMotif_instance.j_rep_counts   , str)
-    assert StoreIOMotif_instance._coerce_attributes()
+    assert StoreIOMotif_instance._coerce_attrs()
     assert StoreIOMotif_instance._validate_attrs()
     assert isinstance(StoreIOMotif_instance.count          , int)
     assert isinstance(StoreIOMotif_instance.expect_random  , float)
@@ -357,10 +356,6 @@ def test_StoreIOMotif_successfully_coerces_types_from_string_inputs():
     assert isinstance(StoreIOMotif_instance.nseqs          , int)
     assert isinstance(StoreIOMotif_instance.v_rep_counts   , str)
     assert isinstance(StoreIOMotif_instance.j_rep_counts   , str)
-
-
-
-
 
 def test_StoreIOEntropy_init():
     StoreIOEntropy_instance = StoreIOEntropy()

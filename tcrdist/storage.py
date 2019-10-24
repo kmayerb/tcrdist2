@@ -87,7 +87,7 @@ class StoreIO():
         else:
             return True
 
-    def _coerce_attributes(self):
+    def _coerce_attrs(self):
         """
         Attempts to coerce all attributes to valid type with calls to
         self._type_coerce
@@ -241,7 +241,7 @@ class StoreIOEntropy(StoreIO):
 
     Attributes
     ----------
-    ? Phil Bradley Please Describe  
+    ? Phil Bradley Please Describe
 
     pwm             : dict
         position-wise matrix
