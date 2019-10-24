@@ -1,5 +1,7 @@
 class StoreIO():
     """
+    StoreIO
+
     Parent class for passing multiple objects between tcrdist2 functions.
     Attributes are init, set, or modified with keyword arguments.
     """
@@ -142,67 +144,151 @@ class StoreIO():
                 raise ValueError("Cannot coerce {}.{} to {}".\
                                  format(self.name, attr_name, attr_correct_type))
 
-v_attrs_motif = ["file_type",
-           "count",
-           "expect_random",
-           "expect_nextgen",
-           "chi_squared",
-           "nfixed",
-           "showmotif",
-           "num",
-           "othernum",
-           "overlap",
-           "ep",
-           "ab",
-           "nseqs",
-           "v_rep_counts",
-           "j_rep_counts"]
 
 # Create a Storage Class with names matching the dataframe
 class StoreIOMotif(StoreIO):
     """
+    StoreIOMotif(StoreIO)
+
+    Attributes
+    ----------
+    file_type      : str
+        string indicating this came from a MOTIF file
+    count          : int
+        ? Phil Bradley Please Describe
+    expect_random  : float
+        ? Phil Bradley Please Describe
+    expect_nextgen : float
+        ? Phil Bradley Please Describe
+    chi_squared    : float
+        statistic with higher values indicating enrichment of motif in TCR
+        subset relative to the next-gen non-epitope specific reference
+    nfixed         : int
+        ? Phil Bradley Please Describe
+    showmotif      : str
+        e.g, 'ALG.G...kvsf' to be ['A', 'L', 'G', '.', 'G', '.', '.', '.', 'k', 'v', 's', 'f']
+    num            : int
+        ? Phil Bradley Please Describe - number of motif in motif list
+    othernum       : int
+        ? Phil Bradley Please Describe
+    overlap        : int
+        ? Phil Bradley Please Describe - the number of TCRs overlapping with the motif
+    ep             : str
+        epitope recognized by the subset
+    ab             : str
+        chain of the TCR for the motif
+    nseqs          : int
+        number of seqs or clone sequences in the TCR subset
+    v_rep_counts   : str
+        e.g, 'TRAV6D-6*01:23,TRAV6D-6*03:1'
+    j_rep_counts   : str
+        e.g., 'TRAJ53*01:21,TRAJ56*01:2,TRAJ9*02:1'
+
+
+    Note
+    ----
+    The primary attributes of StoreIOMotif come from a motifs file or DataFrame.
+    See tcrdist.TCRMotif.find_cdr3()
+
+    These attributes are added by tcrdist.subset.analyze_motif()
+
+    showmotif              : list
+    vl_nbr                 : list
+    jl_nbr                 : list
+    vl                     : list
+    jl                     : list
+    matches                : list
+    nbr_matches            : list
+    matched_tcrs_plus_nbrs : list
+    matched_tcrs           : list
 
     """
     def __init__(self, **kwargs):
         self.name = 'StoreIOMotif'
+        v_attrs_motif = [  "file_type",
+                           "count",
+                           "expect_random",
+                           "expect_nextgen",
+                           "chi_squared",
+                           "nfixed",
+                           "showmotif",
+                           "num",
+                           "othernum",
+                           "overlap",
+                           "ep",
+                           "ab",
+                           "nseqs",
+                           "v_rep_counts",
+                           "j_rep_counts"]
         self.valid_attrs = v_attrs_motif
+        self.valid_attrs_type = [str,int,float,float,float,
+                                 int,str,int,int,int,
+                                 str,str,int,str,str]
         # sets all valid attributes to None
         [setattr(self, k, None) for k in self.valid_attrs ]
         # updates attributes based on supplied keyword arguments
         [setattr(self, k, v) for k, v in kwargs.items() if k in self.valid_attrs]
 
 
-v_attrs_entropy = [ "pwm",
-                "npwm",
-                "ng_lenpwm",
-                "ng_fwdpwm",
-                "ng_revpwm",
-                "fwdpwm",
-                "revpwm",
-                "scale_by_relent",
-                "ng_fwdseq_reps",
-                "ng_lenseq_reps",
-                "num_ng_lenseqs",
-                "num_ng_fwdseqs"]
+
 
 class StoreIOEntropy(StoreIO):
     """
+    StoreIOEntropy(StoreIO)
+
     Class to recieve the complicated output tuple
     from tcrdist.subset.analyze_matches_using_ngseqs()
 
+    Attributes
+    ----------
+    ? Phil Bradley Please Describe  
+
+    pwm             : dict
+        position-wise matrix
+    npwm            : dict
+        nucleotide_source for the position-wise-matrix
+    ng_lenpwm       : dict
+        ng (next-gen) pwm
+    ng_fwdpwm       : dict
+        ng (next-gen) calculated in the forward direction
+    ng_revpwm       : dict
+        ng (next-gen) calculated in the reverse direction
+    fwdpwm          : dict
+        forward position-wise-matrix
+    revpwm          : dict
+        reverse position-wise-matrix
+    scale_by_relent : dict
+        scale by relative entropy between rep and next-gen background
+    ng_fwdseq_reps  : list
+        representatives from next-gen forward
+    ng_lenseq_reps  : list
+        representatives from next-gen reverse
+    num_ng_lenseqs  : int
+        number of next-gen seqs
+    num_ng_fwdseqs  : int
+        number of next-gen forward seqs
+
     Notes
     -----
-    use positional arguments to initialize
-
-    >>> r = analyze_matches_using_ngseqs()
-    >>> for i,t in enumerate([dict, dict, dict, dict, dict, dict, dict, dict, list, list, int, int]):
-    ...    assert isinstance(r[i], t)
-    >>> es = EntropyStack(**r1)
-
+    The attributes here are used directly for making entropy-aware motif logos
     """
     def __init__(self, **kwargs):
         self.name = 'StoreIOEntropy'
+        v_attrs_entropy = [ "pwm",
+                            "npwm",
+                            "ng_lenpwm",
+                            "ng_fwdpwm",
+                            "ng_revpwm",
+                            "fwdpwm",
+                            "revpwm",
+                            "scale_by_relent",
+                            "ng_fwdseq_reps",
+                            "ng_lenseq_reps",
+                            "num_ng_lenseqs",
+                            "num_ng_fwdseqs"]
         self.valid_attrs = v_attrs_entropy
+        self.valid_attrs_type = [dict, dict, dict, dict, dict, dict, dict, dict,
+                                list, list, int, int]
         # sets all valid attributes to None
         [setattr(self, k, None) for k in self.valid_attrs ]
         # updates attributes based on supplied keyword arguments

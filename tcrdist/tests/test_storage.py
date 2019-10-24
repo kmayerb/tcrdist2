@@ -1,5 +1,5 @@
 import pytest
-from tcrdist.storage import StoreIO
+from tcrdist.storage import StoreIO, StoreIOMotif, StoreIOEntropy
 from collections import namedtuple
 
 def test_StoreIO_init__with_no_args():
@@ -159,7 +159,6 @@ def test_StoreIO_set_attrs_with_extra_kwargs__validation_set_to_False():
     assert isinstance(S.d, int)
     assert isinstance(S.e, int)
 
-
 def test_StoreIO_set_attrs_with_extra_kwargs__validation_set_to_True():
     """
     set_attrs_with_kwargs() accepts dict and updates attributes
@@ -198,7 +197,6 @@ def test_StoreIO_set_attrs_with_kwargs__validate_kwargs_option_defaults_to_True(
     assert isinstance(S.c, int)
     assert isinstance(S.d, int)
 
-
 def test_StoreIO_extra_kwargs__does_not_interfere_with_validate_attrs():
     """
     set_attrs_with_kwargs() accepts dict and updates attributes
@@ -226,7 +224,6 @@ def test_StoreIO_type_coerce():
     assert isinstance(S.a, str)
     S._type_coerce("a", S.valid_attrs_type[0])
     assert isinstance(S.a, int)
-
 
 def test_StoreIO_coerce_attributes():
     abcd = namedtuple('abcd', ['a','b','c','d'])
@@ -265,6 +262,106 @@ def test_StoreIO_coerce__raises_custom_ValueError_to_prevent_float_to_int_coerci
     x = abcd("1",1.5,"2",'3')
     S = StoreIO(**x._asdict())
     #with pytest.raises(ValueError) as excinfo:
-    S._coerce_attributes()
+    with pytest.raises(ValueError):
+        S._coerce_attributes()
 
-    ##assert str(excinfo.value) == "Cannot coerce StoreIO.a to <class 'int'>"
+def test_StoreIOMotif_init():
+    StoreIOMotif_instance = StoreIOMotif()
+    assert isinstance(StoreIOMotif_instance, StoreIOMotif)
+
+def test_StoreIOMotif_init_with_line_of_motif_file():
+    motif_line = ['MOTIF', '29', '0.0000', '0.2863', '2879.9', '8', '^.ALGaGaN', '1', '1', '0', 'PA', 'A', '324', 'TRAV6D-6*01:28,TRAV6D-6*03:1', 'TRAJ53*01:18,TRAJ33*01:6,TRAJ6*01:2']
+    motif_line_as_dict = {'file_type': 'MOTIF',
+                         'count': '29',
+                         'expect_random': '0.0000',
+                         'expect_nextgen': '0.2863',
+                         'chi_squared': '2879.9',
+                         'nfixed': '8',
+                         'showmotif': '^.ALGaGaN',
+                         'num': '1',
+                         'othernum': '1',
+                         'overlap': '0',
+                         'ep': 'PA',
+                         'ab': 'A',
+                         'nseqs': '324',
+                         'v_rep_counts': 'TRAV6D-6*01:28,TRAV6D-6*03:1',
+                         'j_rep_counts': 'TRAJ53*01:18,TRAJ33*01:6,TRAJ6*01:2'}
+    StoreIOMotif_instance = StoreIOMotif(**motif_line_as_dict)
+
+def test_StoreIOMotif_fails_to_validate_type_from_string_inputs():
+    motif_line = ['MOTIF', '29', '0.0000', '0.2863', '2879.9', '8', '^.ALGaGaN', '1', '1', '0', 'PA', 'A', '324', 'TRAV6D-6*01:28,TRAV6D-6*03:1', 'TRAJ53*01:18,TRAJ33*01:6,TRAJ6*01:2']
+    motif_line_as_dict = {'file_type': 'MOTIF',
+                         'count': '29',
+                         'expect_random': '0.0000',
+                         'expect_nextgen': '0.2863',
+                         'chi_squared': '2879.9',
+                         'nfixed': '8',
+                         'showmotif': '^.ALGaGaN',
+                         'num': '1',
+                         'othernum': '1',
+                         'overlap': '0',
+                         'ep': 'PA',
+                         'ab': 'A',
+                         'nseqs': '324',
+                         'v_rep_counts': 'TRAV6D-6*01:28,TRAV6D-6*03:1',
+                         'j_rep_counts': 'TRAJ53*01:18,TRAJ33*01:6,TRAJ6*01:2'}
+    StoreIOMotif_instance = StoreIOMotif(**motif_line_as_dict)
+    with pytest.raises(TypeError):
+        StoreIOMotif_instance._validate_attrs()
+
+def test_StoreIOMotif_successfully_coerces_types_from_string_inputs():
+    motif_line = ['MOTIF', '29', '0.0000', '0.2863', '2879.9', '8', '^.ALGaGaN', '1', '1', '0', 'PA', 'A', '324', 'TRAV6D-6*01:28,TRAV6D-6*03:1', 'TRAJ53*01:18,TRAJ33*01:6,TRAJ6*01:2']
+    motif_line_as_dict = {'file_type': 'MOTIF',
+                         'count': '29',
+                         'expect_random': '0.0000',
+                         'expect_nextgen': '0.2863',
+                         'chi_squared': '2879.9',
+                         'nfixed': '8',
+                         'showmotif': '^.ALGaGaN',
+                         'num': '1',
+                         'othernum': '1',
+                         'overlap': '0',
+                         'ep': 'PA',
+                         'ab': 'A',
+                         'nseqs': '324',
+                         'v_rep_counts': 'TRAV6D-6*01:28,TRAV6D-6*03:1',
+                         'j_rep_counts': 'TRAJ53*01:18,TRAJ33*01:6,TRAJ6*01:2'}
+    StoreIOMotif_instance = StoreIOMotif(**motif_line_as_dict)
+    assert isinstance(StoreIOMotif_instance.count          , str)
+    assert isinstance(StoreIOMotif_instance.expect_random  , str)
+    assert isinstance(StoreIOMotif_instance.expect_nextgen , str)
+    assert isinstance(StoreIOMotif_instance.chi_squared    , str)
+    assert isinstance(StoreIOMotif_instance.nfixed         , str)
+    assert isinstance(StoreIOMotif_instance.showmotif      , str)
+    assert isinstance(StoreIOMotif_instance.num            , str)
+    assert isinstance(StoreIOMotif_instance.othernum       , str)
+    assert isinstance(StoreIOMotif_instance.overlap        , str)
+    assert isinstance(StoreIOMotif_instance.ep             , str)
+    assert isinstance(StoreIOMotif_instance.ab             , str)
+    assert isinstance(StoreIOMotif_instance.nseqs          , str)
+    assert isinstance(StoreIOMotif_instance.v_rep_counts   , str)
+    assert isinstance(StoreIOMotif_instance.j_rep_counts   , str)
+    assert StoreIOMotif_instance._coerce_attributes()
+    assert StoreIOMotif_instance._validate_attrs()
+    assert isinstance(StoreIOMotif_instance.count          , int)
+    assert isinstance(StoreIOMotif_instance.expect_random  , float)
+    assert isinstance(StoreIOMotif_instance.expect_nextgen , float)
+    assert isinstance(StoreIOMotif_instance.chi_squared    , float)
+    assert isinstance(StoreIOMotif_instance.nfixed         , int)
+    assert isinstance(StoreIOMotif_instance.showmotif      , str)
+    assert isinstance(StoreIOMotif_instance.num            , int)
+    assert isinstance(StoreIOMotif_instance.othernum       , int)
+    assert isinstance(StoreIOMotif_instance.overlap        , int)
+    assert isinstance(StoreIOMotif_instance.ep             , str)
+    assert isinstance(StoreIOMotif_instance.ab             , str)
+    assert isinstance(StoreIOMotif_instance.nseqs          , int)
+    assert isinstance(StoreIOMotif_instance.v_rep_counts   , str)
+    assert isinstance(StoreIOMotif_instance.j_rep_counts   , str)
+
+
+
+
+
+def test_StoreIOEntropy_init():
+    StoreIOEntropy_instance = StoreIOEntropy()
+    assert isinstance(StoreIOEntropy_instance, StoreIOEntropy)
