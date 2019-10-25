@@ -108,6 +108,24 @@ tcrdist2_to_tcrdist_clone_df_mapping = OrderedDict([('clone_id', 'clone_id'),
                                                      ('vb_gene'     , 'vb_gene'),
                                                      ('jb_gene'     , 'jb_gene')])
 
+TCRrep_clone_df_to_TCRMotif_clone_df =OrderedDict([ ('subject'   , 'subject'),
+                                                    ('epitope'  , 'epitope'),
+                                                    ('v_a_gene' , 'va_rep'),
+                                                    ('j_a_gene' , 'ja_rep'),
+                                                    ('v_b_gene' , 'vb_rep'),
+                                                    ('j_b_gene' , 'jb_rep'),
+                                                    ('cdr3_a_aa', 'cdr3a'),
+                                                    ('cdr3_b_aa', 'cdr3b' ) ])
+
+TCRsubset_clone_df_to_TCRMotif_clone_df  = OrderedDict([('subject', 'subject'),
+                                                        ('epitope', 'epitope'),
+                                                        ('v_a_gene', 'va_rep'),
+                                                        ('j_a_gene', 'ja_rep'),
+                                                        ('v_b_gene', 'vb_rep'),
+                                                        ('j_b_gene', 'jb_rep'),
+                                                        ('cdr3_a_aa', 'cdr3a'),
+                                                        ('cdr3_b_aa', 'cdr3b')])
+
 
 def generic_pandas_mapper(df,mapping):
     """

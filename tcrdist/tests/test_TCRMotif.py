@@ -2,6 +2,7 @@ import pytest
 import pandas as pd
 import sys
 import os
+from tcrdist import mappers
 
 from tcrdist.cdr3_motif import TCRMotif
 

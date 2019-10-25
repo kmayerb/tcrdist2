@@ -20,7 +20,7 @@ def find_cdr3_motif(
             all_tcrs                = None,         # set by self.generate_all_tcrs()
             ng_tcrs                 = None,
             min_count               = 10,
-            max_ng_lines            = 10000,
+            max_ng_lines            = 5000000,
             max_motif_len           = 100,
             nsamples                = 25,
             min_expected            = .25,

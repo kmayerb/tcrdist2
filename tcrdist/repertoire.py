@@ -7,6 +7,7 @@ import warnings
 import pickle
 from tcrdist import repertoire_db
 from tcrdist import pgen
+from tcrdist import mappers
 
 #from paths import path_to_matrices
 
@@ -158,6 +159,18 @@ class TCRrep:
         self.clone_df = _deduplicate(self.cell_df, self.index_cols)
         return self
 
+    # def tcr_motif_clones_df(self):
+    #     """
+    #     Use this function to create a clones_df input appropriate to TCRMotif.
+    #
+    #     It make use of a mapper to ensure proper columns and column names
+    #
+    #     Example
+    #     -------
+    #     TCRMotif(clones_df = TCRRep.tcr_motif_clones_df())
+    #     """
+    #     return _map_clone_df_to_TCRMotif_clone_df(self.clone_df)
+
     def tcr_motif_clones_df(self):
         """
         Use this function to create a clones_df input appropriate to TCRMotif.
@@ -166,9 +179,11 @@ class TCRrep:
 
         Example
         -------
-        TCRMotif(clones_df = TCRRep.tcr_motif_clones_df())
+        TCRMotif(clones_df = TCRrep.tcr_motif_clones_df())
         """
-        return _map_clone_df_to_TCRMotif_clone_df(self.clone_df)
+        return mappers.generic_pandas_mapper(self.clone_df,
+                                             mappers.TCRrep_clone_df_to_TCRMotif_clone_df)
+
 
     def infer_cdrs_from_v_gene(self, chain, imgt_aligned = False):
         """
@@ -962,6 +977,11 @@ def _compute_pairwise(sequences, metric = "nw", processes = 2, user_function = N
 
 def _map_clone_df_to_TCRMotif_clone_df(df):
     """
+    TODO: TEST REPLACEMENT WITH MUCH SIMPLER GENERIC
+    mappers.generic_pandas_mapper(tr.clone_df, mappers.TCRrep_clone_df_to_TCRMotif_clone_df)
+
+    THEN REMOVE AND REMOVE TESTS FROM test_repertoire_unit.py
+
     Converts clone_df DataFrame used in tcrdist2 to the input clones_df
     DataFrame required by TCRMotif().
 
@@ -988,6 +1008,7 @@ def _map_clone_df_to_TCRMotif_clone_df(df):
         subject  epitope  va_rep  ja_rep  vb_rep  jb_rep  cdr3a  cdr3b
     0        1        2       3       4       5       6      7      8
     """
+
     columns_conversion_dict =   {'subject'  : 'subject',
                                  'epitope'  : 'epitope',
                                  'v_a_gene' : 'va_rep',

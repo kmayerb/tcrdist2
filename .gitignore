@@ -129,3 +129,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Untitled
+Untitled*
+tcrdist/db/blast_dbs/*
+tcrdist/db/alphabeta_db.tsv_files/*

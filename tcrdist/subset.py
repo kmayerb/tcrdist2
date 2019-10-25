@@ -18,6 +18,10 @@ from . import rmf
 from . import svg_basic
 from . import tcr_sampler
 from . import util
+from collections import namedtuple
+from .storage import StoreIO
+from .storage import StoreIOMotif
+from .storage import StoreIOEntropy
 
 #from tcrdist import parse_tsv
 
@@ -57,29 +61,23 @@ class TCRsubset():
 
         # placeholders for internally generated attributes
         self.all_tcrs      = None
+        self.ng_tcrs       = None
         self.all_rep2label_rep = None
         self.all_rep2label_rep_color = None
-
 
         # Epitope Specific
         self.tcrs          = None
         self.rep2label_rep = None
         self.rep2label_rep_color = None
+        self.motifs        = None
 
+        # Motif Specific
+        self.all_neighbors = None
         self.vl     = None
         self.jl     = None
         self.vl_nbr = None
         self.jl_nbr = None
 
-
-        self.all_neighbors = None
-        self.motifs        = None
-        self.ng_tcrs       = None
-
-        self.matches       = None
-        self.nbr_matches   = None
-        self.matched_tcrs_plus_nbrs = None
-        self.matched_tcrs  = None
 
         # shared class resources for validation
         self.chain_to_dist = {"A": "dist_a",
@@ -99,127 +97,206 @@ class TCRsubset():
         # Validation
         self._validate_all_dists_and_tcrs_match()
 
+    def tcr_motif_clones_df(self):
+        """
+        Use this function to create a clones_df input appropriate to TCRMotif.
+
+        It make use of a mapper to ensure proper columns and column names
+
+        Example
+        -------
+        TCRMotif(clones_df = TCRSubset.tcr_motif_clones_df())
+        """
+        return mappers.generic_pandas_mapper(self.clone_df,
+                                             mappers.TCRsubset_clone_df_to_TCRMotif_clone_df)
+
     def _load_motifs_from_file(self):
         #motif_fn = 'mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones_cdr3_motifs_PA.log'
         #motif_fh =open(motif_fn, 'r')
         pass
 
+
     def _load_motifs_from_dataframe(self):
         pass
 
-    def read_motif_information(self, motif_fn = None):
+
+    def analyze_motif(self, s, tcrs = None, all_neighbors = None):
         """
-        THIS WILL BE FURTHER MODULARIZED BUT TO START WE WILL USE THE EXISTING MOTIFS FILE
+        Parameters
+        ----------
+        s : tcrdist.storage.StoreIOMotif
+            StoreIOMotif instance
+        tcrs : dict
+            if omitted, default is to self.tcrs
+        all_neighbors : dict
+            if omitted, default is to self.all_neighbors
+        Returns
+        -------
+        s : tcrdist.storage.StoreIOMotif
+            StoreIOMotif instance with new attributes added
+        Notes
+        -----
+        The primary function of this script is to add the following attributes
+        to a StoreIOMotif instance:
+            s.showmotif
+            s.vl_nbr
+            s.jl_nbr
+            s.vl
+            s.jl
+            s.matches
+            s.nbr_matches
+            s.matched_tcrs_plus_nbrs
+            s.matched_tcrs
+
+        Developers Notes - Opportunity for Modularity
+
+        A goal of refactoring is to avoid class bloat.
+
+        * All self attributes are defined at the top of this function.
+        * Nothing is assigned back to self.
+
+        Therefore, it is possible to refactor, by removing
+        the body of this function from the
+        class and call it from a clean wrapper.
+
+        !! self._get_counts_lists_from_tcr_indices is called and would also need
+        to be separated from the class.
         """
+        # Pull Reference objects. These are in variant of the motif considered
+        if tcrs is None:
+            tcrs = self.tcrs
 
-        if motif_fn is None:
-            motif_fn = 'mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones_cdr3_motifs_PA.log'
+        num_tcrs = len(tcrs)
 
-        motif_fh =open(motif_fn, 'r')
+        if all_neighbors is None:
+            all_neighbors = self.all_neighbors
 
-        num_tcrs = len(self.tcrs) # this is the number of clones in the TCRsubset
+        # Unpack motif specific variables. These depend on the motif being
+        # considered. String variables are unpacked from s -
+        # the storage_io_motif_object, and the types are enforced.
 
-        for line in motif_fh:
+        count          = int(s.count)
+        expect_random  = float(s.expect_random)
+        expect_nextgen = float(s.expect_nextgen)
+        chi_squared    = float(s.chi_squared)
+        nfixed         = int(s.nfixed)
+        showmotif      = str(s.showmotif)
+        num            = int(s.num)
+        othernum       = int(s.othernum)
+        overlap        = int(s.overlap)
+        ep             = str(s.ep)
+        ab             = str(s.ab)
+        nseqs          = int(s.nseqs)
+        v_rep_counts   = str(s.v_rep_counts)
+        j_rep_counts   = str(s.j_rep_counts)
 
-            l = line.split()
-            #assert l[0] == "MOTIF"
+        showmotif = list(showmotif)
 
-            # variables unpacked from each line of MOTIF file.
-            (count, expect_random,expect_nextgen, chi_squared, nfixed,
-             showmotif, num, othernum, overlap, ep, ab,
-             nseqs, v_rep_counts, j_rep_counts)= l[1:]
+        expected_fraction = max(expect_random, expect_nextgen) / num_tcrs
+        motif = [amino_acids.groups[x] for x in showmotif]
 
-            # variables to covert to int
-            (count, nfixed, num, othernum,
-            overlap, nseqs) = map(int,[count, nfixed, num, othernum, overlap, nseqs] )
+        # motif e.g.,^.ALGaGaN as re pattern e.g., ^[A-Z]ALG[AGSP]G[AGSP]N
+        prog = re.compile(''.join(motif))
 
-            # variables to convert to float
-            (expect_random, expect_nextgen,
-            chi_squared) = map(float, [ expect_random, expect_nextgen, chi_squared ] )
-            #print(showmotif)
-            showmotif = list(showmotif)
+        total = 0
+        matches = []                # Comprised of prefect matches to re.motif
+        nbr_matches = []            # Comprised of perfect matches and neighbors of perfect matches
+        matched_tcrs = []           # Comprised of index positions of perfect matched
+        matched_tcrs_plus_nbrs = [] # Above plus, index positions of neighbors of perfect matches
 
-            assert ep==self.epitope
+        # < tcrs : list, tuple > are all epitope-specific tcrs, we search them all
+        for ii, tcr in enumerate( tcrs ):
+            # select the cdr3 (e.g., CAMRGNSGGSNYKLTF) and cdr3_nucseq_src ('V', 'V', ..., 'J, 'J')
+            # TODO : GENERALIZE THIS SO THAT IT DOES NOT SEARCH FOR "A"
+            if ab in ["A","G"]:
+                cdr3,cdr3_nucseq_src = tcr[4], tcr[10]
+            else:
+                cdr3,cdr3_nucseq_src = tcr[5], tcr[11]
 
-            expected_fraction = max(expect_random, expect_nextgen) / num_tcrs
+            # search for the motif re in each cdr3
+            m = prog.search(cdr3)
+            # if found
+            if m:
+            # < mseq : str > portion of the cdr3 amino acid that matches regex pattern
+                mseq = cdr3[ m.start():m.end() ]
+            # < nseq : str > source (V, N, or J ) of the cdr3 nucleotide that matches the regex pattern
+                nseq_src = cdr3_nucseq_src[ 3*m.start():3*m.end() ]
+            # < positions : range >
+                positions = range(m.start(),m.end())
+            # < rpositions > reverse position relative to the cdr3 end
+                rpositions = [len(cdr3)-1-x for x in positions]
+            # < matches : list > outside the loop contains mseq,nseq,positions,rpositions
+                matches.append( (mseq,nseq_src,positions,rpositions) )
+            # < matched_tcrs: list > outside the loop contains the index number of the matching tcr
+                matched_tcrs.append( ii )
 
-            motif = [amino_acids.groups[x] for x in showmotif]
-
-            # motif e.g.,^.ALGaGaN as re pattern e.g., ^[A-Z]ALG[AGSP]G[AGSP]N
-            prog = re.compile(''.join(motif))
-
-            total = 0
-            matches = []
-            nbr_matches = []
-            matched_tcrs = []
-            matched_tcrs_plus_nbrs = []
-
-            # < tcrs : list, tuple > are all epitope-specific tcrs, we search them all
-            for ii, tcr in enumerate( self.tcrs ):
-
-                # select the cdr3 (e.g., CAMRGNSGGSNYKLTF) and cdr3_nucseq_src ('V', 'V', ..., 'J, 'J')
-                # TODO : GENERALIZE THIS SO THAT IT DOES NOT SEARCH FOR "A"
-                if ab == "A":
-                    cdr3,cdr3_nucseq_src = tcr[4], tcr[10]
-                else:
-                    cdr3,cdr3_nucseq_src = tcr[5], tcr[11]
-
-                # search for the motif re in each cdr3
-                m = prog.search(cdr3)
-                # if found
-                if m:
-                # < mseq : str > portion of the cdr3 amino acid that matches regex pattern
-                    mseq = cdr3[ m.start():m.end() ]
-                # < nseq : str > source (V, N, or J ) of the cdr3 nucleotide that matches the regex pattern
-                    nseq_src = cdr3_nucseq_src[ 3*m.start():3*m.end() ]
-                # < positions : range >
-                    positions = range(m.start(),m.end())
-                # < rpositions > reverse position relative to the cdr3 end
-                    rpositions = [len(cdr3)-1-x for x in positions]
-                # < matches : list > outside the loop contains mseq,nseq,positions,rpositions
-                    matches.append( (mseq,nseq_src,positions,rpositions) )
-                # < matched_tcrs: list > outside the loop contains the index number of the matching tcr
-                    matched_tcrs.append( ii )
-
-                # < all_neighbors > in same order as tcrs
-                    for nbr in self.all_neighbors[ab][ii]:
-
-                        if nbr not in matched_tcrs_plus_nbrs:
-                            # look at nbr
-                            nbr_tcr = self.tcrs[nbr]
-                            # look at nbr TCR
-                            if ab == 'A':
-                                nbr_cdr3, nbr_cdr3_nucseq_src = nbr_tcr[4], nbr_tcr[10]
-                            else:
-                                nbr_cdr3, nbr_cdr3_nucseq_src = nbr_tcr[5], nbr_tcr[11]
-                            # if nbr and principal cdr3 are same length
-                            if len(nbr_cdr3) == len(cdr3):
-
-                                matched_tcrs_plus_nbrs.append( nbr )
-
-                                nbr_mseq = nbr_cdr3[ m.start():m.end() ]
-                                nbr_nseq = nbr_cdr3_nucseq_src[ 3*m.start():3*m.end() ]
-                                nbr_matches.append( (nbr_mseq,nbr_nseq,positions,rpositions) )
+            # < all_neighbors > in same order as tcrs
+                for nbr in all_neighbors[ab][ii]:
+                    if nbr not in matched_tcrs_plus_nbrs:
+                    # < nbr_tcr > neighbor to a perfect match pulled from < tcr >
+                        nbr_tcr = tcrs[nbr]
+                        if ab in ['A',"G"]:
+                            nbr_cdr3, nbr_cdr3_nucseq_src = nbr_tcr[4], nbr_tcr[10]
+                        else:
+                            nbr_cdr3, nbr_cdr3_nucseq_src = nbr_tcr[5], nbr_tcr[11]
+                    # !! only if nbr and principal cdr3 are same length will they be included
+                        if len(nbr_cdr3) == len(cdr3):
+                            matched_tcrs_plus_nbrs.append( nbr )
+                            nbr_mseq = nbr_cdr3[ m.start():m.end() ]
+                            nbr_nseq = nbr_cdr3_nucseq_src[ 3*m.start():3*m.end() ]
+                            nbr_matches.append( (nbr_mseq,nbr_nseq,positions,rpositions) )
 
 
-                    total += 1
-            break # !!!! FOR NOW JUST DEAL WITH FIRST MOTIF, WILL MODIFY TO STORE MATCHES FOR ALL
+                total += 1
 
-        expect_very_small = 0.001
-        messages = [ '{} {} #clones={}'.format(ep,ab,len(self.tcrs)),
-             'chi-sq: {:.1f}'.format(chi_squared),
-             'motif: {}'.format(''.join(showmotif)),
-             #'match-: {} {:.1f}%'.format(n,(100.0*n)/len(self.tcrs)),
-             #'match+: {} {:.1f}%'.format(nplus,(100.0*nplus)/len(self.tcrs)),
-             'expect: {:.3f}'.format(max(expect_random,expect_nextgen))]
-             #'enrich: {:.1f}'.format(float(n)/max([expect_random,expect_nextgen,expect_very_small])) ]
+        vl_nbr, jl_nbr = self._get_counts_lists_from_tcr_indices(matched_tcrs_plus_nbrs, ab)
+        vl, jl = self._get_counts_lists_from_tcr_indices(matched_tcrs, ab)
+
+        # send outputs back to input object IO
+        s.showmotif              = showmotif # now returned as a list
+        s.vl_nbr                 = vl_nbr
+        s.jl_nbr                 = jl_nbr
+        s.vl                     = vl
+        s.jl                     = jl
+        s.matches                = matches
+        s.nbr_matches            = nbr_matches
+        s.matched_tcrs_plus_nbrs = matched_tcrs_plus_nbrs
+        s.matched_tcrs           = matched_tcrs
+        return(s)
 
 
-        self.messages               = messages
-        self.matches                = matches
-        self.nbr_matches            = nbr_matches
-        self.matched_tcrs_plus_nbrs = matched_tcrs_plus_nbrs
-        self.matched_tcrs           = matched_tcrs
+    def analyze_matches(self, s):
+        """
+        Parameters
+        ----------
+        s : StorageIOMotif
+            a StorageIOMotif without entropy information
+
+        Returns
+        -------
+        s : StorageIOMotif
+            Updated StorageIOMotif instance w/ entropy attribute
+            which points to a StorageIOEntropy instance
+        """
+        StorageIOEntropy_instance = self._analyze_matches_using_ngseqs(
+                                        matches = s.nbr_matches ,
+                                        matched_tcrs = s.matched_tcrs_plus_nbrs,
+                                        ab = s.ab,
+                                        epitope = s.ep,
+                                        showmotif = s.showmotif,
+                                        tcrs = self.tcrs,
+                                        ng_tcrs = self.ng_tcrs,
+                                        num_nextgen_samples = 100,
+                                        junction_bars = True,
+                                        junction_bars_order = {'B': ['V','N1','D',
+                                                                     'N2','J'],
+                                                             'A': ['V','N','J'] },
+                                        min_prob_for_relent_for_scaling = 1e-3,
+                                        max_column_relent_for_scaling = 3.0)
+        # Add storage_io_entropy_instance to storage_io_motif_instance
+        s.entropy = StorageIOEntropy_instance
+        return(s)
+
 
     def _generate_all_tcrs(self):
         """
@@ -382,7 +459,7 @@ class TCRsubset():
         if not np.all(dist_order_row == tcrs_order ):
             raise ValueError("dist order and tcrs order must match")
 
-    def analyze_matches_using_ngseqs(self,
+    def _analyze_matches_using_ngseqs(self,
                                      matches,
                                      matched_tcrs,
                                      ab,
@@ -396,9 +473,15 @@ class TCRsubset():
                                      min_prob_for_relent_for_scaling = 1e-3,
                                      max_column_relent_for_scaling = 3.0):
         """
+        Analyzes the motif matching sequences and compares them to reference nextgen
+        sequences to discover (relative entropy) how the positive wise frequency
+        distribtion of the motif is different from a reference probability
+        distribution comprised of CDR3s from the same VJ-gene usage.
+
+        Refer Questions about the Algorithm to Phil Bradley.
+
         Parameters
         ----------
-
         matches : list
             list containing motif matches [((mseq,nseq_src,positions,rpositions)), ]
                 mseq : e.g., CALGGGSN
@@ -411,7 +494,7 @@ class TCRsubset():
             indicates chain
         epitope : str
 
-        showmotif : str
+        showmotif : list
 
         tcrs : list
             list of tcr information
@@ -425,12 +508,9 @@ class TCRsubset():
 
         max_column_relent_for_scaling : float
 
-
         Returns
         -------
-
         [dict, dict, dict, dict, dict, dict, dict, dict, list, list, int, int]
-
         pwm : dict
         npwm : dict
         ng_lenpwm : dict
@@ -443,10 +523,6 @@ class TCRsubset():
         ng_lenseq_reps    : list
         len( ng_lenseqs ) : int
         len( ng_fwdseqs ) : int
-
-
-
-
 
         Notes
         -----
@@ -563,8 +639,26 @@ class TCRsubset():
             scale_by_relent[i] = max(0.,min(1., min(relents)/max_column_relent_for_scaling) )
             print('RE {:2d} {:5.2f} {:5.2f} {:5.2f} {} {} {}'.format( i, min(relents), relents[0], relents[1], ab, epitope, ''.join(showmotif) ))
 
-        return pwm, npwm, ng_lenpwm, ng_fwdpwm, ng_revpwm, fwdpwm, revpwm, scale_by_relent, \
-            ng_fwdseq_reps, ng_lenseq_reps, len( ng_lenseqs ), len( ng_fwdseqs )
+        result_analyze_matches = (pwm, npwm, ng_lenpwm, ng_fwdpwm, ng_revpwm,\
+                                  fwdpwm, revpwm, scale_by_relent, ng_fwdseq_reps,\
+                                  ng_lenseq_reps, len( ng_lenseqs ), len( ng_fwdseqs))
+
+        # result_analyze_matches is messy tuple containing
+        # ([dict, dict, dict, dict, dict, dict, dict, dict, list, list, int, int])
+        # So First, check that types are correct
+        for i,t in enumerate([dict, dict, dict, dict, dict, dict, dict, dict, list, list, int, int]):
+            assert isinstance(result_analyze_matches[i], t)
+        field_names = ["pwm", "npwm", "ng_lenpwm", "ng_fwdpwm", "ng_revpwm", "fwdpwm",
+              "revpwm", "scale_by_relent", "ng_fwdseq_reps", "ng_lenseq_reps",
+              "num_ng_lenseqs", "num_ng_fwdseqs"]
+        ES = namedtuple('ES', field_names)
+        # Use namedtuple as an efficient way to drop tuple outputs
+        # into a ordered dictionary
+        result_analyze_matches_dict = ES(*result_analyze_matches)._asdict()
+        # Now We Return Result in a Tidy Object: a StoreIOEntropy instance
+        store_io_entropy = StoreIOEntropy(**result_analyze_matches_dict)
+        return(store_io_entropy)
+
 
     def create_wtd_pwm_from_sequences(self, seqs, alphabet, target_reps, reps ):
                 assert len(seqs) == len(reps)
@@ -634,6 +728,7 @@ class TCRsubset():
                         pwm[i][a] /= tot
                 return pwm
 
+
     def _generate_vl_jl(self, chain):
         """
         Parameters
@@ -646,6 +741,7 @@ class TCRsubset():
         """
         self.vl_nbr, self.jl_nbr = self._get_counts_lists_from_tcr_indices(self.matched_tcrs_plus_nbrs, chain)
         self.vl, self.jl = self._get_counts_lists_from_tcr_indices(self.matched_tcrs, chain)
+
 
     def _get_counts_lists_from_tcr_indices(self, indices, chain):
         vcounts = {}
@@ -663,68 +759,10 @@ class TCRsubset():
         return self._get_counts_list_condensing_alleles(vstring, self.rep2label_rep, self.rep2label_rep_color),\
                self._get_counts_list_condensing_alleles(jstring, self.rep2label_rep, self.rep2label_rep_color)
 
+
     def _get_counts_list_condensing_alleles(self, counts_string, rep2label_rep, rep2label_rep_color ):
         counts ={}
         for tag,count in [x.split(':') for x in counts_string.split(',') ]:
             rc = ( rep2label_rep[ tag ][4:], rep2label_rep_color[ tag ] )
             counts[rc] = counts.get(rc,0)+float(count)
         return [ (y,x[0],x[1]) for x,y in counts.items() ]
-
-
-class EntropyStack:
-    """
-    class to recieve the complicated output tuple
-    from tcrdist.subset.analyze_matches_using_ngseqs()
-
-    It is used for plotting
-
-    Notes
-    -----
-    use positional arguments to intialize
-
-    >>> r = analyze_matches_using_ngseqs()
-    >>> for i,t in enumerate([dict, dict, dict, dict, dict, dict, dict, dict, list, list, int, int]):
-    ...    assert isinstance(r[i], t)
-    >>> es = EntropyStack(**r1)
-
-    """
-    def __init__(self,
-                pwm = None,
-                npwm = None,
-                ng_lenpwm = None,
-                ng_fwdpwm = None,
-                ng_revpwm = None,
-                fwdpwm = None,
-                revpwm = None,
-                scale_by_relent = None,
-                ng_fwdseq_reps = None,
-                ng_lenseq_reps = None,
-                num_ng_lenseqs = None,
-                num_ng_fwdseqs = None):
-        """
-        Parameters
-        ----------
-        (dict, dict, dict, dict, dict, dict, dict, dict, list, list, int, int)
-
-        """
-        self.pwm = pwm
-        self.npwm = npwm
-        self.ng_lenpwm = ng_lenpwm
-        self.ng_fwdpwm = ng_fwdpwm
-        self.ng_revpwm = ng_revpwm
-        self.fwdpwm = fwdpwm
-        self.revpwm = revpwm
-        self.scale_by_relent = scale_by_relent
-        self.ng_fwdseq_reps = ng_fwdseq_reps
-        self.ng_lenseq_reps = ng_lenseq_reps
-        self.num_ng_lenseqs = num_ng_lenseqs
-        self.num_ng_fwdseqs = num_ng_fwdseqs
-
-        self.vl = None
-        self.jl = None
-
-    def add_vl(self, vl):
-        self.vl = vl
-
-    def add_jl(self, jl):
-        self.jl = jl
