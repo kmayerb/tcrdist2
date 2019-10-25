@@ -10,37 +10,19 @@ class StoreIO():
     Attributes
     ----------
     name : str
-        class name
+        class name : 'StoreIO'
     valid_attrs : list
-        list of strings, specifyign names of each valid attribute
+        list of strings, specifyign names of each valid attribute :
+
+        ['a','b','c','d']
     valid_attrs_type : list
-        list of types, specifying the type of each valid attribute
-
-    ...
-
-    Methods
-    -------
-    __init__(**kwargs)
-        Initializes StoreIO class. Valid attributes passed as keyword arguments.
-    set_attrs_with_kwargs(validate_kwargs : bool = True, **kwargs)
-        Sets one or more attributes to StoreIO class passed as keyword arguments.
-     _validate_attrs()
-        Raises TypeError if valid attributes are not of correct type, with calls
-        to self._type_check
-     _coerce_attrs()
-        Coerces valid attrs to valid type with calls to self._type_coerce
-    _type_check(attr_name : str, attr_correct_type : type)
-        Checks that an attribute of if the correct type
-    _type_coerce(attr_name: str, attr_correct_typ   e : type)
-        Coerce self.attr_name to correct type
-
-    ...
-
+        list of types, specifying the type of each valid attribute:
+        
+        [int,int,int,int]
     """
     def __init__(self, **kwargs):
         """
-        Initialize StoreIO class. Valid attributes can be passed as keyword
-        arguments
+        Initializes StoreIO class. Valid attributes passed as keyword arguments.
         """
         self.name = 'StoreIO'
         self.valid_attrs = ['a','b','c','d']
@@ -84,7 +66,8 @@ class StoreIO():
 
     def _validate_attrs(self):
         """
-        Calls self._type_check on all pre-specified valid attributes
+        Test if valid attributes are not of correct type, with calls
+        to self._type_check
         """
         [self._type_check(attr_name, attr_type) for attr_name, attr_type\
          in zip(self.valid_attrs, self.valid_attrs_type)]
@@ -93,8 +76,7 @@ class StoreIO():
 
     def _coerce_attrs(self):
         """
-        Attempts to coerce all attributes to valid type with calls to
-        self._type_coerce
+        Coerces valid attrs to valid type with calls to self._type_coerce
 
         Returns
         -------
@@ -124,7 +106,8 @@ class StoreIO():
 
         Raises
         ------
-        TypeError if self.attr is does not match correct type
+        TypeError
+            If self.attr is does not match correct type
 
         """
         attr = getattr(self, attr_name)
@@ -156,8 +139,10 @@ class StoreIO():
 
         Raises
         ------
-        ValueError if trying to coerce float to int
-        ValueError if attribute cannot be coerced for any other reason
+        ValueError
+            If trying to coerce float to int
+        ValueError
+            If attribute cannot be coerced for any other reason
 
         Notes
         -----
@@ -188,6 +173,23 @@ class StoreIOMotif(StoreIO):
 
     Attributes
     ----------
+    name : str
+        class name
+    valid_attrs : list
+        list of strings, specifyign names of each valid attribute :
+
+        [ "file_type", "count", "expect_random", "expect_nextgen", "chi_squared",
+        "nfixed", "showmotif", "num", "othernum", "overlap", "ep", "ab", "nseqs",
+        "v_rep_counts", "j_rep_counts"]
+    valid_attrs_type : list
+        list of types, specifying the type of each valid attribute :
+
+        [str,int,float,float,float,
+        int,str,int,int,int,str,str,int,
+        str,str]
+
+    ...
+
     file_type      : str
         string indicating this came from a MOTIF file
     count          : int
@@ -276,6 +278,22 @@ class StoreIOEntropy(StoreIO):
 
     Attributes
     ----------
+    name : str
+        class name
+    valid_attrs : list
+        list of strings, specifyign names of each valid attribute :
+
+        [ "pwm", "npwm", "ng_lenpwm", "ng_fwdpwm", "ng_revpwm", "fwdpwm", "revpwm",
+        "scale_by_relent", "ng_fwdseq_reps", "ng_lenseq_reps", "num_ng_lenseqs",
+        "num_ng_fwdseqs"]
+
+    valid_attrs_type : list
+        list of types, specifying the type of each valid attribute :
+
+        [dict, dict, dict, dict, dict, dict, dict, dict,list, list, int, int]
+
+    ...
+
     ? Phil Bradley Please Describe
 
     pwm             : dict
@@ -310,17 +328,17 @@ class StoreIOEntropy(StoreIO):
     def __init__(self, **kwargs):
         self.name = 'StoreIOEntropy'
         v_attrs_entropy = [ "pwm",
-                            "npwm",
-                            "ng_lenpwm",
-                            "ng_fwdpwm",
-                            "ng_revpwm",
-                            "fwdpwm",
-                            "revpwm",
-                            "scale_by_relent",
-                            "ng_fwdseq_reps",
-                            "ng_lenseq_reps",
-                            "num_ng_lenseqs",
-                            "num_ng_fwdseqs"]
+                    "npwm",
+                    "ng_lenpwm",
+                    "ng_fwdpwm",
+                    "ng_revpwm",
+                    "fwdpwm",
+                    "revpwm",
+                    "scale_by_relent",
+                    "ng_fwdseq_reps",
+                    "ng_lenseq_reps",
+                    "num_ng_lenseqs",
+                    "num_ng_fwdseqs"]
         self.valid_attrs = v_attrs_entropy
         self.valid_attrs_type = [dict, dict, dict, dict, dict, dict, dict, dict,
                                 list, list, int, int]
