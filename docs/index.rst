@@ -30,6 +30,7 @@ is particularly illustrative.
    :maxdepth: 2
 
    Installation
+   WhatIsNew
    Example_2
    Example_1
    Repertoire
@@ -38,7 +39,7 @@ is particularly illustrative.
    Neighborhood
    Plotting
    TCRMotif_Explained
-   WhatIsNew
+   Storage
 
 
 
