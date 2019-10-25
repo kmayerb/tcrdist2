@@ -3,9 +3,45 @@ class StoreIO():
     StoreIO
 
     Parent class for passing multiple objects between tcrdist2 functions.
-    Attributes are init, set, or modified with keyword arguments.
+    Attributes are passed in at initialization or set with keyword arguments.
+
+    ...
+
+    Attributes
+    ----------
+    name : str
+        class name
+    valid_attrs : list
+        list of strings, specifyign names of each valid attribute
+    valid_attrs_type : list
+        list of types, specifying the type of each valid attribute
+
+    ...
+
+    Methods
+    -------
+    __init__(**kwargs)
+        Initializes StoreIO class. Valid attributes passed as keyword arguments.
+    set_attrs_with_kwargs(validate_kwargs : bool = True, **kwargs)
+        Sets one or more attributes to StoreIO class passed as keyword arguments.
+     _validate_attrs()
+        Raises TypeError if valid attributes are not of correct type, with calls
+        to self._type_check
+     _coerce_attrs()
+        Coerces valid attrs to valid type with calls to self._type_coerce
+    _type_check(attr_name : str, attr_correct_type : type)
+        Checks that an attribute of if the correct type
+    _type_coerce(attr_name: str, attr_correct_typ   e : type)
+        Coerce self.attr_name to correct type
+
+    ...
+
     """
     def __init__(self, **kwargs):
+        """
+        Initialize StoreIO class. Valid attributes can be passed as keyword
+        arguments
+        """
         self.name = 'StoreIO'
         self.valid_attrs = ['a','b','c','d']
         self.valid_attrs_type = [int,int,int,int]
@@ -27,7 +63,7 @@ class StoreIO():
                                                       hex(id(x[1])),
                                                       x[1])\
                            for x in self_attrs.items()])
-        print(header  + msg)
+        return(header + msg)
 
     def set_attrs_with_kwargs(self, validate_kwargs = True, **kwargs):
         """
@@ -53,6 +89,21 @@ class StoreIO():
         [self._type_check(attr_name, attr_type) for attr_name, attr_type\
          in zip(self.valid_attrs, self.valid_attrs_type)]
 
+        return True
+
+    def _coerce_attrs(self):
+        """
+        Attempts to coerce all attributes to valid type with calls to
+        self._type_coerce
+
+        Returns
+        -------
+        boolean
+            True if all coercions occurred without exception being raised
+        """
+        for attr_name, attr_correct_type in zip(self.valid_attrs, self.valid_attrs_type):
+            if getattr(self, attr_name) is not None:
+                self._type_coerce(attr_name, attr_correct_type)
         return True
 
     def _type_check(self, attr_name, attr_correct_type):
@@ -87,31 +138,16 @@ class StoreIO():
         else:
             return True
 
-    def _coerce_attrs(self):
-        """
-        Attempts to coerce all attributes to valid type with calls to
-        self._type_coerce
-
-        Returns
-        -------
-        boolean
-            True if all coercions occurred without exception being raised
-        """
-        for attr_name, attr_correct_type in zip(self.valid_attrs, self.valid_attrs_type):
-            if getattr(self, attr_name) is not None:
-                self._type_coerce(attr_name, attr_correct_type)
-        return True
-
     def _type_coerce(self, attr_name, attr_correct_type):
         """
+        self.attr_name is set as correct type
+
         Parameters
         ----------
         attr_name : str
+            attribute name
         attr_correct_type : type
-
-        Assigns
-        -------
-        self.attr_name is set as correct type
+            attribute type
 
         Returns
         -------
@@ -145,7 +181,7 @@ class StoreIO():
                                  format(self.name, attr_name, attr_correct_type))
 
 
-# Create a Storage Class with names matching the dataframe
+
 class StoreIOMotif(StoreIO):
     """
     StoreIOMotif(StoreIO)
@@ -228,7 +264,6 @@ class StoreIOMotif(StoreIO):
         [setattr(self, k, None) for k in self.valid_attrs ]
         # updates attributes based on supplied keyword arguments
         [setattr(self, k, v) for k, v in kwargs.items() if k in self.valid_attrs]
-
 
 
 
