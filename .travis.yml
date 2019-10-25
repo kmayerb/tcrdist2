@@ -1,10 +1,10 @@
 language: python
 python:
-  - "2.7.14"
+  #- "2.7.14"
   - "3.6"
 # command to install dependencies
 install:
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.7.14' ]]; then travis_retry pip install -r requirements.txt; fi
+  #- if [[ $TRAVIS_PYTHON_VERSION == '2.7.14' ]]; then travis_retry pip install -r requirements.txt; fi
   - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then travis_retry pip install -r requirements36.txt; fi
 # command to run tests
 script:
