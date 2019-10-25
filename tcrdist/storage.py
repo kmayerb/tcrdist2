@@ -131,12 +131,12 @@ class StoreIO():
 
         if attr is None:
             return True
-
-        if not isinstance(attr, attr_correct_type):
-            raise TypeError("{}.{} must be of type: {}".\
-                            format(self.name, attr_name, attr_correct_type))
         else:
-            return True
+            if not isinstance(attr, attr_correct_type):
+                raise TypeError("{}.{} must be of type: {}".\
+                                format(self.name, attr_name, attr_correct_type))
+            else:
+                return True
 
     def _type_coerce(self, attr_name, attr_correct_type):
         """
