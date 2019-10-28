@@ -14,16 +14,16 @@ There are three major classes in tcrdist2:
 
 * **TCRrep** :py:class:`tcrdist.repertoire.TCRrep` - specifies metric and computes distances between members of a TCR repertoire
 
-* **TCRsubset** :py:class:`tcrdist.cdr3_motif.TCRsubset` - analyzes epitope specificity for a specific subset of a TCR repertoire
+* **TCRsubset** :py:class:`tcrdist.subset.TCRsubset` - analyzes epitope specificity for a specific subset of a TCR repertoire
 
 * **TCRmotif** :py:class:`tcrdist.cdr3_motif.TCRMotif` - identifies candidate motifs characteristic of a subset of receptors
 
 In this example, we emphasize how several tcrdist2 modules are integrated.
-We reserve exposition of many of the details for separate sections,
+We reserve a more detailed expositio for separate sections,
 each with its own detailed page in this documentation.
 
 Before proceeding, we also offer a note on the
-syntax used in the following example. We instantiate
+syntax used in the following coded examples. We instantiate
 instances of **TCRrep**, **TCRsubset**, and **TCRMotif** classes as
 `tr`, `ts`, and `tm`, respectively.
 
@@ -52,20 +52,24 @@ This example uses the mouse clones files from the Dash et al. 2017 study.
 Clones file can be downloaded (`clones <https://www.dropbox.com/s/l0z12f8lc752wfx/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv?dl=1>`_ 2MB).
 The search for motifs in tcrdist2 is a slow step. Users who wish to use
 precomputed candidate motifs can download a motifs file
-(`motifs <https://www.dropbox.com/s/z7wwmwb1n6dpq74/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones_cdr3_motifs_PA.log?dl=1>`_ 32KB).
+(`PA motifs <https://www.dropbox.com/s/z7wwmwb1n6dpq74/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones_cdr3_motifs_PA.log?dl=1>`_ 32KB).
 
 
 
 .. code-block:: python
 
+  #1
   tcrdist_clone_fn = 'mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv'
-  tcrdist_clone_df = pd.read_csv(tcrdist_clone_fn, sep = "\t")               #1
+  tcrdist_clone_df = pd.read_csv(tcrdist_clone_fn, sep = "\t")
 
-  tcrdist_clone_df = tcrdist_clone_df[(tcrdist_clone_df.epitope == "PA")\    #2
-    | (tcrdist_clone_df.epitope == "F2") ].copy()
+  # 2
+  ind = (tcrdist_clone_df.epitope == "PA") | (tcrdist_clone_df.epitope == "F2")
+  tcrdist_clone_df = tcrdist_clone_df[ind].copy()
 
-  mapping = mappers.tcrdist_clone_df_to_tcrdist2_mapping                     #3
-  tcrdist2_df = mappers.generic_pandas_mapper(df = tcrdist_clone_df,         #4
+  #3
+  mapping = mappers.tcrdist_clone_df_to_tcrdist2_mapping
+  #4
+  tcrdist2_df = mappers.generic_pandas_mapper(df = tcrdist_clone_df,
                                               mapping = mapping)
 
 The steps shown above are:
@@ -167,7 +171,7 @@ Motifs
 Searchs for Motifs
 ******************
 
-Warning this set can take a long time! Save or serialize results to disk.
+Warning this step can take a long time! Save or serialize results to disk.
 
 .. code-block:: python
 
@@ -246,5 +250,29 @@ The steps shown above are:
 
 Visualizing Motifs
 ******************
+
+.. code-block:: python
+
   svg = plot_pwm(StoreIOMotif_instance, create_file = False, my_height = 200, my_width = 600)
   IPython.display.SVG(svg)
+
+.. image:: PA_alpha_MotifPlot0.svg
+
+
+We plotted just on of many candidate motifs.
+
+All suggested motifs, or a subset of motifs, can be plotted from a the motifs
+DataFrame, as is illustrated below:
+
+.. code-block:: python
+
+  svg_list = []
+    for i,row in motif_df.iterrows():
+      StoreIOMotif_instance = StoreIOMotif(**row)
+      StoreIOMotif_instance = ts.analyze_motif(  s = StoreIOMotif_instance)
+      StoreIOMotif_instance = ts.analyze_matches(s = StoreIOMotif_instance)
+      svg = plot_pwm(StoreIOMotif_instance, create_file = False, my_height = 200, my_width = 600)
+      svg_list.append(svg)
+
+  IPython.display.SVG(svg_list[1])
+  IPython.display.SVG(svg_list[2])
