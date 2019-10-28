@@ -30,16 +30,21 @@ is particularly illustrative.
    :maxdepth: 2
 
    Installation
-   WhatIsNew
-   Example_2
-   Example_1
+   CompleteExample
+   Preprocessing
+   PairwiseDistance
+   Subset
+   Motifs
+   Mappers
+   Storage
    Repertoire
    Pairwise
    Processing
    Neighborhood
    Plotting
-   TCRMotif_Explained
-   Storage
+   Example_2
+   Example_1
+   WhatIsNew
 
 
 

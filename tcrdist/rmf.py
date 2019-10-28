@@ -654,30 +654,6 @@ def analyze_matches_using_ngseqs( matches, matched_tcrs, ab, tcrs):
         ng_fwdseq_reps, ng_lenseq_reps, len( ng_lenseqs ), len( ng_fwdseqs )
 
 ## make a v-gene logo
-def get_counts_list_condensing_alleles( counts_string, rep2label_rep, rep2label_rep_color ):
-    #global rep2label_rep
-    #global rep2label_rep_color
-    counts ={}
-    for tag,count in [x.split(':') for x in counts_string.split(',') ]:
-        rc = ( rep2label_rep[ tag ][4:], rep2label_rep_color[ tag ] )
-        counts[rc] = counts.get(rc,0)+float(count)
-    return [ (y,x[0],x[1]) for x,y in counts.items() ]
-
-def get_counts_lists_from_tcr_indices( indices ):
-    vcounts = {}
-    jcounts = {}
-    for ii in indices:
-        tcr = tcrs[ii]
-        if ab == 'A':
-            vrep,jrep = tcr[6: 8]
-        else:
-            vrep,jrep = tcr[8:10]
-        vcounts[vrep] = vcounts.get(vrep,0)+1
-        jcounts[jrep] = jcounts.get(jrep,0)+1
-    vstring = ','.join( ['{}:{}'.format(x,y) for x,y in vcounts.items()] )
-    jstring = ','.join( ['{}:{}'.format(x,y) for x,y in jcounts.items()] )
-    return get_counts_list_condensing_alleles(vstring, rep2label_rep, rep2label_rep_color),\
-            get_counts_list_condensing_alleles(jstring, rep2label_rep, rep2label_rep_color)
 
 def get_counts_lists_from_rep_lists( reps ):
     vcounts = {}

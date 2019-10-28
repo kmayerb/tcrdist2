@@ -900,6 +900,75 @@ class TCRrep:
         pickle.dump(self,  open(filename , "wb") )
         warnings.warn("all smats dropped because they are C objects that can't be pickled. reassign with _initialize_chain_specific_attributes()")
 
+    def _tcrdist_legacy_method_alpha_beta(self):
+        # CALCULATE tcrdist distance metric. Here we show all the manuall steps to
+        # implement the orginal Dash et al. tcrdist approach.
+
+        # To do this we calculate distance for each CDR separately, and
+        # we use the metric "tcrdist_cdr3" for the cdr3 and "tcrdist_cdr1"
+        # everywhere else
+        self.compute_pairwise_all(chain = "alpha",                        # <11
+                                 metric = 'tcrdist_cdr3',
+                                 compute_specific_region = 'cdr3_a_aa',
+                                 processes = 1)
+        self.compute_pairwise_all(chain = "alpha",                        # 11
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'cdr1_a_aa',
+                                 processes = 1)
+        self.compute_pairwise_all(chain = "alpha",                        # 11
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'cdr2_a_aa',
+                                 processes = 1)
+        self.compute_pairwise_all(chain = "alpha",                        # 11
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'pmhc_a_aa',
+                                 processes = 1)
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = 'tcrdist_cdr3',
+                                 #user_function = tcrdist_metric_align_cdr3s_false,
+                                 compute_specific_region = 'cdr3_b_aa',
+                                 processes = 1)
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'cdr1_b_aa',
+                                 processes = 1)
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'cdr2_b_aa',
+                                 processes = 1)
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'pmhc_b_aa',
+                                 processes = 1)
+
+        distA = self.compute_paired_tcrdist(replacement_weights= {'cdr3_a_aa_pw': 1,
+                                                                'cdr2_a_aa_pw': 1,
+                                                                'cdr1_a_aa_pw': 1,
+                                                                'pmhc_a_aa_pw': 1,
+                                                                'cdr3_b_aa_pw': 0,
+                                                                'cdr2_b_aa_pw': 0,
+                                                                'cdr1_b_aa_pw': 0,
+                                                                'pmhc_b_aa_pw': 0,} )['paired_tcrdist'].copy()
+
+        distB = self.compute_paired_tcrdist(replacement_weights= {'cdr3_a_aa_pw': 0,
+                                                                'cdr2_a_aa_pw': 0,
+                                                                'cdr1_a_aa_pw': 0,
+                                                                'pmhc_a_aa_pw': 0,
+                                                                'cdr3_b_aa_pw': 1,
+                                                                'cdr2_b_aa_pw': 1,
+                                                                'cdr1_b_aa_pw': 1,
+                                                                'pmhc_b_aa_pw': 1,} )['paired_tcrdist'].copy()
+
+        # Calling tr.compute_paired_tcrdist() computs the
+        # the final paired chain TCR-distance which is stored as
+        # tr.paired_tcrdist, which we confirm is simply the sum of distA and distB
+        self.compute_paired_tcrdist()
+        assert np.all(((distA + distB) - self.paired_tcrdist) == 0)
+
+        # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
+        self.dist_a = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
+        self.dist_b = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
+
 
 
 def _map_gene_to_reference_seq(organism = "human",

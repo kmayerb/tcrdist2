@@ -215,6 +215,7 @@ def find_cdr3_motif(
                               all_good_motifs, all_seen, my_max_motif_len, best_motifs )
 
     output_strings = [] # KMB - THIS IS FOR PANDAS OUTPUT
+    output_lists = []
     for epitope in epitopes:
         #if epitope != 'NP': continue
 
@@ -438,7 +439,14 @@ def find_cdr3_motif(
                              max_cover+1, int(100*max_coverage),
                              epitope, ab, len(seqs), vtags, jtags)
 
-                output_strings.append(string_to_output)
+                list_to_output = ['MOTIF', count, expected, ng_expected, chi_squared, nfixed, ''.join(showmotif), len(seen),
+                         max_cover+1, int(100*max_coverage),
+                         epitope, ab, len(seqs), vtags, jtags]
 
-    column_names =['MOTIF','count', 'expected', 'ng_expected', 'chi_squared', 'nfixed', 'motif', 'len_seen', 'max_cover', 'max_coverage', 'epitope', 'chain', 'len_seqs','vtags','jtags']
-    return pd.DataFrame([string.split("\t") for string in output_strings], columns = column_names )
+
+                output_strings.append(string_to_output)
+                output_lists.append(list_to_output)
+                
+    cnames = ["file_type","count", "expect_random","expect_nextgen", "chi_squared", "nfixed","showmotif", "num", "othernum", "overlap", "ep", "ab", "nseqs", "v_rep_counts", "j_rep_counts"]
+    #column_names =['MOTIF','count', 'expected', 'ng_expected', 'chi_squared', 'nfixed', 'motif', 'len_seen', 'max_cover', 'max_coverage', 'epitope', 'chain', 'len_seqs','vtags','jtags']
+    return pd.DataFrame(output_lists, columns = cnames )

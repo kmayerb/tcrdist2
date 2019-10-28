@@ -2,7 +2,7 @@ from tcrdist import svg_basic
 
 def plot_pwm(SM,  my_width = 6, my_height= 6, create_file = False, output = "test.svg"):
     """
-    position-wise matrix (pwm) plot.
+    Produces position-wise matrix (pwm) plot.
 
     Parameters
     ----------
@@ -15,6 +15,8 @@ def plot_pwm(SM,  my_width = 6, my_height= 6, create_file = False, output = "tes
         output svg filename
 
     Returns
+    -------
+    svg : string
 
 
     Notes
@@ -27,6 +29,28 @@ def plot_pwm(SM,  my_width = 6, my_height= 6, create_file = False, output = "tes
     panel_02 : row0,col1 - J gene usage (stack of gene usage)
     panel_11 : row1,col1 - nucleotide source information
     panel_21 : row2,col1 - relative_entropy scaled CDR3
+
+    The key elements pulled from the StoreIOMotif_instance in the function
+
+        SM.ab
+        SM.vl_nbr
+        SM.entropy.pwm
+        SM.entropy.npwm
+        SM.entropy.npwm.keys
+        SM.entropy.npwm
+        SM.entropy.pwm, SM.entropy.scale_by_relent
+        SM.jl_nbr
+        SM.matched_tcrs
+        SM.matched_tcrs_plus_nbrs
+        SM.ep, SM.ab, len(SM.nseqs),
+        SM.chi_squared
+        SM.showmotif
+        SM.nseqs
+        SM.nseqs
+        SM.expect_random float(SM.expect_nextgen)
+        SM.expect_random
+        SM.expect_nextgen
+
 
     """
     chain = SM.ab
@@ -148,19 +172,6 @@ def plot_pwm(SM,  my_width = 6, my_height= 6, create_file = False, output = "tes
     else:
         svg_txt = create_svg(cmds, width = my_width, height= my_height)
         return(svg_txt)
-
-
-
-def _create_svg(cmds, width, height, background_color=None, use_xlink=False):
-    out = ''
-    extra = '' if not use_xlink else 'xmlns:xlink="http://www.w3.org/1999/xlink"'
-    out += '<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg" version="1.1" {} >\n'\
-              .format(int(width),int(height),extra)
-    if background_color:
-        out += _rectangle( (0,0), (width, height), background_color, 'white', 0 )
-    out += '\n'.join(cmds) + '\n'
-    out += '</svg>\n'
-    return out
 
 def create_svg( cmds, width, height, background_color=None, use_xlink=False ):
     out = ''

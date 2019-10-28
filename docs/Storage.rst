@@ -8,10 +8,9 @@ Storage
 This page documents the class :py:class:`tcrdist.storage.StoreIO` within the
 :py:mod:`tcrdist.storage` module
 `storage.py <https://github.com/kmayerb/tcrdist2/blob/API2/tcrdist/storage.py>`_ (source code).
-
-We describe it here in detail as it used extensively to pass inputs and outputs
+We describe it here in detail as it is used extensively to pass inputs and outputs
 between functions in :py:class:`tcrdist.cdr3_motif.TCRMotif` and
-:py:class:`tcrdist.subset.TCRsubset`
+:py:class:`tcrdist.subset.TCRsubset`. 
 
 In the analysis of CDR3 motifs, tcrdist2 utilizes the algorithms
 developed in tcdist1. These algorithms have been modularized. Input and Output
@@ -181,7 +180,7 @@ below with the keyword 'e' which was not pre-specified in
 
 
 StoreIO
--------
+#######
 
 .. automodule:: tcrdist.storage
 
@@ -189,11 +188,13 @@ StoreIO
     :members: __init__, set_attrs_with_kwargs, _validate_attrs, _coerce_attrs, _type_check, _type_coerce
 
 StoreIOMotif
-------------
+############
+
 .. autoclass:: StoreIOMotif
     :show-inheritance:
 
 StoreIOEntropy
---------------
+##############
+
 .. autoclass:: StoreIOEntropy
     :show-inheritance:
