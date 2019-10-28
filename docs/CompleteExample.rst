@@ -68,7 +68,7 @@ precomputed candidate motifs can download a motifs file
   tcrdist2_df = mappers.generic_pandas_mapper(df = tcrdist_clone_df,         #4
                                               mapping = mapping)
 
-The step shown above are:
+The steps shown above are:
 
 1. Load the clones file as a Pandas DataFrame.
 2. Select only those clones specific to epitope F2 or PA. We choose two here, so we can later illustrate subsetting by epitope specificity.
@@ -113,7 +113,7 @@ TCRrep defines metric for comparing T Cell receptors.
   distB = tr.dist_b
   assert np.all(((distA + distB) - tr.paired_tcrdist) == 0)
 
-The step shown above are:
+The steps shown above are:
 
 1. Instantiate an instance of TCRrep class: `tr`.
 2. Infer CDR2, CDR2, and CDR2.5. Setting imgt_aligned = True is crucial if using the legacy TCRdist metric.
@@ -154,7 +154,7 @@ TCRsubset defines a subset of interest.
                dist_a = distA_subset,
                dist_b = distB_subset)
 
-The step shown above are:
+The steps shown above are:
 
 1. Set Some Criteria for the sequences we want to look at.
 2. Select subsets of the original distance matrices
@@ -177,7 +177,7 @@ Warning this set can take a long time! Save or serialize results to disk.
                epitopes = ["PA"])
   tm.find_cdr3_motifs()                      #2
 
-The step shown above are:
+The steps shown above are:
 
 1. Instantiate an instance of TCRMotif,  `tm`
 2. Search for motifs.
@@ -237,7 +237,7 @@ Notice that analysis of motifs methods which handle the comparisons of
 epitope specific cdr3 to non-epitope specific reference datasets are
 containted within TCRsubset.
 
-The step shown above are:
+The steps shown above are:
 
 1. Initialize instance of the information carrier class StoreIOMotif
 2. Analyze_motif (`ts.analyze_motif`) to determine matches and neighbors of matches,  with new attributes are appended to the StoreIOMotifinstance.
