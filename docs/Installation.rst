@@ -26,14 +26,27 @@ Recommended python 3.6 dependencies are specified in the
 *requirements36.txt* file.
 
 The following will install tcrdist on a linux or macOSX within a virtual
-environment.
+environment. The `requirements36.txt <https://raw.githubusercontent.com/kmayerb/tcrdist2/API2/requirements36.txt>`_ should be placed in your
+install directory.
+
+If you are creating a virtual environment in Linux for the first time, the
+following preparatory steps may be required.
+
+.. code-block:: none
+
+  apt-get python3-dev
+  pip install virtualenv
+
 
 .. code-block:: none
 
   python3 -m venv ./venv
+  pip install wheel
   source venv/bin/activate
   pip install -r requirements36.txt
   pip install git+https://github.com/kmayerb/tcrdist2.git@API2
+
+
 
 
 

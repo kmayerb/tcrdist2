@@ -12,7 +12,13 @@ def install_test_files():
                          "https://www.dropbox.com/s/l0z12f8lc752wfx/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv?dl=1",
                          "test_files")
     install_dropbox_file("vdjDB_PMID28636592.tsv",
-                         "https://www.dropbox.com/s/f5kxikmv4s95dry/vdjDB_PMID28636592.tsv?dl=0",
+                         "https://www.dropbox.com/s/f5kxikmv4s95dry/vdjDB_PMID28636592.tsv?dl=1",
+                         "test_files")
+    install_dropbox_file("mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones_cdr3_motifs_PA.log",
+                         "https://www.dropbox.com/s/z7wwmwb1n6dpq74/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones_cdr3_motifs_PA.log?dl=1",
+                         "test_files")
+    install_dropbox_file("mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv",
+                         "https://www.dropbox.com/s/l0z12f8lc752wfx/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv?dl=1",
                          "test_files")
 
 

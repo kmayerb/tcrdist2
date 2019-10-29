@@ -168,7 +168,7 @@ The steps shown above are:
 Motifs
 ######
 
-Searchs for Motifs
+Search for Motifs
 ******************
 
 Warning this step can take a long time! Save or serialize results to disk.
