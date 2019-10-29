@@ -5,7 +5,7 @@ def test_complete_example_without_motifs_step():
     import pandas as pd
     import numpy as np
     import tcrdist as td
-    
+
 
     from tcrdist import mappers
     from tcrdist.repertoire import TCRrep
@@ -89,7 +89,6 @@ def test_complete_example_without_motifs_step():
     from tcrdist.plotting import plot_pwm
     from tcrdist.storage import StoreIOMotif, StoreIOEntropy
     import pandas as pd
-    import IPython
 
     # 1
     StoreIOMotif_instance = StoreIOMotif(**row)
