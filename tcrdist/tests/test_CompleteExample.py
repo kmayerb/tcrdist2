@@ -5,7 +5,7 @@ def test_complete_example_without_motifs_step():
     import pandas as pd
     import numpy as np
     import tcrdist as td
-    import IPython
+    
 
     from tcrdist import mappers
     from tcrdist.repertoire import TCRrep
