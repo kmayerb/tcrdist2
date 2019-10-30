@@ -8,16 +8,15 @@ Complete Example
 Introduction
 ############
 
-This page illustrates the integration of the major features of tcrdist2.
-There are two major classes in tcrdist2:
+This page illustrates the integration of features within the two major classes of tcrdist2.
 
 * **TCRrep** :py:class:`tcrdist.repertoire.TCRrep` - specifies metric and computes distances between members of a TCR repertoire
 
 * **TCRsubset** :py:class:`tcrdist.subset.TCRsubset` - analyzes epitope specificity for a specific subset of a TCR repertoire
 
-In this example, we emphasize how several tcrdist2 modules are integrated.
-We reserve much more detailed exposition for separate sections,
-each with its own detailed page in this documentation.
+This example emphasized integration of major features.
+We reserve detailed explanations for separate sections,
+each with its own page in this documentation.
 
 .. tip::
   A note on the syntax used in the following coded examples: we instantiate
