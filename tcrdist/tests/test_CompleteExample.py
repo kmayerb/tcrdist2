@@ -4,7 +4,7 @@ def test_CompleteExample_with_TCRMotif_Invoked_From_within_TCRsubset():
     import pandas as pd
     import numpy as np
     import tcrdist as td
-    import IPython
+    #import IPython
 
     from tcrdist import mappers
     from tcrdist.repertoire import TCRrep
