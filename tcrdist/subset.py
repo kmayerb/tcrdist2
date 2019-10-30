@@ -22,6 +22,7 @@ from collections import namedtuple
 from .storage import StoreIO
 from .storage import StoreIOMotif
 from .storage import StoreIOEntropy
+from .cdr3_motif import TCRMotif
 
 #from tcrdist import parse_tsv
 
@@ -53,7 +54,7 @@ class TCRsubset():
         self.dist_b   = dist_b
         self.dist_g   = dist_g
         self.dist_d   = dist_d
-        self.nbr_dist = nbr_dist
+        self.nbr_dist = nbr_dist # !!!!!
 
         # apply defaults, when None are supplied at initiation
         if self.nbr_dist is None:
@@ -64,6 +65,7 @@ class TCRsubset():
         self.ng_tcrs       = None
         self.all_rep2label_rep = None
         self.all_rep2label_rep_color = None
+        self.motif_df = None
 
         # Epitope Specific
         self.tcrs          = None
@@ -110,6 +112,74 @@ class TCRsubset():
         return mappers.generic_pandas_mapper(self.clone_df,
                                              mappers.TCRsubset_clone_df_to_TCRMotif_clone_df)
 
+    def find_motif(self):
+        """
+        Create a TCRMotif_instance using subset organism, chains, and epitopes.
+        runs TCRMotif.find_motif. Warning this can take 5-10 minutes per chain.
+
+        Returns
+        -------
+        motif_df : DataFrame
+        """
+        TCRMotif_instance = TCRMotif( self.tcr_motif_clones_df(),
+                                      organism = self.organism,
+                                      chains = self.chains,
+                                      epitopes = self.epitopes)
+        print("SEARCHING FOR MOTIFS, THIS CAN TAKE 5-10 minutes")
+        TCRMotif_instance.find_cdr3_motifs()
+        motif_df = TCRMotif_instance.motif_df.copy()
+        self.motif_df = motif_df
+        return motif_df
+
+    def loop_through_motifs(self):
+        """
+        NOT READY BUT WILL USE TO LOOP THROUGH
+        """
+        if motif_df is None:
+            motif_df = self.motif_df
+        if motif_df is None:
+            raise ValueError("TCRsubest.motif_df DataFrame is empty. Load one or try TCRsubest.motif_df.find_motif()")
+        pass
+        svg_list = []
+        for i,row in motif_df.iterrows():
+            StoreIOMotif_instance = StoreIOMotif(**row)
+            self.analyze_motif(s = StoreIOMotif_instance)
+            self.analyze_matches(s = StoreIOMotif_instance)
+            svg = plot_pwm(StoreIOMotif_instance, create_file = False, my_height = 200, my_width = 600)
+            svg_list.append(svg)
+        return svg_list
+
+    def eval_motif(self, row):
+        """
+        eval motif wraps functions for evaluating a row of the motif_df DataFrame
+
+        row : OrderedDict
+            from a row of motif_df
+            i = 0; row = tm.motif_df.iloc[i,:].to_dict()
+
+        Returns
+        -------
+        StoreIOMotif_instance : StoreIOMotif
+
+        Notes
+        -----
+        The steps shown above are:
+
+        1. Initialize instance of the information carrier class StoreIOMotif
+        2. Analyze_motif (ts.analyze_motif) to determine matches and neighbors
+        of matches, with new attributes are appended to the StoreIOMotifinstance.
+        3. Analyze matches (ts.analyze_matches) to identify the the relative
+        entropy between position wise matrices
+        """
+        # 1
+        StoreIOMotif_instance = StoreIOMotif(**row)
+        # 2
+        self.analyze_motif(s = StoreIOMotif_instance)
+        # 3
+        self.analyze_matches(s = StoreIOMotif_instance)
+        return StoreIOMotif_instance
+
+
     def _load_motifs_from_file(self):
         #motif_fn = 'mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones_cdr3_motifs_PA.log'
         #motif_fh =open(motif_fn, 'r')
@@ -143,10 +213,11 @@ class TCRsubset():
             s.jl_nbr
             s.vl
             s.jl
-            s.matches
-            s.nbr_matches
-            s.matched_tcrs_plus_nbrs
-            s.matched_tcrs
+            s.matches - tcrs that perfectly match regex
+            s.nbr_matches - tcr hat perfectly match regex + neigbors
+                (tcrdist<self.nbr_dist)
+            s.matched_tcrs_plus_nbrs - index positions
+            s.matched_tcrs - index positions
 
         Developers Notes - Opportunity for Modularity
 

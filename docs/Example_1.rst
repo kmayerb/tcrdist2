@@ -1,3 +1,5 @@
+.. _DetailedExample:
+
 Detailed Example
 ================
 

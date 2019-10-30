@@ -258,8 +258,8 @@ def nw_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
 
 def hm_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
     """
-    Function applying Parasail's Needleman-Wuncsh Algorithm to algin and get
-    a Hamming Distance between any two sequences.
+    Function applying Parasail's Needleman-Wuncsh Algorithm to allign and get
+    a Hamming Distance between any two sequences: number of mismatched positions
 
 
     Parameters
@@ -295,7 +295,7 @@ def hm_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
 
 def tcrdist_cdr3_metric(s1,s2, **kwargs):
     """
-    Metric closed to the original metric in the Dash et al. 2017
+    Metric close to the original metric in the Dash et al. 2017
     Nature Paper applied to the cdr3 region
 
     Parameters
@@ -378,7 +378,7 @@ def function_factory(metric = "nw", **kwargs):
     if metric == "tcrdist_cdr3":
         def distance_wrapper(a, b):
             return(tcrdist_cdr3_metric(a, b, **kwargs))
-    if metric == "tcrdist_cdr1":
+    if metric in ["tcrdist_cdr1", "tcrdist_cdr2", "tcrdist_cdr2.5", "tcrdist_pmhc"]:
         def distance_wrapper(a, b):
             return(tcrdist_cdr1_metric(a, b, **kwargs))
     if metric == "hamming2":

@@ -80,6 +80,7 @@ class TCRrep:
         self.meta_cols = None
         self.project_id = "<Your TCR Repertoire Project>"
         self.all_genes = None
+        self.imgt_aligned_status = None
 
         # VALIDATION OF INPUTS
         # check that chains are valid.
@@ -239,6 +240,7 @@ class TCRrep:
         """
 
         if not imgt_aligned:
+            self.imgt_aligned_status = False
             f0 = lambda v : self._map_gene_to_reference_seq2(gene = v,
                                                              cdr = 0,
                                                              organism = self.organism,
@@ -252,6 +254,7 @@ class TCRrep:
                                                              organism = self.organism,
                                                              attr ='cdrs_no_gaps')
         else:
+            self.imgt_aligned_status = True
             f0 = lambda v : self._map_gene_to_reference_seq2(gene = v,
                                                              cdr = 0,
                                                              organism = self.organism,
@@ -440,7 +443,10 @@ class TCRrep:
             optional string (e.g. "cdr2_a_aa") to over-ride function behavior
             and compute only a single region
         metric : string
-            'nw', 'hamming', or 'custom'
+            'nw', 'hamming', or 'custom' (or if legacy tcrdist is to be calculated,
+            "tcrdist_cdr3", "tcrdist_cdr1", "tcrdist_cdr2",
+            "tcrdist_cdr2.5", "tcrdist_pmhc" can be supplied. WARNING:
+            imgt_aligned must be set to True in tr.infer_cdrs_from_v_gene().
         processes : int
             int for number of available cpu for multiprocessing (to see available
             try multiprocessing.cpu_count())
@@ -479,6 +485,12 @@ class TCRrep:
 
         # validate chain argument passed
         self._validate_chain(chain)
+
+        if metric in ["tcrdist_cdr3", "tcrdist_cdr1", "tcrdist_cdr2",
+                      "tcrdist_cdr2.5", "tcrdist_pmhc"]:
+            if not self.imgt_aligned_status:
+                raise ValueError("imgt_aligned must be set to True in tr.infer_cdrs_from_v_gene()")
+
         # If compute_specific_region is None, then the behavior is to loop through the a list regions.
         if compute_specific_region is None:
             index_col_from_chain = {'alpha' : ['cdr3_a_aa', 'cdr2_a_aa',

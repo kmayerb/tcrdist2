@@ -47,7 +47,21 @@ following preparatory steps may be required.
   pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 
 
+Optional Installation Files
++++++++++++++++++++++++++++
 
+To install important next-generation reference files:
+
+.. code-block:: none
+
+  python -c "import tcrdist as td; td.setup_db.install_all_next_gen()"
+
+To install blast within your virtual environment
+(see Optional Blast Tools for installation on other platforms):
+
+.. code-block:: none
+
+  python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'ncbi_linux')"
 
 
 Dependencies if Using Python 2.7.11

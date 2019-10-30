@@ -1,3 +1,4 @@
+.. _QuickStartExample:
 
 Quick-Start Example
 ===================
