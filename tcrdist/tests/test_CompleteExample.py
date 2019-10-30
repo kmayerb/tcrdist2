@@ -186,6 +186,8 @@ def test_complete_example_without_motifs_step():
 
     # 1
     StoreIOMotif_instance = StoreIOMotif(**row)
+    StoreIOMotif_instance._coerce_attrs()
+    assert StoreIOMotif_instance._validate_attrs()
     # 2
     StoreIOMotif_instance = ts.analyze_motif(s = StoreIOMotif_instance)
     # 3

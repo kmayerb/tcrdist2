@@ -437,35 +437,35 @@
 
 <rect x="395.90909090909093" y="82.0" height="36.0" width="9.090909090909065" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<text x="351.000000" y="13292.681112" font-size="100" font-family="monospace" fill="green" transform="scale(0.454545,0.015045)">S</text>
+<text x="351.000000" y="12120.002314" font-size="100" font-family="monospace" fill="green" transform="scale(0.454545,0.016500)">S</text>
 
-<text x="411.000000" y="1893.625234" font-size="100" font-family="monospace" fill="green" transform="scale(0.454545,0.105035)">S</text>
+<text x="411.000000" y="1912.993317" font-size="100" font-family="monospace" fill="green" transform="scale(0.454545,0.103977)">S</text>
 
-<text x="471.000000" y="4649.476845" font-size="100" font-family="monospace" fill="black" transform="scale(0.454545,0.039867)">L</text>
+<text x="471.000000" y="4571.193499" font-size="100" font-family="monospace" fill="black" transform="scale(0.454545,0.040499)">L</text>
 
-<text x="471.000000" y="5937.383848" font-size="100" font-family="monospace" fill="green" transform="scale(0.454545,0.031618)">S</text>
+<text x="471.000000" y="5838.678760" font-size="100" font-family="monospace" fill="green" transform="scale(0.454545,0.032120)">S</text>
 
-<text x="471.000000" y="6012.383848" font-size="100" font-family="monospace" fill="black" transform="scale(0.454545,0.031618)">I</text>
+<text x="471.000000" y="5913.678760" font-size="100" font-family="monospace" fill="black" transform="scale(0.454545,0.032120)">I</text>
 
-<text x="471.000000" y="6360.674023" font-size="100" font-family="monospace" fill="black" transform="scale(0.454545,0.030244)">W</text>
+<text x="471.000000" y="6257.482340" font-size="100" font-family="monospace" fill="black" transform="scale(0.454545,0.030723)">W</text>
 
-<text x="471.000000" y="7071.741426" font-size="100" font-family="monospace" fill="orange" transform="scale(0.454545,0.027494)">G</text>
+<text x="471.000000" y="6958.230574" font-size="100" font-family="monospace" fill="orange" transform="scale(0.454545,0.027930)">G</text>
 
-<text x="471.000000" y="8914.676782" font-size="100" font-family="monospace" fill="black" transform="scale(0.454545,0.021995)">F</text>
+<text x="471.000000" y="8772.788217" font-size="100" font-family="monospace" fill="black" transform="scale(0.454545,0.022344)">F</text>
 
-<text x="471.000000" y="11961.235709" font-size="100" font-family="monospace" fill="purple" transform="scale(0.454545,0.016497)">Q</text>
+<text x="471.000000" y="11772.050956" font-size="100" font-family="monospace" fill="purple" transform="scale(0.454545,0.016758)">Q</text>
 
-<text x="531.000000" y="397.893326" font-size="100" font-family="monospace" fill="orange" transform="scale(0.454545,0.491743)">G</text>
+<text x="531.000000" y="386.856443" font-size="100" font-family="monospace" fill="orange" transform="scale(0.454545,0.505459)">G</text>
 
-<text x="531.000000" y="12250.535775" font-size="100" font-family="monospace" fill="green" transform="scale(0.454545,0.016070)">T</text>
+<text x="531.000000" y="11912.807162" font-size="100" font-family="monospace" fill="green" transform="scale(0.454545,0.016518)">T</text>
 
-<text x="591.000000" y="3734.595217" font-size="100" font-family="monospace" fill="orange" transform="scale(0.454545,0.051934)">G</text>
+<text x="591.000000" y="3695.481572" font-size="100" font-family="monospace" fill="orange" transform="scale(0.454545,0.052467)">G</text>
 
-<text x="591.000000" y="10954.038241" font-size="100" font-family="monospace" fill="red" transform="scale(0.454545,0.017828)">D</text>
+<text x="591.000000" y="10840.098493" font-size="100" font-family="monospace" fill="red" transform="scale(0.454545,0.018011)">D</text>
 
-<text x="591.000000" y="14071.826641" font-size="100" font-family="monospace" fill="black" transform="scale(0.454545,0.013953)">A</text>
+<text x="591.000000" y="13926.236963" font-size="100" font-family="monospace" fill="black" transform="scale(0.454545,0.014096)">A</text>
 
-<text x="651.000000" y="6447.650305" font-size="100" font-family="monospace" fill="red" transform="scale(0.454545,0.030844)">E</text>
+<text x="651.000000" y="6337.766780" font-size="100" font-family="monospace" fill="red" transform="scale(0.454545,0.031376)">E</text>
 
 
 <rect x="105" y="0" height="200.0" width="300" style="fill:none;stroke:black;stroke-width:1" />
@@ -493,15 +493,15 @@
 
 <rect x="410" y="0" height="80" width="100" style="fill:none;stroke:black;stroke-width:1" />
 
-<text x="410.000" y="128.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">PA B #clones=3</text>
+<text x="410.000" y="128.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">PA B #clones=324</text>
 
 <text x="410.000" y="136.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">chi-sq: 9336.4</text>
 
 <text x="410.000" y="144.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">motif: ^..ss.GG....$</text>
 
-<text x="410.000" y="152.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">match-: 55 1833.3%</text>
+<text x="410.000" y="152.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">match-: 55 17.0%</text>
 
-<text x="410.000" y="160.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">match+: 171 5700.0%</text>
+<text x="410.000" y="160.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">match+: 171 52.8%</text>
 
 <text x="410.000" y="168.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">expect: 0.320</text>
 

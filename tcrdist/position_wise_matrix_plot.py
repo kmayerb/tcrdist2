@@ -147,11 +147,11 @@ def plot_pwm(SM,  my_width = 6, my_height= 6, create_file = False, output = "tes
     expect_very_small = 0.001
     n= len(SM.matched_tcrs)
     nplus= len(SM.matched_tcrs_plus_nbrs)
-    messages = [ '{} {} #clones={}'.format(SM.ep,SM.ab,len(SM.nseqs)),
+    messages = [ '{} {} #clones={}'.format(SM.ep,SM.ab,SM.nseqs),
          'chi-sq: {:.1f}'.format(float(SM.chi_squared)),
          'motif: {}'.format(''.join(SM.showmotif)),
-         'match-: {} {:.1f}%'.format(n,(100.0*n)/len(SM.nseqs)),
-         'match+: {} {:.1f}%'.format(nplus,(100.0*nplus)/len(SM.nseqs)),
+         'match-: {} {:.1f}%'.format(n,(100.0*n)/SM.nseqs),
+         'match+: {} {:.1f}%'.format(nplus,(100.0*nplus)/SM.nseqs),
          'expect: {:.3f}'.format(max(float(SM.expect_random),float(SM.expect_nextgen))),
          'enrich: {:.1f}'.format(float(n)/max([float(SM.expect_random),
                                                float(SM.expect_nextgen),

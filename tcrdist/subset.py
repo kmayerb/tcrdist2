@@ -161,6 +161,12 @@ class TCRsubset():
         -------
         StoreIOMotif_instance : StoreIOMotif
 
+        Raises
+        ------
+        TypeError
+            if row variables cannot be coerced to correct types
+            (see: StoreIOMotif_instance._coerce_attrs() )
+
         Notes
         -----
         The steps shown above are:
@@ -173,6 +179,8 @@ class TCRsubset():
         """
         # 1
         StoreIOMotif_instance = StoreIOMotif(**row)
+        StoreIOMotif_instance._coerce_attrs()
+        assert StoreIOMotif_instance._validate_attrs()
         # 2
         self.analyze_motif(s = StoreIOMotif_instance)
         # 3

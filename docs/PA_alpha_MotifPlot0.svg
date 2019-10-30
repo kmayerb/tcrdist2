@@ -1,290 +1,290 @@
-<svg height="200" version="1.1" width="600" xmlns="http://www.w3.org/2000/svg">
-<text fill="red" font-family="monospace" font-size="100" transform="scale(0.416667,0.600000)" x="0.000000" y="75.000000">6D-6</text>
+<svg width="600" height="200" xmlns="http://www.w3.org/2000/svg" version="1.1"  >
+<text x="0.000000" y="75.000000" font-size="100" font-family="monospace" fill="red" transform="scale(0.416667,0.600000)">6D-6</text>
 
-<text fill="magenta" font-family="monospace" font-size="100" transform="scale(0.555556,0.238095)" x="0.000000" y="264.000000">7-2</text>
+<text x="0.000000" y="264.000000" font-size="100" font-family="monospace" fill="magenta" transform="scale(0.555556,0.238095)">7-2</text>
 
-<text fill="blue" font-family="monospace" font-size="100" transform="scale(0.238095,0.142857)" x="0.000000" y="515.000000">21/DV12</text>
+<text x="0.000000" y="515.000000" font-size="100" font-family="monospace" fill="blue" transform="scale(0.238095,0.142857)">21/DV12</text>
 
-<text fill="cyan" font-family="monospace" font-size="100" transform="scale(0.555556,0.028571)" x="0.000000" y="2650.000000">9-2</text>
+<text x="0.000000" y="2650.000000" font-size="100" font-family="monospace" fill="cyan" transform="scale(0.555556,0.028571)">9-2</text>
 
-<text fill="maroon" font-family="monospace" font-size="100" transform="scale(0.416667,0.019048)" x="0.000000" y="4050.000000">4D-3</text>
+<text x="0.000000" y="4050.000000" font-size="100" font-family="monospace" fill="maroon" transform="scale(0.416667,0.019048)">4D-3</text>
 
-<text fill="yellowgreen" font-family="monospace" font-size="100" transform="scale(0.555556,0.009524)" x="0.000000" y="8175.000000">7-6</text>
+<text x="0.000000" y="8175.000000" font-size="100" font-family="monospace" fill="yellowgreen" transform="scale(0.555556,0.009524)">7-6</text>
 
-<text fill="lightgreen" font-family="monospace" font-size="100" transform="scale(0.555556,0.009524)" x="0.000000" y="8250.000000">6-2</text>
+<text x="0.000000" y="8250.000000" font-size="100" font-family="monospace" fill="lightgreen" transform="scale(0.555556,0.009524)">6-2</text>
 
-<text fill="turquoise" font-family="monospace" font-size="100" transform="scale(0.555556,0.009524)" x="0.000000" y="8325.000000">3-1</text>
+<text x="0.000000" y="8325.000000" font-size="100" font-family="monospace" fill="turquoise" transform="scale(0.555556,0.009524)">3-1</text>
 
-<text fill="green" font-family="monospace" font-size="100" transform="scale(0.333333,0.009524)" x="0.000000" y="8400.000000">12D-1</text>
+<text x="0.000000" y="8400.000000" font-size="100" font-family="monospace" fill="green" transform="scale(0.333333,0.009524)">12D-1</text>
 
 
-<rect height="80" style="fill:none;stroke:black;stroke-width:1" width="100" x="0" y="0"/>
+<rect x="0" y="0" height="80" width="100" style="fill:none;stroke:black;stroke-width:1" />
 
-<text fill="green" font-family="monospace" font-size="100" transform="scale(0.625000,1.066667)" x="168.000000" y="75.000000">C</text>
+<text x="168.000000" y="75.000000" font-size="100" font-family="monospace" fill="green" transform="scale(0.625000,1.066667)">C</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.895238)" x="228.000000" y="75.000000">A</text>
+<text x="228.000000" y="75.000000" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.895238)">A</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.142857)" x="228.000000" y="545.000000">I</text>
+<text x="228.000000" y="545.000000" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.142857)">I</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.028571)" x="228.000000" y="2800.000000">V</text>
+<text x="228.000000" y="2800.000000" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.028571)">V</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.752381)" x="288.000000" y="75.000000">L</text>
+<text x="288.000000" y="75.000000" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.752381)">L</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.257143)" x="288.000000" y="294.444444">A</text>
+<text x="288.000000" y="294.444444" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.257143)">A</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.028571)" x="288.000000" y="2725.000000">V</text>
+<text x="288.000000" y="2725.000000" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.028571)">V</text>
 
-<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.625000,0.466667)" x="348.000000" y="75.000000">G</text>
+<text x="348.000000" y="75.000000" font-size="100" font-family="monospace" fill="orange" transform="scale(0.625000,0.466667)">G</text>
 
-<text fill="green" font-family="monospace" font-size="100" transform="scale(0.625000,0.380952)" x="348.000000" y="166.875000">S</text>
+<text x="348.000000" y="166.875000" font-size="100" font-family="monospace" fill="green" transform="scale(0.625000,0.380952)">S</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.057143)" x="348.000000" y="1187.500000">V</text>
+<text x="348.000000" y="1187.500000" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.057143)">V</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.047619)" x="348.000000" y="1500.000000">A</text>
+<text x="348.000000" y="1500.000000" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.047619)">A</text>
 
-<text fill="red" font-family="monospace" font-size="100" transform="scale(0.625000,0.038095)" x="348.000000" y="1950.000000">E</text>
+<text x="348.000000" y="1950.000000" font-size="100" font-family="monospace" fill="red" transform="scale(0.625000,0.038095)">E</text>
 
-<text fill="green" font-family="monospace" font-size="100" transform="scale(0.625000,0.028571)" x="348.000000" y="2675.000000">C</text>
+<text x="348.000000" y="2675.000000" font-size="100" font-family="monospace" fill="green" transform="scale(0.625000,0.028571)">C</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.019048)" x="348.000000" y="4087.500000">N</text>
+<text x="348.000000" y="4087.500000" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.019048)">N</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.019048)" x="348.000000" y="4162.500000">L</text>
+<text x="348.000000" y="4162.500000" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.019048)">L</text>
 
-<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.625000,0.457143)" x="408.000000" y="75.000000">G</text>
+<text x="408.000000" y="75.000000" font-size="100" font-family="monospace" fill="orange" transform="scale(0.625000,0.457143)">G</text>
 
-<text fill="blue" font-family="monospace" font-size="100" transform="scale(0.625000,0.228571)" x="408.000000" y="225.000000">R</text>
+<text x="408.000000" y="225.000000" font-size="100" font-family="monospace" fill="blue" transform="scale(0.625000,0.228571)">R</text>
 
-<text fill="red" font-family="monospace" font-size="100" transform="scale(0.625000,0.085714)" x="408.000000" y="675.000000">E</text>
+<text x="408.000000" y="675.000000" font-size="100" font-family="monospace" fill="red" transform="scale(0.625000,0.085714)">E</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.085714)" x="408.000000" y="750.000000">A</text>
+<text x="408.000000" y="750.000000" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.085714)">A</text>
 
-<text fill="green" font-family="monospace" font-size="100" transform="scale(0.625000,0.066667)" x="408.000000" y="1039.285714">S</text>
+<text x="408.000000" y="1039.285714" font-size="100" font-family="monospace" fill="green" transform="scale(0.625000,0.066667)">S</text>
 
-<text fill="blue" font-family="monospace" font-size="100" transform="scale(0.625000,0.057143)" x="408.000000" y="1287.500000">K</text>
+<text x="408.000000" y="1287.500000" font-size="100" font-family="monospace" fill="blue" transform="scale(0.625000,0.057143)">K</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.028571)" x="408.000000" y="2650.000000">P</text>
+<text x="408.000000" y="2650.000000" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.028571)">P</text>
 
-<text fill="red" font-family="monospace" font-size="100" transform="scale(0.625000,0.028571)" x="408.000000" y="2725.000000">D</text>
+<text x="408.000000" y="2725.000000" font-size="100" font-family="monospace" fill="red" transform="scale(0.625000,0.028571)">D</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.019048)" x="408.000000" y="4162.500000">L</text>
+<text x="408.000000" y="4162.500000" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.019048)">L</text>
 
-<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.625000,1.047619)" x="468.000000" y="75.000000">G</text>
+<text x="468.000000" y="75.000000" font-size="100" font-family="monospace" fill="orange" transform="scale(0.625000,1.047619)">G</text>
 
-<text fill="green" font-family="monospace" font-size="100" transform="scale(0.625000,0.961905)" x="528.000000" y="75.000000">S</text>
+<text x="528.000000" y="75.000000" font-size="100" font-family="monospace" fill="green" transform="scale(0.625000,0.961905)">S</text>
 
-<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.625000,0.076190)" x="528.000000" y="1021.875000">G</text>
+<text x="528.000000" y="1021.875000" font-size="100" font-family="monospace" fill="orange" transform="scale(0.625000,0.076190)">G</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,1.038095)" x="588.000000" y="75.000000">N</text>
+<text x="588.000000" y="75.000000" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,1.038095)">N</text>
 
-<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.625000,0.019048)" x="588.000000" y="4162.500000">G</text>
+<text x="588.000000" y="4162.500000" font-size="100" font-family="monospace" fill="orange" transform="scale(0.625000,0.019048)">G</text>
 
 
-<rect height="80" style="fill:none;stroke:black;stroke-width:1" width="300" x="105" y="0"/>
+<rect x="105" y="0" height="80" width="300" style="fill:none;stroke:black;stroke-width:1" />
 
-<rect height="36.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="105.0" y="82"/>
+<rect x="105.0" y="82" height="36.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="105.0" y="118.0"/>
+<rect x="105.0" y="118.0" height="0.0" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="105.0" y="118.0"/>
+<rect x="105.0" y="118.0" height="0.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="36.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="117.5" y="82"/>
+<rect x="117.5" y="82" height="36.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="117.5" y="118.0"/>
+<rect x="117.5" y="118.0" height="0.0" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="117.5" y="118.0"/>
+<rect x="117.5" y="118.0" height="0.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="36.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="130.0" y="82"/>
+<rect x="130.0" y="82" height="36.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="130.0" y="118.0"/>
+<rect x="130.0" y="118.0" height="0.0" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="130.0" y="118.0"/>
+<rect x="130.0" y="118.0" height="0.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="36.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="142.5" y="82"/>
+<rect x="142.5" y="82" height="36.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="142.5" y="118.0"/>
+<rect x="142.5" y="118.0" height="0.0" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="142.5" y="118.0"/>
+<rect x="142.5" y="118.0" height="0.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="36.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="155.0" y="82"/>
+<rect x="155.0" y="82" height="36.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="155.0" y="118.0"/>
+<rect x="155.0" y="118.0" height="0.0" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="155.0" y="118.0"/>
+<rect x="155.0" y="118.0" height="0.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="36.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="167.5" y="82"/>
+<rect x="167.5" y="82" height="36.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="167.5" y="118.0"/>
+<rect x="167.5" y="118.0" height="0.0" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="167.5" y="118.0"/>
+<rect x="167.5" y="118.0" height="0.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="35.35714285714286" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="180.0" y="82"/>
+<rect x="180.0" y="82" height="35.35714285714286" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="0.6428571428571388" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="180.0" y="117.35714285714286"/>
+<rect x="180.0" y="117.35714285714286" height="0.6428571428571388" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="180.0" y="118.0"/>
+<rect x="180.0" y="118.0" height="0.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="34.71428571428571" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="192.5" y="82"/>
+<rect x="192.5" y="82" height="34.71428571428571" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="1.2857142857142918" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="192.5" y="116.71428571428571"/>
+<rect x="192.5" y="116.71428571428571" height="1.2857142857142918" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="192.5" y="118.0"/>
+<rect x="192.5" y="118.0" height="0.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="33.10714285714286" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="205.0" y="82"/>
+<rect x="205.0" y="82" height="33.10714285714286" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="1.9285714285714306" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="205.0" y="115.10714285714286"/>
+<rect x="205.0" y="115.10714285714286" height="1.9285714285714306" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="0.9642857142857082" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="205.0" y="117.03571428571429"/>
+<rect x="205.0" y="117.03571428571429" height="0.9642857142857082" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="31.5" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="217.5" y="82"/>
+<rect x="217.5" y="82" height="31.5" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="3.214285714285708" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="217.5" y="113.5"/>
+<rect x="217.5" y="113.5" height="3.214285714285708" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="1.2857142857142918" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="217.5" y="116.71428571428571"/>
+<rect x="217.5" y="116.71428571428571" height="1.2857142857142918" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="25.39285714285714" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="230.0" y="82"/>
+<rect x="230.0" y="82" height="25.39285714285714" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="6.428571428571431" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="230.0" y="107.39285714285714"/>
+<rect x="230.0" y="107.39285714285714" height="6.428571428571431" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="4.178571428571431" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="230.0" y="113.82142857142857"/>
+<rect x="230.0" y="113.82142857142857" height="4.178571428571431" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="22.82142857142857" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="242.5" y="82"/>
+<rect x="242.5" y="82" height="22.82142857142857" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="6.428571428571431" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="242.5" y="104.82142857142857"/>
+<rect x="242.5" y="104.82142857142857" height="6.428571428571431" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="6.75" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="242.5" y="111.25"/>
+<rect x="242.5" y="111.25" height="6.75" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="14.142857142857139" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="255.0" y="82"/>
+<rect x="255.0" y="82" height="14.142857142857139" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="6.428571428571431" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="255.0" y="96.14285714285714"/>
+<rect x="255.0" y="96.14285714285714" height="6.428571428571431" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="15.42857142857143" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="255.0" y="102.57142857142857"/>
+<rect x="255.0" y="102.57142857142857" height="15.42857142857143" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="3.857142857142861" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="267.5" y="82"/>
+<rect x="267.5" y="82" height="3.857142857142861" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="14.785714285714278" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="267.5" y="85.85714285714286"/>
+<rect x="267.5" y="85.85714285714286" height="14.785714285714278" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="17.35714285714286" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="267.5" y="100.64285714285714"/>
+<rect x="267.5" y="100.64285714285714" height="17.35714285714286" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="280.0" y="82"/>
+<rect x="280.0" y="82" height="0.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="18.0" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="280.0" y="82.0"/>
+<rect x="280.0" y="82.0" height="18.0" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="18.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="280.0" y="100.0"/>
+<rect x="280.0" y="100.0" height="18.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="292.5" y="82"/>
+<rect x="292.5" y="82" height="0.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="18.0" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="292.5" y="82.0"/>
+<rect x="292.5" y="82.0" height="18.0" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="18.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="292.5" y="100.0"/>
+<rect x="292.5" y="100.0" height="18.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="305.0" y="82"/>
+<rect x="305.0" y="82" height="0.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="17.67857142857143" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="305.0" y="82.0"/>
+<rect x="305.0" y="82.0" height="17.67857142857143" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="18.32142857142857" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="305.0" y="99.67857142857143"/>
+<rect x="305.0" y="99.67857142857143" height="18.32142857142857" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="317.5" y="82"/>
+<rect x="317.5" y="82" height="0.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="7.392857142857139" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="317.5" y="82.0"/>
+<rect x="317.5" y="82.0" height="7.392857142857139" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="28.60714285714286" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="317.5" y="89.39285714285714"/>
+<rect x="317.5" y="89.39285714285714" height="28.60714285714286" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="330.0" y="82"/>
+<rect x="330.0" y="82" height="0.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="0.6428571428571388" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="330.0" y="82.0"/>
+<rect x="330.0" y="82.0" height="0.6428571428571388" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="35.35714285714286" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="330.0" y="82.64285714285714"/>
+<rect x="330.0" y="82.64285714285714" height="35.35714285714286" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="342.5" y="82"/>
+<rect x="342.5" y="82" height="0.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="342.5" y="82.0"/>
+<rect x="342.5" y="82.0" height="0.0" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="342.5" y="82.0"/>
+<rect x="342.5" y="82.0" height="36.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="355.0" y="82"/>
+<rect x="355.0" y="82" height="0.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="355.0" y="82.0"/>
+<rect x="355.0" y="82.0" height="0.0" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="355.0" y="82.0"/>
+<rect x="355.0" y="82.0" height="36.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="367.5" y="82"/>
+<rect x="367.5" y="82" height="0.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="367.5" y="82.0"/>
+<rect x="367.5" y="82.0" height="0.0" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="367.5" y="82.0"/>
+<rect x="367.5" y="82.0" height="36.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="380.0" y="82"/>
+<rect x="380.0" y="82" height="0.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="380.0" y="82.0"/>
+<rect x="380.0" y="82.0" height="0.0" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="380.0" y="82.0"/>
+<rect x="380.0" y="82.0" height="36.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="12.5" x="392.5" y="82"/>
+<rect x="392.5" y="82" height="0.0" width="12.5" style="fill:silver;stroke:silver;stroke-width:1" />
 
-<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="12.5" x="392.5" y="82.0"/>
+<rect x="392.5" y="82.0" height="0.0" width="12.5" style="fill:red;stroke:red;stroke-width:1" />
 
-<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="12.5" x="392.5" y="82.0"/>
+<rect x="392.5" y="82.0" height="36.0" width="12.5" style="fill:dimgray;stroke:dimgray;stroke-width:1" />
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.018269)" x="288.000000" y="10916.038674">L</text>
+<text x="288.000000" y="10772.251670" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.018512)">L</text>
 
-<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.625000,0.079447)" x="348.000000" y="2420.963651">G</text>
+<text x="348.000000" y="2369.003895" font-size="100" font-family="monospace" fill="orange" transform="scale(0.625000,0.081122)">G</text>
 
-<text fill="green" font-family="monospace" font-size="100" transform="scale(0.625000,0.064855)" x="348.000000" y="3040.680472">S</text>
+<text x="348.000000" y="2977.029771" font-size="100" font-family="monospace" fill="green" transform="scale(0.625000,0.066222)">S</text>
 
-<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.625000,0.069420)" x="408.000000" y="2781.014860">G</text>
+<text x="408.000000" y="2784.482435" font-size="100" font-family="monospace" fill="orange" transform="scale(0.625000,0.069337)">G</text>
 
-<text fill="blue" font-family="monospace" font-size="100" transform="scale(0.625000,0.034710)" x="408.000000" y="5637.029721">R</text>
+<text x="408.000000" y="5643.964869" font-size="100" font-family="monospace" fill="blue" transform="scale(0.625000,0.034668)">R</text>
 
-<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.625000,0.313299)" x="468.000000" y="637.003543">G</text>
+<text x="468.000000" y="641.166116" font-size="100" font-family="monospace" fill="orange" transform="scale(0.625000,0.311270)">G</text>
 
-<text fill="green" font-family="monospace" font-size="100" transform="scale(0.625000,0.025323)" x="528.000000" y="7889.785181">S</text>
+<text x="528.000000" y="7949.654334" font-size="100" font-family="monospace" fill="green" transform="scale(0.625000,0.025133)">S</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.625000,0.021346)" x="588.000000" y="9367.200347">N</text>
+<text x="588.000000" y="9325.587979" font-size="100" font-family="monospace" fill="black" transform="scale(0.625000,0.021442)">N</text>
 
 
-<rect height="200.0" style="fill:none;stroke:black;stroke-width:1" width="300" x="105" y="0"/>
+<rect x="105" y="0" height="200.0" width="300" style="fill:none;stroke:black;stroke-width:1" />
 
-<text fill="red" font-family="monospace" font-size="100" transform="scale(0.833333,0.466667)" x="492.000000" y="75.000000">53</text>
+<text x="492.000000" y="75.000000" font-size="100" font-family="monospace" fill="red" transform="scale(0.833333,0.466667)">53</text>
 
-<text fill="cyan" font-family="monospace" font-size="100" transform="scale(0.833333,0.247619)" x="492.000000" y="216.346154">31</text>
+<text x="492.000000" y="216.346154" font-size="100" font-family="monospace" fill="cyan" transform="scale(0.833333,0.247619)">31</text>
 
-<text fill="blue" font-family="monospace" font-size="100" transform="scale(0.833333,0.238095)" x="492.000000" y="300.000000">33</text>
+<text x="492.000000" y="300.000000" font-size="100" font-family="monospace" fill="blue" transform="scale(0.833333,0.238095)">33</text>
 
-<text fill="lawngreen" font-family="monospace" font-size="100" transform="scale(1.666667,0.028571)" x="246.000000" y="2575.000000">6</text>
+<text x="246.000000" y="2575.000000" font-size="100" font-family="monospace" fill="lawngreen" transform="scale(1.666667,0.028571)">6</text>
 
-<text fill="magenta" font-family="monospace" font-size="100" transform="scale(0.833333,0.019048)" x="492.000000" y="3937.500000">56</text>
+<text x="492.000000" y="3937.500000" font-size="100" font-family="monospace" fill="magenta" transform="scale(0.833333,0.019048)">56</text>
 
-<text fill="saddlebrown" font-family="monospace" font-size="100" transform="scale(1.666667,0.009524)" x="246.000000" y="7950.000000">9</text>
+<text x="246.000000" y="7950.000000" font-size="100" font-family="monospace" fill="saddlebrown" transform="scale(1.666667,0.009524)">9</text>
 
-<text fill="khaki" font-family="monospace" font-size="100" transform="scale(1.666667,0.009524)" x="246.000000" y="8025.000000">7</text>
+<text x="246.000000" y="8025.000000" font-size="100" font-family="monospace" fill="khaki" transform="scale(1.666667,0.009524)">7</text>
 
-<text fill="lightblue" font-family="monospace" font-size="100" transform="scale(0.833333,0.009524)" x="492.000000" y="8100.000000">42</text>
+<text x="492.000000" y="8100.000000" font-size="100" font-family="monospace" fill="lightblue" transform="scale(0.833333,0.009524)">42</text>
 
-<text fill="black" font-family="monospace" font-size="100" transform="scale(0.833333,0.009524)" x="492.000000" y="8175.000000">40</text>
+<text x="492.000000" y="8175.000000" font-size="100" font-family="monospace" fill="black" transform="scale(0.833333,0.009524)">40</text>
 
-<text fill="deepskyblue" font-family="monospace" font-size="100" transform="scale(0.833333,0.009524)" x="492.000000" y="8250.000000">38</text>
+<text x="492.000000" y="8250.000000" font-size="100" font-family="monospace" fill="deepskyblue" transform="scale(0.833333,0.009524)">38</text>
 
-<text fill="darkcyan" font-family="monospace" font-size="100" transform="scale(0.833333,0.009524)" x="492.000000" y="8325.000000">32</text>
+<text x="492.000000" y="8325.000000" font-size="100" font-family="monospace" fill="darkcyan" transform="scale(0.833333,0.009524)">32</text>
 
-<text fill="lime" font-family="monospace" font-size="100" transform="scale(0.833333,0.009524)" x="492.000000" y="8400.000000">22</text>
+<text x="492.000000" y="8400.000000" font-size="100" font-family="monospace" fill="lime" transform="scale(0.833333,0.009524)">22</text>
 
 
-<rect height="80" style="fill:none;stroke:black;stroke-width:1" width="100" x="410" y="0"/>
+<rect x="410" y="0" height="80" width="100" style="fill:none;stroke:black;stroke-width:1" />
 
-<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="128.000">PA A #clones=3</text>
+<text x="410.000" y="128.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">PA A #clones=324</text>
 
-<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="136.000">chi-sq: 2879.9</text>
+<text x="410.000" y="136.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">chi-sq: 2879.9</text>
 
-<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="144.000">motif: ^.ALGaGaN</text>
+<text x="410.000" y="144.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">motif: ^.ALGaGaN</text>
 
-<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="152.000">match-: 29 966.7%</text>
+<text x="410.000" y="152.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">match-: 29 9.0%</text>
 
-<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="160.000">match+: 112 3733.3%</text>
+<text x="410.000" y="160.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">match+: 112 34.6%</text>
 
-<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="168.000">expect: 0.286</text>
+<text x="410.000" y="168.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">expect: 0.286</text>
 
-<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="176.000">enrich: 101.3</text>
+<text x="410.000" y="176.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">enrich: 101.3</text>
 
-<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="176.000">enrich: 101.3</text>
+<text x="410.000" y="176.000" font-size="8.0" font-weight="normal" font-family="Droid Sans Mono" fill="black" xml:space="preserve">enrich: 101.3</text>
 
 </svg>
