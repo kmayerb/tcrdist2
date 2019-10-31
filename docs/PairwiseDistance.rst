@@ -46,7 +46,6 @@ TCRdist for Prediction
   import pandas as pd
   import numpy as np
   import tcrdist as td
-  import IPython
 
   from tcrdist import mappers
   from tcrdist.repertoire import TCRrep

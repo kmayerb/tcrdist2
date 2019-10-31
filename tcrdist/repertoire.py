@@ -912,46 +912,60 @@ class TCRrep:
         pickle.dump(self,  open(filename , "wb") )
         warnings.warn("all smats dropped because they are C objects that can't be pickled. reassign with _initialize_chain_specific_attributes()")
 
-    def _tcrdist_legacy_method_alpha_beta(self):
+    def _tcrdist_legacy_method_alpha_beta(self, processes = 1):
+        """
+        Runs the legacy tcrdist pairwise comparision
+
+        Arguments
+        ---------
+        processes : int
+
+
+        Notes
+        -----
         # CALCULATE tcrdist distance metric. Here we show all the manuall steps to
         # implement the orginal Dash et al. tcrdist approach.
 
         # To do this we calculate distance for each CDR separately, and
         # we use the metric "tcrdist_cdr3" for the cdr3 and "tcrdist_cdr1"
         # everywhere else
+        """
+
+
+
         self.compute_pairwise_all(chain = "alpha",                        # <11
                                  metric = 'tcrdist_cdr3',
                                  compute_specific_region = 'cdr3_a_aa',
-                                 processes = 1)
+                                 processes = processes)
         self.compute_pairwise_all(chain = "alpha",                        # 11
                                  metric = "tcrdist_cdr1",
                                  compute_specific_region = 'cdr1_a_aa',
-                                 processes = 1)
+                                 processes = processes)
         self.compute_pairwise_all(chain = "alpha",                        # 11
                                  metric = "tcrdist_cdr1",
                                  compute_specific_region = 'cdr2_a_aa',
-                                 processes = 1)
+                                 processes = processes)
         self.compute_pairwise_all(chain = "alpha",                        # 11
                                  metric = "tcrdist_cdr1",
                                  compute_specific_region = 'pmhc_a_aa',
-                                 processes = 1)
+                                 processes = processes)
         self.compute_pairwise_all(chain = "beta",                         # 12
                                  metric = 'tcrdist_cdr3',
                                  #user_function = tcrdist_metric_align_cdr3s_false,
                                  compute_specific_region = 'cdr3_b_aa',
-                                 processes = 1)
+                                 processes = processes)
         self.compute_pairwise_all(chain = "beta",                         # 12
                                  metric = "tcrdist_cdr1",
                                  compute_specific_region = 'cdr1_b_aa',
-                                 processes = 1)
+                                 processes = processes)
         self.compute_pairwise_all(chain = "beta",                         # 12
                                  metric = "tcrdist_cdr1",
                                  compute_specific_region = 'cdr2_b_aa',
-                                 processes = 1)
+                                 processes = processes)
         self.compute_pairwise_all(chain = "beta",                         # 12
                                  metric = "tcrdist_cdr1",
                                  compute_specific_region = 'pmhc_b_aa',
-                                 processes = 1)
+                                 processes = processes)
 
         distA = self.compute_paired_tcrdist(replacement_weights= {'cdr3_a_aa_pw': 1,
                                                                 'cdr2_a_aa_pw': 1,
