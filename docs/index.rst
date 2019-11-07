@@ -26,13 +26,29 @@ is particularly illustrative.
   weight given to the CDR3 sequence in recognition of its disproportionate
   role in epitope specificity (see Methods and Extended Data Fig. 3)."
 
+
+.. _getting-started:
+
+
 .. toctree::
+   :caption: Getting started
    :maxdepth: 2
 
    Installation
    CompleteExample
    Saving
+   Plotting
    Preprocessing
+   WhatIsNew
+
+
+
+.. _more-details:
+
+.. toctree::
+   :caption: More details
+   :maxdepth: 2
+
    PairwiseDistance
    Subset
    Motifs
@@ -42,10 +58,17 @@ is particularly illustrative.
    Pairwise
    Processing
    Neighborhood
-   Plotting
+
+
+.. _in-depth-topics:
+
+.. toctree::
+   :caption: In-Depth
+   :maxdepth: 2
+
    Example_2
    Example_1
-   WhatIsNew
+
 
 
 

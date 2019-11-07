@@ -1,6 +1,7 @@
 Installation
 ============
 
+
 `tcrdist2 <https://github.com/kmayerb/tcrdist2>`_ is a
 python API-enabled toolkit expanding on the T cell receptor analysis pipeline
 developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and
@@ -66,6 +67,12 @@ To install blast within your virtual environment
 
 Dependencies if Using Python 2.7.11
 +++++++++++++++++++++++++++++++++++
+
+.. tip::
+
+  We are no longer supporting python 2.7. We have made extra effort to
+  update other code bases such as olga to run in python 3.6. Please contact
+  us if you have an urgent need for python 2.7 compatibility.
 
 If you are going to install the python 2.7.11 dependencies it is highly recommended that tcrdist2
 is installed within a `python virtual environment <https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/>`_.
