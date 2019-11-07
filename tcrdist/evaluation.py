@@ -579,12 +579,27 @@ class EvalTCR():
         """
         Parameters
         ----------
+        epi : list of 
+        obs : DataFrame
+            Dataframe with observations (0 or 1). Each column is an epitope.
+            1 if that TCR is specific for that epitope; 0 otherwise.
+        pr  : DataFrame
+            Dataframe with predictions (between 0 or 1). Each column is an epitope.
+            The value is the strength of prediction that TCR is specific to
+            that epitope.
+
+
         df : DataFrame
             pandas DataFrame
 
         Returns
         -------
         roc_df : DataFrame
+
+        Notes
+        -----
+        roc_curve is a function from sklearn
+        from sklearn.metrics import roc_curve
 
 
         """

@@ -10,7 +10,7 @@ def test_Complete_Performance_Example():
     from tcrdist import mappers
     from tcrdist.repertoire import TCRrep
 
-    tcrdist_clone_fn = 'mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv'
+    tcrdist_clone_fn = 'tcrdist/test_files/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv'
     tcrdist_clone_df = pd.read_csv(tcrdist_clone_fn, sep = "\t")
 
     mapping = mappers.tcrdist_clone_df_to_tcrdist2_mapping

@@ -1,6 +1,7 @@
 from tcrdist.repertoire import _map_clone_df_to_TCRMotif_clone_df
 import pytest
 import pandas as pd
+import numpy as np
 
 def test__map_clone_df_to_TCRMotif_clone_df():
     """
@@ -50,3 +51,140 @@ def test__map_clone_df_to_TCRMotif_clone_df_KeyError_message():
                                         'cdr2_a_aa', 'cdr2_b_aa'])
         _map_clone_df_to_TCRMotif_clone_df(df)
     assert 'clone_df must have columns names: subject' in str(excinfo.value)
+
+def test_data_type_conversion_with_reduce_file_size():
+    """
+    Test that successfull conversion of np attributes from
+    np.float64 to np.int16
+    after calling
+
+    """
+    import pandas as pd
+    import numpy as np
+    import tcrdist as td
+
+    from tcrdist import mappers
+    from tcrdist.repertoire import TCRrep
+
+    tcrdist_clone_fn = 'tcrdist/test_files/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv'
+    tcrdist_clone_df = pd.read_csv(tcrdist_clone_fn, sep = "\t")               #1
+
+    ind = (tcrdist_clone_df.epitope == "PA") | (tcrdist_clone_df.epitope == "F2")
+    tcrdist_clone_df = tcrdist_clone_df[ind].copy()
+
+    mapping = mappers.tcrdist_clone_df_to_tcrdist2_mapping                     #3
+    tcrdist2_df = mappers.generic_pandas_mapper(df = tcrdist_clone_df,         #4
+                                              mapping = mapping)
+
+
+
+    #1
+    tr = TCRrep(cell_df = tcrdist2_df, organism = "mouse")
+
+    #2
+    tr.infer_cdrs_from_v_gene(chain = 'alpha', imgt_aligned=True)
+    tr.infer_cdrs_from_v_gene(chain = 'beta',  imgt_aligned=True)
+
+    #3
+    tr.index_cols = ['clone_id', 'subject', 'epitope',
+                   'v_a_gene',  'j_a_gene', 'v_b_gene', 'j_b_gene',
+                   'cdr3_a_aa', 'cdr3_b_aa',
+                   'cdr1_a_aa', 'cdr2_a_aa', 'pmhc_a_aa',
+                   'cdr1_b_aa', 'cdr2_b_aa', 'pmhc_b_aa',
+                   'cdr3_b_nucseq', 'cdr3_a_nucseq',
+                   'va_countreps', 'ja_countreps',
+                   'vb_countreps', 'jb_countreps',
+                   'va_gene', 'vb_gene',
+                   'ja_gene', 'jb_gene']
+
+    #4
+    tr.deduplicate()
+
+    #5
+    tr._tcrdist_legacy_method_alpha_beta()
+    print(type(tr.cdr3_a_aa_pw[1,1]))
+    assert isinstance(tr.cdr3_a_aa_pw[1,1], np.float64)
+    assert isinstance(tr.cdr3_b_aa_pw[1,1], np.float64)
+    tr.reduce_file_size()
+    assert isinstance(tr.cdr3_a_aa_pw[1,1], np.int16)
+    assert isinstance(tr.cdr3_b_aa_pw[1,1], np.int16)
+
+
+@pytest.fixture(scope="module")
+def generate_tr():
+    import pandas as pd
+    import numpy as np
+    import tcrdist as td
+
+
+    from tcrdist import mappers
+    from tcrdist.repertoire import TCRrep
+
+    tcrdist_clone_fn = 'tcrdist/test_files/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv'
+    tcrdist_clone_df = pd.read_csv(tcrdist_clone_fn, sep = "\t")               #1
+
+    ind = (tcrdist_clone_df.epitope == "PA") | (tcrdist_clone_df.epitope == "F2")
+    tcrdist_clone_df = tcrdist_clone_df[ind].copy()
+
+    mapping = mappers.tcrdist_clone_df_to_tcrdist2_mapping                     #3
+    tcrdist2_df = mappers.generic_pandas_mapper(df = tcrdist_clone_df,         #4
+                                              mapping = mapping)
+
+
+
+    #1
+    tr = TCRrep(cell_df = tcrdist2_df, organism = "mouse")
+
+    #2
+    tr.infer_cdrs_from_v_gene(chain = 'alpha', imgt_aligned=True)
+    tr.infer_cdrs_from_v_gene(chain = 'beta',  imgt_aligned=True)
+
+    #3
+    tr.index_cols = ['clone_id', 'subject', 'epitope',
+                   'v_a_gene',  'j_a_gene', 'v_b_gene', 'j_b_gene',
+                   'cdr3_a_aa', 'cdr3_b_aa',
+                   'cdr1_a_aa', 'cdr2_a_aa', 'pmhc_a_aa',
+                   'cdr1_b_aa', 'cdr2_b_aa', 'pmhc_b_aa',
+                   'cdr3_b_nucseq', 'cdr3_a_nucseq',
+                   'va_countreps', 'ja_countreps',
+                   'vb_countreps', 'jb_countreps',
+                   'va_gene', 'vb_gene',
+                   'ja_gene', 'jb_gene']
+
+    #4
+    tr.deduplicate()
+
+    #5
+    tr._tcrdist_legacy_method_alpha_beta()
+    return tr
+
+def test_save_to_hdf5(generate_tr):
+    """
+    Here we save a TCRrep instance to hdf5 and then reopen and test that the parts
+    are identical to the original.
+
+    TODO: For DataFrames are row indices retained?
+    """
+    tr = generate_tr
+    print(tr.chains)
+    tr.project_id = "Example Save and Reload"
+    tr.reduce_file_size()
+    tr.stored_tcrdist = None
+    tr.save_as_hdf5("tr_test.h5")
+
+    from tcrdist.repertoire import TCRrep
+    tr2 = TCRrep(cell_df = pd.DataFrame({1:[0]}), organism = "mouse")
+    tr2.rebuild_from_hdf5("tr_test.h5")
+    # TEST asset that all but  'all_genes' and 'stored_tcrdist' are true
+    test_that = {x : np.all(getattr(tr, x) == getattr(tr2, x)) for x in tr.__dict__.keys()}
+    assert test_that['chains']
+    assert test_that['organism']
+    assert test_that['cdr3_a_aa_pw']
+    assert test_that['cdr3_b_aa_pw']
+    assert test_that['cdr2_a_aa_pw']
+    assert test_that['cdr2_b_aa_pw']
+    assert test_that['cdr1_a_aa_pw']
+    assert test_that['cdr1_b_aa_pw']
+    assert test_that['clone_df']
+    assert test_that['cell_df']
+    assert test_that['paired_tcrdist']

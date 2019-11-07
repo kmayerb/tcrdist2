@@ -2,12 +2,15 @@ import numpy as np
 import pandas as pd
 import parasail
 from tcrdist import pairwise
+import collections
+import json
 #from tcrdist.cdr3s_human import pb_cdrs
 import warnings
 import pickle
 from tcrdist import repertoire_db
 from tcrdist import pgen
 from tcrdist import mappers
+
 
 #from paths import path_to_matrices
 
@@ -914,7 +917,7 @@ class TCRrep:
 
     def _tcrdist_legacy_method_alpha_beta(self, processes = 1):
         """
-        Runs the legacy tcrdist pairwise comparision
+        Runs the legacy tcrdist pairwise comparison
 
         Arguments
         ---------
@@ -923,8 +926,8 @@ class TCRrep:
 
         Notes
         -----
-        # CALCULATE tcrdist distance metric. Here we show all the manuall steps to
-        # implement the orginal Dash et al. tcrdist approach.
+        # CALCULATE tcrdist distance metric. Here we show all the manual steps to
+        # implement the original Dash et al. tcrdist approach.
 
         # To do this we calculate distance for each CDR separately, and
         # we use the metric "tcrdist_cdr3" for the cdr3 and "tcrdist_cdr1"
@@ -994,6 +997,173 @@ class TCRrep:
         # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
         self.dist_a = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
         self.dist_b = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
+
+    def drop_stored_results(self):
+        """
+        Sets list of stored results to None.
+        This will not effect the individual CDR pair-wise matrices or
+        the most recent self.paired_tcrdist
+
+        """
+        self.stored_tcrdist = None
+
+    def reduce_file_size(self, attributes = None, data_type = 'int16'):
+        """
+        Parameters
+        ----------
+
+        attributes : list
+            The list of numpy attributes to change data type.
+            If left blank all numpy attributes will be changes
+        data_type : str
+            numpy data type default = 'int16' which will accommodate
+            tcrdistances but save considerable space in memory.
+
+        Notes
+        -----
+        This is useful for reducing the file size and memory usage of the
+        large matrices stored as attributes of the TCRrep class. E.g.,
+        a 10,000 x 10,000 pairwise matrix can be shrunk from > 1GB to
+        300 MB by converting float to int16.
+
+        Numpy supports a much greater variety of numerical types than Python
+        does. Some are:
+
+        int16	Integer (-32768 to 32767)
+        int32	Integer (-2147483648 to 2147483647)
+
+        See https://docs.scipy.org/doc/numpy-1.10.0/user/basics.types.html for
+        details on other types.
+
+        """
+        # If attributes are not user supplied, all TCRrep attributes will be
+        # considered for type conversion.
+
+        if attributes is None:
+            attributes = list(self.__dict__.keys())
+
+        if not isinstance(attributes, list):
+            raise TypeError("< attributes > argument must be supplied as a list")
+
+        # However, only np.arrays will be transformed to the new data type
+        for k in attributes:
+            if isinstance(getattr(self,k), np.ndarray):
+                print("REDUCING {} to {}.".format(k, data_type))
+                self._reduce_file_size_of_np_attribute(k, data_type)
+
+
+    def _reduce_file_size_of_np_attribute(self, attribute,  data_type = 'int16'):
+        """
+        Parameters
+        ----------
+        attribute : str
+            TCRrep attribute
+        data_type : str
+            numpy datatype
+        """
+        x = getattr(self, attribute).astype(data_type)
+        setattr(self, attribute, x)
+
+    def save_as_hdf5(self, hdf5_file):
+        """
+        Save class attributes as a hdf5 file
+
+        Parameters
+        ----------
+        hdf5_file : string
+            specifies the hdf5 file to used to save TCRrep attribute
+        """
+        hdf = pd.HDFStore(hdf5_file)
+        all_attrs = self.__dict__.keys()
+        all_types = [type(getattr(self,x)) for x in all_attrs]
+
+        attributes_dict = {k : getattr(self,k) for k,t in zip(all_attrs, all_types) if t in [bool, str, int, list, dict]}
+        attributes_dict['attributes'] = list(all_attrs)
+
+        for attr, ty in zip(all_attrs, all_types):
+            x = getattr(self,attr)
+            if not isinstance(x, parasail.bindings_v2.Matrix):
+                if isinstance(x, pd.core.frame.DataFrame):
+                    hdf.put(attr, x, format = 'table', data_columns=True)
+                if isinstance(x, np.ndarray):
+                    hdf.put(attr, pd.DataFrame(x), format = 'table')
+
+        hdf.get_storer('cell_df').attrs.metadata = json.dumps(attributes_dict)
+        hdf.close()
+
+    def rebuild_from_hdf5(self, hdf5_file):
+        """
+        Use hdf5 file to rebuild a TCRrep instance.
+
+        Parameters
+        ----------
+        hdf5_file : string
+            specifies the hdf5 file used to repopulate a TCRdist object
+
+        Notes
+        -----
+        pandas and numpy objects are stored as datasets within the hdf5 file.
+
+        str, list, bool, and float type attributes are stored in a json
+        file that is set as metadata for the archived cell_df dataset.
+        Within this metadata, the attributes contains a list of all class
+        attributes.
+        """
+        # Currently these are the only acceptable attributes that can be
+        # read from the HDF5
+        attr_to_type = {
+        'cell_df': pd.core.frame.DataFrame,
+        'chains': list,
+        'organism': str,
+        'pwdist_df': None,
+        'clone_df': pd.core.frame.DataFrame,
+        'index_cols': list,
+        'stored_tcrdist': None,
+        'paired_tcrdist': np.ndarray,
+        'paired_tcrdist_weights': dict,
+        'meta_cols': None,
+        'project_id': str,
+        'all_genes': collections.OrderedDict,
+        'imgt_aligned_status': bool,
+        'cdr3_a_aa_smat': parasail.bindings_v2.Matrix,
+        'cdr2_a_aa_smat': parasail.bindings_v2.Matrix,
+        'cdr1_a_aa_smat': parasail.bindings_v2.Matrix,
+        'pmhc_a_aa_smat': parasail.bindings_v2.Matrix,
+        'cdr3_b_aa_smat': parasail.bindings_v2.Matrix,
+        'cdr2_b_aa_smat': parasail.bindings_v2.Matrix,
+        'cdr1_b_aa_smat': parasail.bindings_v2.Matrix,
+        'pmhc_b_aa_smat': parasail.bindings_v2.Matrix,
+        'cdr3_a_aa_pw': np.ndarray,
+        'cdr1_a_aa_pw': np.ndarray,
+        'cdr2_a_aa_pw': np.ndarray,
+        'pmhc_a_aa_pw': np.ndarray,
+        'cdr3_b_aa_pw': np.ndarray,
+        'cdr1_b_aa_pw': np.ndarray,
+        'cdr2_b_aa_pw': np.ndarray,
+        'pmhc_b_aa_pw': np.ndarray,
+        'dist_a': pd.core.frame.DataFrame,
+        'dist_b': pd.core.frame.DataFrame}
+
+        with pd.HDFStore(hdf5_file) as store:
+
+            # pull the metadata from cell_df
+            metadata = store.get_storer('cell_df').attrs.metadata
+            metadata = json.loads(metadata)
+
+            #
+            for attr in metadata['attributes']:
+                try:
+                    print("SETTING {} AS {}".format(attr, attr_to_type[attr] ))
+                except KeyError:
+                    print("YOU TRIED TO SET {} BUT IT IS NOT A RECOGNIZED ATTRRIBUTE OF TCRrep".format(attr))
+                    continue
+                if attr_to_type[attr] is pd.core.frame.DataFrame:
+                    setattr(self, attr, store[attr])
+                elif attr_to_type[attr] is np.ndarray:
+                    setattr(self, attr, store[attr].values)
+                elif attr_to_type[attr] in [int, str, list, bool, dict]:
+                    setattr(self, attr, metadata[attr])
+
 
 
 
@@ -1140,5 +1310,6 @@ _get_smat()
     return smat given chain (e.g. "alpha") and index_col (e.g. "cdr2_a_aa")
 _assign_pw_result()
     assign pw distance given chain (e.g. "alpha") and index_col (e.g. "cdr2_a_aa")
+
 
 """
