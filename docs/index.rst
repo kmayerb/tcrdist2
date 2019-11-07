@@ -39,8 +39,6 @@ is particularly illustrative.
    Saving
    Plotting
    Preprocessing
-   WhatIsNew
-
 
 
 .. _more-details:
@@ -58,6 +56,7 @@ is particularly illustrative.
    Pairwise
    Processing
    Neighborhood
+   WhatIsNew
 
 
 .. _in-depth-topics:

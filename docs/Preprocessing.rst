@@ -28,7 +28,7 @@ Bulk Data Processed with MiXCR
 
 If you have bulk sequencing data, MiXCR is an excellent option for rapidly
 annotating the CDRs and identifying gene V and J gene usage. Great documentation
-for MiXCR can be found at `mixcr.readthedocs.io/ <https://mixcr.readthedocs.io/en/master/>`_. 
+for MiXCR can be found at `mixcr.readthedocs.io/ <https://mixcr.readthedocs.io/en/master/>`_.
 
 .. code-block::
 
