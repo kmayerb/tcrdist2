@@ -1,9 +1,16 @@
 Saving Your Work
 ================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+The original tcrdist was based on writing a series of intermediate
+flat text files. By contrast, tcrdist2 is based on pandas DataFrame and
+numpy objects which are stored in memory and associated with classes.
+
+Because certain steps in the pipeline, such as calculation of all-v-all pairwise
+distances (1-10 minutes) and search for candidate cdr3 motifs (5-30 minutes)
+can take time to compute, storing tcrdist2 results to files is useful.
+
+This page documents methods for saving tcrdist2 objects for later
+use.
 
 Save
 ####
@@ -29,11 +36,11 @@ Reload from hdf5 with :py:meth:`tcrdist.repertoire.TCRrep.rebuild_from_hdf5`
 Reduce File Size
 ################
 
-Most tcrdistance can be expressed as integers without loss of information.
-Th int16 data types native to numpy are a great choice and
-can reduce dramatically the file size of a saved
-TCRrep instance. We've made that easy. If you want to convert numpy arrays
-from float64 type to int16 type (or any other type) storage use
+Most tcrdistances can be expressed as integers without loss of information.
+The `int16` data types, native to numpy, is a choice that
+can considerably reduce the file size of a saved
+TCRrep instance. We've made that easy. To convert numpy arrays
+with float64 data to arrays wiht int16 data storage, use
 :py:meth:`tcrdist.repertoire.TCRrep.reduce_file_size`:
 
 
@@ -47,19 +54,25 @@ from float64 type to int16 type (or any other type) storage use
 Details
 #######
 
-Suppose you have done some work with a tcrdist2 objects and you want to save
-them for further use. Computation of pairwise distances can take
-a few minutes as the number of TCR clones increases.
+This section provides more details on methods for saving tcrdist2 objects for later
+use. For example, the computation of pairwise distances can take
+a 10 second on a small data set (1000 clones)
+but a few minutes on a larger one (10,000 clones).
 
-Individual elements of the TCRrep class can be saved to
-text files. See
+
+Individual elements, such as pairwise distance matrices, stored in the
+TCRrep class can be saved to text files. Most users will be familiar
+with writing DataFrames and arrays to text files, but for more info on DataFrames,
+see
 `pandas.DataFrame.to_csv <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html#pandas-dataframe-to-csv>`_
-for dataframes and, for
-numpy arrays, see `numpy.savetxt <https://docs.scipy.org/doc/numpy/reference/generated/numpy.savetxt.html>`_
+and for numpy arrays, see: `numpy.savetxt <https://docs.scipy.org/doc/numpy/reference/generated/numpy.savetxt.html>`_
 
-However, a :py:class:`tcrdist.repertoire.TCRrep` class instance can be
-serialized in it entirety. The preferred method for saving a TCRrep instance is to serialize the crucial
-attributes to an HDF5 file
+Rather than write each element to a separate file,
+an instance of the :py:class:`tcrdist.repertoire.TCRrep` class can be
+serialized in it entirety.
+
+The preferred method for saving a TCRrep instance is to save it's
+attributes to an HDF5 file.
 
 .. tip ::
 
@@ -67,7 +80,7 @@ attributes to an HDF5 file
   consider downloading the free `HDF5 viewer <https://www.hdfgroup.org/downloads/hdfview/>`_
   It enables inspection of the HDF5 file's contents.
 
-Here is how it all works:
+An example shows, how it all works:
 
 .. code-block:: python
 
@@ -95,9 +108,10 @@ Here is how it all works:
   tr.save_as_hdf5("TCRrep_file.h5")
 
 
-When returning, initialize a new TCRrep instance (i.e., tr2 in the code below).
-Provide a empty pd.DataFrame for the cell_df and specify the correct
-model organism. Then call :py:meth:`tcrdist.repertoire.TCRrep.rebuild_from_hdf5`
+To start where you left off:
+
+* 1. initialize a new TCRrep instance  (i.e., tr2 in the code below), providing an empty pd.DataFrame for the cell_df argument. Specify the correct
+* 2. Call :py:meth:`tcrdist.repertoire.TCRrep.rebuild_from_hdf5`
 
 .. code-block:: python
 
@@ -105,8 +119,8 @@ model organism. Then call :py:meth:`tcrdist.repertoire.TCRrep.rebuild_from_hdf5`
   tr2.rebuild_from_hdf5("TCRrep_file.h5")
 
 
-You can inspect the new object. Here we confirm that the crucial attributes
-are identical in tr and tr2.
+You can inspect and confirm that the crucial attributes
+are identical in tr and tr2, with the following code:
 
 .. code-block:: python
 
@@ -144,14 +158,15 @@ Pickle
 
 .. tip::
 
- READ: TCRrep instances and all there contents can be pickled. That's good.
+ READ: TCRrep instances and their contents can be pickled. That's good.
  **But pickling is cursed!** That's bad. In fact, we advise against
- using pickle for long-term storage as upgraded versions of tcrdist2 may not
- recognize pickled file made from a prior version!!! But the pickle comes
+ using pickle for long-term storage of complex objects.
+ This is because future versions of tcrdist2 may not
+ recognize pickled files made from a prior version!!! But the pickle comes
  with your choice of toppings. That's good. But the toppings are also
- `cursed <https://www.youtube.com/watch?v=KaWdKSR2rtA>`_
+ `cursed <https://youtu.be/Krbl911ZPBA>`_
 
-If you wish to pickle a TCRrep instance:
+If you wish to pickle a TCRrep instance (*caveat emptor*):
 
 .. code-block:: python
 
@@ -169,6 +184,7 @@ To get it back:
 .. tip::
 
   If you intend to
-  calcuate more tcrdistances, it is also necessary to call
+  calculate more tcrdistances with this TCRrep instance,
+  it is also necessary to call
   :py:meth:`tcrdist.repertoire.TCRrep._initialize_chain_specific_attributes` which restores
-  parasail distance matrices which can not be serialized.
+  parasail distance matrices which can not be pickled.

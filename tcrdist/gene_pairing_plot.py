@@ -194,7 +194,26 @@ def plot_pairings(cell_df, cols, count_col=None, use_color_gradients=True, other
     Returns
     -------
     raw_svg : str
-        Raw SVG txt that can be written to a file."""
+        Raw SVG txt that can be written to a file.
+
+    Notes
+    -----
+    For calling this function
+
+    .. code:: python
+
+      import tcrdist as td
+      td.plotting.plot_pairings()
+
+    is equivalent to:
+
+    .. code:: python
+
+      import tcrdist as td
+      td.gene_pairing_plot.plot_pairings()
+
+
+    """
     df = cell_df.copy()
 
     """Not implemented: enrichment should take into account the whole unbiased repertoire"""

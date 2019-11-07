@@ -46,17 +46,19 @@ Example Data
 #############
 
 This example uses the mouse clones files from the Dash et al. 2017 study.
-Clones file can be downloaded (`clones <https://www.dropbox.com/s/l0z12f8lc752wfx/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv?dl=1>`_ 2MB).
-The search for motifs in tcrdist2 is a slow step. Users who wish to use
-precomputed candidate motifs can download a motifs file
+The clones file can be downloaded (`clones <https://www.dropbox.com/s/l0z12f8lc752wfx/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv?dl=1>`_ 2MB).
+Searching for motifs in tcrdist2 is a slow step in the pipeline.
+Thus for this example, users may wish to use precomputed candidate motifs.
+A file with these motifs generated for TCRs specific to the PA epitope
+(found in a protein from the mouse influenza virus) can be downloaded.
 (`PA motifs <https://www.dropbox.com/s/z7wwmwb1n6dpq74/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones_cdr3_motifs_PA.log?dl=1>`_ 32KB).
 
 The steps in the code block below:
 
 1. Load the clones file as a Pandas DataFrame.
-2. Select only those clones specific to epitope F2 or PA. We choose two here, so we can later illustrate subsetting by epitope specificity.
-3. Load an appropriate mapping (i.e. a dictionary of old and new column names).
-4. Apply the mapping to the the original DataFrame, to select and rename columns.
+2. Select only those clones specific to the F2 or PA epitopes. Note, we choose two here, so we can later illustrate subsetting by epitope specificity.
+3. Load an appropriate mapping object (i.e. a dictionary of old and new column names).
+4. Apply the mapping object to the the original DataFrame, to select and rename columns.
 
 .. code-block:: python
 
@@ -80,7 +82,7 @@ Pairwise Distance
 
 The user can compute TCR distances using a method from the Dash et al. 2016
 paper using :py:meth:`tr._tcrdist_legacy_method_alpha_beta()` as is shown in the
-following example. However, **tcrdist2** offers a lot flexibility in the
+following example. However, **tcrdist2** offers a lot of flexibility in the
 calculation of "tcrdistances," and the reader is encouraged to consult the
 :ref:`PairwiseDistance`, :ref:`QuickStartExample`, and :ref:`DetailedExample`
 documentation pages for further details.
@@ -89,10 +91,10 @@ The steps in the code block below:
 
 1. Instantiate an instance of TCRrep class as `tr`.
 2. Infer CDR1, CDR2, and CDR2.5 sequences based on V and Gene
-3. Set index columns. The choice of index columns determine unique clones and the variables available to downstream analysis steps.
-4. Based on index columns, remove duplicates (duplicates are clones identical across all index columns).
-5. `_tcrdist_legacy_method_alpha_beta()` is a convenience function for calculating a legacy TCRdist in the method described by Dash et al. 2017.
-6. Save alpha- and beta-specific distance matrices for later use.
+3. Set index columns. The choice of index columns determines unique clones and also sets which variables remain available to downstream analysis steps.
+4. Based on index columns selected, remove duplicates (duplicates are clones identical across all index columns).
+5. :py:meth:`tcrdist.repertoire.TCRrep._tcrdist_legacy_method_alpha_beta()` is a convenience function for calculating a legacy TCRdist in the method described by Dash et al. 2017.
+6. Save the alpha- and beta-specific distance matrices for later use (motif finding is based on information from a single chain).
 
 .. code-block:: python
 
@@ -143,7 +145,8 @@ The steps in the code block below:
 Subset
 ######
 
-TCRsubset defines a subset of interest.
+TCRsubset defines a subset of interest. It is common to search for CDR3 motifs
+among the subset of the data specific to a single epitope.
 
 The steps in the code block below:
 
@@ -222,8 +225,8 @@ Here we plot the first of the motif logos stored in motif_logos.
 
 .. tip::
   The underlying data structures used to make these plots can be accessed in
-  motif_list. For example `StoreIOMotif_instance.entropy` contains the
-  position wise matrices. See :py:class:`tcrdist.storage.StoreIOMotif` and
+  motif_list. For example, `StoreIOMotif_instance.entropy` contains the
+  position-wise matrices. See :py:class:`tcrdist.storage.StoreIOMotif` and
   See :py:class:`tcrdist.storage.StoreIOEntropy` for more details.
 
 .. code-block:: python
@@ -248,6 +251,8 @@ For example, row 87:
 
 Putting it All Together
 #######################
+
+Here is all the code in one place for copying and pasting into your workflow.
 
 .. code-block:: python
 

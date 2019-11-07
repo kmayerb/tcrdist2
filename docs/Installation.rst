@@ -37,6 +37,8 @@ following preparatory steps may be required.
   pip install virtualenv
 
 
+With virtualenv installed, continue with the installation:
+
 .. code-block:: none
 
   python3 -m venv ./venv

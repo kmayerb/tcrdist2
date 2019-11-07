@@ -1,5 +1,13 @@
-tcrdist.plotting
-================
+Visualizing
+===========
+
+Some of the most popular features of the original tcrdist code were
+its beautiful SVG based graphics.
+For instance, gene usage plots visualize the frequency
+with which different V and J genes are used within a T cell repertoire.
+Because some users may wish to make these plots without using the other
+feature of tcrdist2, we have built them as stand-alone features.
+**That means if you can create a pandas DataFrame you can make a gene-usage plot.**
 
 .. image:: plotpairing4.svg
 
@@ -9,19 +17,6 @@ tcrdist.plotting
 
 plot_pairings
 -------------
-
-.. code:: python
-
-  import tcrdist as td
-  td.plotting.plot_pairings()
-
-is equivalent to:
-
-.. code:: python
-
-  import tcrdist as td
-  td.gene_pairing_plot.plot_pairings()
-
 
 .. automodule:: tcrdist.gene_pairing_plot
 
