@@ -1,3 +1,5 @@
+.. _CompleteExample:
+
 Complete Example
 ================
 
@@ -133,6 +135,8 @@ The steps in the code block below:
   If using legacy tcrdist, no further weighting is required. See Pairwise
   for information on developing a metric with
   custom weighting each CDR region.
+
+.. _CompleteExampleSubset:
 
 Subset
 ######

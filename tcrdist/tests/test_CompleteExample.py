@@ -38,8 +38,8 @@ def test_Complete_Performance_Example():
 
 
     tr.deduplicate()
-
-    tr._tcrdist_legacy_method_alpha_beta(processes = 6)
+    
+    tr._tcrdist_legacy_method_alpha_beta(processes = 1)
 
     distA = tr.dist_a
     distB = tr.dist_b
