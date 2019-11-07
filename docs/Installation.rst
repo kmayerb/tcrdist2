@@ -1,34 +1,32 @@
 Installation
 ============
 
-
 `tcrdist2 <https://github.com/kmayerb/tcrdist2>`_ is a
 python API-enabled toolkit expanding on the T cell receptor analysis pipeline
 developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and
 colleagues as part of a T-cell receptor epitope specificity analysis
 in Dash et al. Nature (2017). `doi:10.1038/nature22383 <https://www.nature.com/articles/nature22383>`_
 
-tcrdist2 can be run using either Python 2.7.11 or Python 3 and can
+tcrdist2 is designed to be run using Python 3. The latest version can
 be installed from GitHub using pip:
 
 .. code-block:: none
 
   pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 
-Before installing check that you have the appropriate dependencies:
+Before installing tcrdist2, check that you have the appropriate dependencies.
 
-Dependencies if Using Python 3
-++++++++++++++++++++++++++++++
+Dependencies
+++++++++++++
 
-Tcrdist2 requires numpy, scipy, matplotlib, scipy, scikit-learn, as well as
-the C based sequence aligner parasail.
+Tcrdist2 requires wheel, numpy, scipy, matplotlib, scipy, scikit-learn, tables,
+as well as the C-based sequence aligner parasail.
 
 Recommended python 3.6 dependencies are specified in the
-*requirements36.txt* file.
-
+`requirements36.txt <https://raw.githubusercontent.com/kmayerb/tcrdist2/API2/requirements36.txt>`_ .
+It should be placed the directory where you launch the installation.
 The following will install tcrdist on a linux or macOSX within a virtual
-environment. The `requirements36.txt <https://raw.githubusercontent.com/kmayerb/tcrdist2/API2/requirements36.txt>`_ should be placed in your
-install directory.
+environment (Recommended).
 
 If you are creating a virtual environment in Linux for the first time, the
 following preparatory steps may be required.
@@ -48,6 +46,25 @@ following preparatory steps may be required.
   pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 
 
+Test the Installation
++++++++++++++++++++++
+
+.. code-block:: none
+
+  python -c 'import tcrdist as td; td.say_hello()'
+
+You should see, the following:
+
+.. code-block:: none
+
+  Hello: 'By recombination, random insertion, deletion and substitution,
+  the small set of genes that encode the T-cell receptor has the potential
+  to create between 10^15 and 10^20 TCR clonotypes ...
+  However, the actual diversity of a persons TCR repertoire cannot possibly
+  lie in this range. There are only an estimated 10^13 cells in the
+  human body [3]' -- Laydon et al. 2015. PMC4528489
+
+
 Optional Installation Files
 +++++++++++++++++++++++++++
 
@@ -65,6 +82,7 @@ To install blast within your virtual environment
   python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'ncbi_linux')"
 
 
+
 Dependencies if Using Python 2.7.11
 +++++++++++++++++++++++++++++++++++
 
@@ -76,7 +94,7 @@ Dependencies if Using Python 2.7.11
 
 If you are going to install the python 2.7.11 dependencies it is highly recommended that tcrdist2
 is installed within a `python virtual environment <https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/>`_.
-Using a virtual environment (venv) isolates the program's dependencies so that
+Using a virtual environment isolates the program's dependencies so that
 installing legacy packages for python (2.7.11) -- numpy (1.10.1), scipy (0.16.0),
 scikit-learn (0.17.1), and matplotlib (1.4.3) --
 does not interfere with any of your other ongoing python projects.
@@ -87,7 +105,19 @@ To configure your machine to run tcrdist2 using the correct dependencies,
 use the `requirements.txt <https://github.com/kmayerb/tcrdist2/blob/API2/requirements.txt>`_
 file provided in the tcrdist2 github repository.
 
-Using Condas to install python 2.7.11, pip, and virtualenv
+With python 2.7.11, pip, virtualenv already installed:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: none
+
+  virtualenv venv
+  source ./venv/bin/activate
+  pip install -r requirements.txt
+  pip install git+https://github.com/kmayerb/tcrdist2.git@API2
+
+
+
+Using Conda to install python 2.7.11, pip, and virtualenv
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The instructions below assume that you have a working version of condas
@@ -117,35 +147,6 @@ installed or can install python 2.7.11 by other means.
 #. pip install tcrdist2 from GitHub **pip install git+https://github.com/kmayerb/tcrdist2.git@API2**
 #. OPTIONAL: Install Blast Tools (see section below)
 
-
-Or with python 2.7.11, pip, virtualenv already installed:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: none
-
-  virtualenv venv
-  source ./venv/bin/activate
-  pip install -r requirements.txt
-  pip install git+https://github.com/kmayerb/tcrdist2.git@API2
-
-
-Test the Installation
-+++++++++++++++++++++
-
-.. code-block:: none
-
-  python -c 'import tcrdist as td; td.say_hello()'
-
-You should see, the following:
-
-.. code-block:: none
-
-  > Hello: 'By recombination, random insertion, deletion and substitution,
-  > the small set of genes that encode the T-cell receptor has the potential
-  > to create between 10^15 and 10^20 TCR clonotypes ...
-  > However, the actual diversity of a persons TCR repertoire cannot possibly
-  > lie in this range. There are only an estimated 10^13 cells in the
-  > human body [3]' -- Laydon et al. 2015. PMC4528489
 
 Optional Blast Tools
 ++++++++++++++++++++
