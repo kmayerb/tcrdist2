@@ -16,7 +16,7 @@ class test_stats(unittest.TestCase):
 
         t_df = t_df.loc[(t_df.organism == 'HomoSapiens') & (t_df.epitope == 'M1')]
 
-        tr = TCRrep(cell_df=t_df, organism='HomoSapiens')
+        tr = TCRrep(cell_df=t_df, organism='human')
         tr.infer_cdrs_from_v_gene(chain='alpha')
         tr.infer_cdrs_from_v_gene(chain='beta')
         tr.index_cols =['subject',
