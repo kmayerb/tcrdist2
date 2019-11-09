@@ -5,7 +5,7 @@ from sklearn.metrics import roc_curve
 from sklearn.metrics import auc
 
 
-class PNN():
+class TCRproximity():
     '''
     Percentile Nearest Neighbor distance score:
     Focusing on the TCRs repertoire specific to a certain ("target") epitope,
@@ -54,11 +54,8 @@ class PNN():
                       'alpha', 'beta', 'alpha-beta', 'gamma', 'delta' or 'gamma-delta'.
         :param cdrs:  'cdr3' or 'all'. CDRs distance matrix to consider.
                       Depending on chain being 'alpha' / 'beta' / 'alpha-beta' / ... :
-                      if 'cdr3': consider tcrrep.cdr3_a_aa_pw / tcrrep.cdr3_b_aa_pw /
-                                 tcrrep.cdr3_a_aa_pw + tcrrep.cdr3_b_aa_pw / ...
-                      if 'all': consider tcrrep.dist_a / tcrrep.dist_b /
-                                tcrrep.paired_tcrdist / tcrrep.dist_g /
-                                tcrrep.dist_d / tcrrep.paired_tcrdist
+                      if 'cdr3': consider tcrrep.cdr3_a_aa_pw / tcrrep.cdr3_b_aa_pw / tcrrep.cdr3_a_aa_pw + tcrrep.cdr3_b_aa_pw / ...
+                      if 'all': consider tcrrep.dist_a / tcrrep.dist_b / tcrrep.paired_tcrdist / tcrrep.dist_g / tcrrep.dist_d / tcrrep.paired_tcrdist
         '''
 
         self.tcrrep  = tcrrep
@@ -74,9 +71,9 @@ class PNN():
         indices = tcrrep.clone_df['epitope'].isin([self.target_epitope] + self.other_epitopes)
 
         # Isolate only relevant TCRs and 'group' other epitopes
-        self.pnn_df = tcrrep.clone_df.loc[indices, ['epitope', 'subject']].copy()
-        self.pnn_df['epitope_group'] = self.pnn_df['epitope']
-        self.pnn_df.loc[self.pnn_df['epitope'] != self.target_epitope, 'epitope_group'] = 'other'
+        self.prox_df = tcrrep.clone_df.loc[indices, ['epitope', 'subject']].copy()
+        self.prox_df['epitope_group'] = self.prox_df['epitope']
+        self.prox_df.loc[self.prox_df['epitope'] != self.target_epitope, 'epitope_group'] = 'other'
 
         # calc NN-distance scores and predicted probabilities
         self._calc_nn_scores()
@@ -130,21 +127,21 @@ class PNN():
         the nearest neighbors percentile, summing their weighted distances
         (by order rank).
         '''
-        self.pnn_df['nn_score'] = None
+        self.prox_df['nn_score'] = None
 
         # Get indices of target epitope-specific TCRs
-        ind_only_epitope = self.pnn_df.index[self.pnn_df['epitope_group'] == self.target_epitope]
+        ind_only_epitope = self.prox_df.index[self.prox_df['epitope_group'] == self.target_epitope]
 
         # For each TCR (target epitope-specific and others), calc nn_score
-        for ind_TCR, row in self.pnn_df.iterrows():
+        for ind_TCR, row in self.prox_df.iterrows():
             # Get distances to non-subject, target epitope-specific TCRs
-            ind_non_subject = self.pnn_df.index[self.pnn_df['subject'] != row['subject']]  # Index hold out all data from that subject
+            ind_non_subject = self.prox_df.index[self.prox_df['subject'] != row['subject']]  # Index hold out all data from that subject
             ind_epitope_non_subject = ind_only_epitope.intersection(ind_non_subject)
             distances_ep_non_subject = self.dist_matrix[ind_TCR, ind_epitope_non_subject]  # Get Distances from the ith row, holding out subject
 
             # Calculate weighted average nn-distance score to % of these TCRs
             nn_score = self._sort_and_compute_weighted_nbrdist_from_distances(distances_ep_non_subject)
-            self.pnn_df.loc[ind_TCR, 'nn_score'] = nn_score
+            self.prox_df.loc[ind_TCR, 'nn_score'] = nn_score
 
 
     def _sort_and_compute_weighted_nbrdist_from_distances(self, dist_list):
@@ -175,27 +172,27 @@ class PNN():
 
 
     def _calc_predictions(self):
-        ''' in pnn_df,
+        ''' in prox_df,
         1. create column 'predicted_p':  NN-distance scores normalized to values between 0-1.
                                       (predicted probabilities)
         2. create column 'ground_truth': target epitope specific TCRs are 1s,
                                       other TCRs are 0s. (observed values)
 
         '''
-        min_score = self.pnn_df['nn_score'].min()
-        max_score = self.pnn_df['nn_score'].max()
+        min_score = self.prox_df['nn_score'].min()
+        max_score = self.prox_df['nn_score'].max()
 
-        self.pnn_df['predicted_p'] = 1 - ((self.pnn_df['nn_score'] - min_score) /
-                                          (max_score - min_score))
+        self.prox_df['predicted_p'] = 1 - ((self.prox_df['nn_score'] - min_score) /
+                                           (max_score - min_score))
 
-        self.pnn_df['ground_truth'] = 0
-        self.pnn_df.loc[self.pnn_df['epitope_group'] == self.target_epitope, 'ground_truth'] = 1
+        self.prox_df['ground_truth'] = 0
+        self.prox_df.loc[self.prox_df['epitope_group'] == self.target_epitope, 'ground_truth'] = 1
 
 
     def plot_ROC(self, ax=None):
         '''
         Get receiver operating characteristic (ROC) curve plot for observed
-        (pnn_df['ground_truth']) and predicted probabilities (pnn_df['predicted_p']).
+        (prox_df['ground_truth']) and predicted probabilities (prox_df['predicted_p']).
 
         :param ax: matplotlib axes object. If given, plot will be created over it.
 
@@ -203,11 +200,11 @@ class PNN():
                  fpr (false positive rate) and tpr (true positive rate)
         '''
 
-        fpr, tpr, thresholds = roc_curve(self.pnn_df['ground_truth'], self.pnn_df['predicted_p'])
+        fpr, tpr, thresholds = roc_curve(self.prox_df['ground_truth'], self.prox_df['predicted_p'])
         roc_auc = auc(fpr, tpr)
 
-        ax = PNN._plot_roc(roc_auc, fpr, tpr,
-                           title='ROC - Epitope {}'.format(self.target_epitope), ax=ax)
+        ax = TCRproximity._plot_roc(roc_auc, fpr, tpr,
+                                    title='ROC - Epitope {}'.format(self.target_epitope), ax=ax)
 
         return {'axes': ax, 'auc': roc_auc, 'rates': {'fpr': fpr, 'tpr': tpr}}
 
@@ -246,9 +243,9 @@ class PNN():
 
         :return: matplotlib axes object with the distribution plot.
         '''
-        ax = sns.distplot(self.pnn_df.loc[self.pnn_df['epitope_group'] == self.target_epitope, 'nn_score'].to_list(),
+        ax = sns.distplot(self.prox_df.loc[self.prox_df['epitope_group'] == self.target_epitope, 'nn_score'].to_list(),
                           color="blue", label=self.target_epitope, ax=ax)
-        sns.distplot(self.pnn_df.loc[self.pnn_df['epitope_group'] == 'other', 'nn_score'].to_list(),
+        sns.distplot(self.prox_df.loc[self.prox_df['epitope_group'] == 'other', 'nn_score'].to_list(),
                      color="red", label="Other", ax=ax)
         ax.legend()
         ax.set_title('NN score distribution - {}'.format(self.target_epitope), color='#800000')
