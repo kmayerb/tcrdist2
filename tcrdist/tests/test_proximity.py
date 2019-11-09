@@ -27,5 +27,6 @@ class test_proximity(unittest.TestCase):
         prox_M1.plot_NN_score_distribution()
         prox_M1.plot_ROC()
 
+
 if __name__ == '__main__':
     unittest.main()
