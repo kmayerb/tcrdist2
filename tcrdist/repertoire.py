@@ -87,6 +87,7 @@ class TCRrep:
 
         # VALIDATION OF INPUTS
         # check that chains are valid.
+        self._validate_organism()
         self._validate_chains()
         # check that  is a pd.DataFrame
         self._validate_cell_df()
@@ -712,6 +713,10 @@ class TCRrep:
             self.cdr3_g_aa_pw = pw
         elif chain == "delta":
             self.cdr3_d_aa_pw = pw
+
+    def _validate_organism(self):
+        if self.organism not in ["human", "mouse"]:
+            raise ValueError("organism must be 'mouse' or 'human'")
 
     def _validate_chains(self):
         """

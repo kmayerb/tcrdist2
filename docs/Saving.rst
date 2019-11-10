@@ -3,14 +3,12 @@ Saving Your Work
 
 The original tcrdist was based on writing a series of intermediate
 flat text files. By contrast, tcrdist2 is based on pandas DataFrame and
-numpy objects which are stored in memory and associated with classes.
+numpy objects, which are held in memory and associated with tcrdist2 classes.
 
-Because certain steps in the pipeline, such as calculation of all-v-all pairwise
-distances (1-10 minutes) and search for candidate cdr3 motifs (5-30 minutes)
-can take time to compute, storing tcrdist2 results to files is useful.
-
-This page documents methods for saving tcrdist2 objects for later
-use.
+Because certain steps in the pipeline, such as calculation of all-versus-all
+pairwise distances and search for candidate cdr3 motifs (> 5 minutes)
+can take time to compute, this page documents methods for saving
+tcrdist2 objects for later use.
 
 Save
 ####
@@ -37,7 +35,7 @@ Reduce File Size
 ################
 
 Most tcrdistances can be expressed as integers without loss of information.
-The `int16` data types, native to numpy, is a choice that
+The `int16` data type, native to numpy, is a choice that
 can considerably reduce the file size of a saved
 TCRrep instance. We've made that easy. To convert numpy arrays
 with float64 data to arrays wiht int16 data storage, use
@@ -56,7 +54,7 @@ Details
 
 This section provides more details on methods for saving tcrdist2 objects for later
 use. For example, the computation of pairwise distances can take
-a 10 second on a small data set (1000 clones)
+a 10 seconds on a small data set (1000 clones)
 but a few minutes on a larger one (10,000 clones).
 
 

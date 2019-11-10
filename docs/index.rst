@@ -17,14 +17,14 @@ is particularly illustrative.
 **Extended Data Figure 3 : Schematic overview of the TCRdist calculation.**
 
 
-  "Each TCR is mapped to the amino acid sequences of the loops within the
-  receptor that are known to provide contacts to the pMHC (commonly referred
-  to as CDR1, CDR2, and CDR3, as well as an additional variable loop between
-  CDR2 and CDR3). The distance between two TCRs is computed by comparing these
-  concatenated CDR sequences using a similarity-weighted Hamming distance,
-  with a gap penalty introduced to capture variation in length and a higher
-  weight given to the CDR3 sequence in recognition of its disproportionate
-  role in epitope specificity (see Methods and Extended Data Fig. 3)."
+"Each TCR is mapped to the amino acid sequences of the loops within the
+receptor that are known to provide contacts to the pMHC (commonly referred
+to as CDR1, CDR2, and CDR3, as well as an additional variable loop between
+CDR2 and CDR3). The distance between two TCRs is computed by comparing these
+concatenated CDR sequences using a similarity-weighted Hamming distance,
+with a gap penalty introduced to capture variation in length and a higher
+weight given to the CDR3 sequence in recognition of its disproportionate
+role in epitope specificity (see Methods and Extended Data Fig. 3)."
 
 
 .. _getting-started:
