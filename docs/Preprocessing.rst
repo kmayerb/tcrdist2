@@ -39,9 +39,10 @@ All data downloaded from 10X Genomics `Example Datasets
 
 .. Tip::
 
-  We use the following shorthand in the coding examples:
-  * fca.csv : vdj_v1_hs_pbmc_t_filtered_contig_annotations.csv
-  * ca.csv : vdj_v1_hs_pbmc_t_consensus_annotations.csv
+  We use the following files in the coding example:
+
+  1. vdj_v1_hs_pbmc_t_filtered_contig_annotations.csv
+  2. vdj_v1_hs_pbmc_t_consensus_annotations.csv
 
 The example uses 10X Genomics immune profiling data available on their website.
 `Dataset <https://support.10xgenomics.com/single-cell-vdj/datasets/2.2.0/vdj_v1_hs_pan_t>`_
@@ -67,7 +68,7 @@ compatible clone file from the 10X Cell Ranger files. This is done using
 
     # filtered_contig_annotations_csvfile
     fca = 'vdj_v1_hs_pbmc_t_filtered_contig_annotations.csv'
-    ca = 'vdj_v1_hs_pbmc_t_consensus_annotations.csv'
+    ca =  'vdj_v1_hs_pbmc_t_consensus_annotations.csv'
     clones_df = process_10X.get_10X_clones(organism = 'human',
                                            filtered_contig_annotations_csvfile = fca,
                                            consensus_annotations_csvfile = ca)
