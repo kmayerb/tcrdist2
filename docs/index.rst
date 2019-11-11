@@ -39,7 +39,7 @@ role in epitope specificity (see Methods and Extended Data Fig. 3)."
    Saving
    Plotting
    Preprocessing
-   Predict
+   Proximity
 
 
 .. _more-details:
