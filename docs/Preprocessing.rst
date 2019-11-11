@@ -5,26 +5,13 @@ Preprocessing
    :maxdepth: 2
    :caption: Contents:
 
-The most common T cell receptor data type we anticipate supporting in
-in tcrdist2:
-
-* 10X Genomics - paired-chain T cell receptor data
-* Adaptive Biotechnologies - single chain bulk receptor sequencing data
-* iReceptor - compilations of large T cell receptor sequencing efforts
-* VDJDB database - T cell receptors with predicted epitope specificity
-* tcrdist - current users of TCRdist may wish to use a clones file.
-
-If you are generating custom long-read T cell receptor sequencing data and need
-help using tcrdist2, please get in touch (kmayerbl@fredhutch.org).
-
 10X Genomics Data Files
 #######################
 
 Example Using a 10X Genomics Dataset
 ------------------------------------
-Output from the 10X Genomics Cell Ranger pipeline, produces
-multiple files. The two necessary files
-for importing the results into tcrdist2 are:
+Output from the 10X Genomics Cell Ranger pipeline includes multiple files.
+The two necessary files for importing the results into tcrdist2 are:
 
 1. The Filtered contig annotations (CSV)
 2. The Clonotype consensus annotations (CSV)
@@ -176,8 +163,8 @@ are unique.
 Input Files
 ###########
 
-10X Genomics Dataset Files
---------------------------
+10X Genomics Data Fields
+------------------------
 
 Required Fields in the 10X Genomics **contig_annotations_csvfile**
   +------------------+--------------------------------------------------+

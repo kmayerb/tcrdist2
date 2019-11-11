@@ -1,14 +1,14 @@
 Saving Your Work
 ================
 
-The original tcrdist was based on writing a series of intermediate
-flat text files. By contrast, tcrdist2 is based on pandas DataFrame and
-numpy objects, which are held in memory and associated with tcrdist2 classes.
+In contrast to the original tcrdist code, which wrote out a series of intermediate
+flat files, tcrdist2 uses Pandas DataFrames and numpy objects,
+which are associated with tcrdist2 classes and held in memory.
 
-Because certain steps in the pipeline, such as calculation of all-versus-all
-pairwise distances and search for candidate cdr3 motifs (> 5 minutes)
-can take time to compute, this page documents methods for saving
-tcrdist2 objects for later use.
+Certain steps in the pipeline, such as the calculation of
+pairwise distances and search for candidate cdr3 motifs
+can take time to compute. This page documents methods for saving
+computed tcrdist2 objects for later use.
 
 Save
 ####
@@ -36,9 +36,10 @@ Reduce File Size
 
 Most tcrdistances can be expressed as integers without loss of information.
 The `int16` data type, native to numpy, is a choice that
-can considerably reduce the file size of a saved
-TCRrep instance. We've made that easy. To convert numpy arrays
-with float64 data to arrays wiht int16 data storage, use
+can reduce the file size of a saved TCRrep instance.
+
+To convert numpy arrays with float64 data to arrays with
+int16 data storage, use
 :py:meth:`tcrdist.repertoire.TCRrep.reduce_file_size`:
 
 
@@ -53,32 +54,18 @@ Details
 #######
 
 This section provides more details on methods for saving tcrdist2 objects for later
-use. For example, the computation of pairwise distances can take
-a 10 seconds on a small data set (1000 clones)
-but a few minutes on a larger one (10,000 clones).
-
-
-Individual elements, such as pairwise distance matrices, stored in the
-TCRrep class can be saved to text files. Most users will be familiar
-with writing DataFrames and arrays to text files, but for more info on DataFrames,
-see
-`pandas.DataFrame.to_csv <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html#pandas-dataframe-to-csv>`_
-and for numpy arrays, see: `numpy.savetxt <https://docs.scipy.org/doc/numpy/reference/generated/numpy.savetxt.html>`_
-
-Rather than write each element to a separate file,
+use.  Rather than write each element to a separate file,
 an instance of the :py:class:`tcrdist.repertoire.TCRrep` class can be
-serialized in it entirety.
-
-The preferred method for saving a TCRrep instance is to save it's
-attributes to an HDF5 file.
+serialized in it entirety. The preferred method for saving a TCRrep instance
+is to save it's attributes to an HDF5 file.
 
 .. tip ::
 
   If you are unfamiliar with HDF5 files,
-  consider downloading the free `HDF5 viewer <https://www.hdfgroup.org/downloads/hdfview/>`_
+  consider downloading the free `HDF5 viewer <https://www.hdfgroup.org/downloads/hdfview/>`_.
   It enables inspection of the HDF5 file's contents.
 
-An example shows, how it all works:
+An example shows how it all works:
 
 .. code-block:: python
 
@@ -149,6 +136,15 @@ are identical in tr and tr2, with the following code:
  'cdr3_b_aa_pw': True,
  'dist_a': True,
  'dist_b': True}
+
+
+ Flat Files
+ ##########
+
+ Individual elements stored in the
+ TCRrep class can be saved to text files directly. (For DataFrame, see
+ `pandas.DataFrame.to_csv() <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html#pandas-dataframe-to-csv>`_
+ and for numpy arrays, see: `numpy.savetxt() <https://docs.scipy.org/doc/numpy/reference/generated/numpy.savetxt.html>`_)
 
 
 Pickle
