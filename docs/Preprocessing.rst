@@ -37,7 +37,7 @@ The required fields for these file are shown below.
 All data downloaded from 10X Genomics `Example Datasets
 <https://support.10xgenomics.com/single-cell-vdj/datasets/2.2.0/vdj_v1_hs_pan_t>`_ .
 
-. Tip::
+.. Tip::
 
   We use the following shorthand in the coding examples:
   * fca.csv : vdj_v1_hs_pbmc_t_filtered_contig_annotations.csv
@@ -54,7 +54,7 @@ Some pre-processing of the data is required to create a tcrdist2
 compatible clone file from the 10X Cell Ranger files. This is done using
 :py:meth:``tcrdist.process_10X.get_10X_clones``.
 
-.. code:: ipython3
+.. code:: python
 
     import pandas as pd
     import numpy as np
@@ -84,7 +84,7 @@ compatible clone file from the 10X Cell Ranger files. This is done using
 Initialize TCRrep to Calculate tcrdistances
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: ipython3
+.. code:: python
 
     tr = TCRrep(cell_df = clones_df, organism = "human", chains = ["alpha","beta"])
     tr.infer_cdrs_from_v_gene(chain = 'alpha', imgt_aligned=True)
@@ -103,7 +103,7 @@ Initialize TCRrep to Calculate tcrdistances
     cpus = multiprocessing.cpu_count()
     tr._tcrdist_legacy_method_alpha_beta(processes = cpus)
 
-.. code:: ipython3
+.. code:: python
 
     tr.clone_df['epitope'] = "Unk" # Assign an unknown epitope to all clones
     cluster_viz(pd.DataFrame(tr.paired_tcrdist),
@@ -116,7 +116,7 @@ Initialize TCRrep to Calculate tcrdistances
   :target: https://user-images.githubusercontent.com/46639063/68563087-55d93c80-0401-11ea-988e-cbf954d57730.png
 
 
-.. code:: ipython3
+.. code:: python
 
     cluster_viz(pd.DataFrame(tr.dist_b.values),
                 tr.clone_df,
