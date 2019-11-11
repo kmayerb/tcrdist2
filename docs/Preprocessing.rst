@@ -112,8 +112,7 @@ Initialize TCRrep to Calculate tcrdistances
                 bostock_cat_colors(['set3']),
                 "Clutered with Paired tcrdistances (Legacy Metric)")
 
-.. image:: output_8_1.png
-  :target: https://user-images.githubusercontent.com/46639063/68563087-55d93c80-0401-11ea-988e-cbf954d57730.png
+.. image:: https://user-images.githubusercontent.com/46639063/68563087-55d93c80-0401-11ea-988e-cbf954d57730.png
 
 
 .. code:: python
@@ -126,8 +125,7 @@ Initialize TCRrep to Calculate tcrdistances
 
 
 
-.. image:: output_9_0.png
-    :target: https://user-images.githubusercontent.com/46639063/68563088-55d93c80-0401-11ea-8c6a-51d78b7b46a9.png
+.. image:: https://user-images.githubusercontent.com/46639063/68563088-55d93c80-0401-11ea-8c6a-51d78b7b46a9.png
 
 
 
