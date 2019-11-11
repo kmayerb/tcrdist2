@@ -38,9 +38,14 @@ role in epitope specificity (see Methods and Extended Data Fig. 3)."
    CompleteExample
    Saving
    Plotting
-   Preprocessing
-   Proximity
 
+.. toctree::
+ :caption: Pre-Processing
+ :maxdepth: 2
+
+ Preprocessing
+ Preprocess_10X
+ Preprocess_Adaptive
 
 .. _more-details:
 
@@ -49,6 +54,7 @@ role in epitope specificity (see Methods and Extended Data Fig. 3)."
    :maxdepth: 2
 
    PairwiseDistance
+   Proximity
    Subset
    Motifs
    Mappers
@@ -68,7 +74,6 @@ role in epitope specificity (see Methods and Extended Data Fig. 3)."
 
    Example_2
    Example_1
-
 
 
 

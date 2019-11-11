@@ -1,6 +1,34 @@
 """
-This module contains functions for preprocessing 10X Genomics Immune Profiling
-Data.
+This page contains documentation for the module containing
+functions for preprocessing 10X Genomics Immune Profiling data.
+
+Example
+-------
+
+.. code-block:: Python
+
+    from tcrdist import preprocess_10X
+    from tcrdist.repertoire import TCRrep
+
+    # filtered_contig_annotations_csvfile
+    fca = 'vdj_v1_hs_pbmc_t_filtered_contig_annotations.csv'
+    ca =  'vdj_v1_hs_pbmc_t_consensus_annotations.csv'
+    clones_df = preprocess_10X.get_10X_clones(organism = 'human',
+                                       filtered_contig_annotations_csvfile = fca,
+                                       consensus_annotations_csvfile = ca)
+    clones_df.head()
+
+    tr = TCRrep(cell_df = clones_df, organism = "human", chains = ["alpha","beta"])
+    tr.infer_cdrs_from_v_gene(chain = 'alpha', imgt_aligned=True)
+    tr.infer_cdrs_from_v_gene(chain = 'beta', imgt_aligned=True)
+    tr.index_cols = ['clone_id', 'subject',
+                   'v_a_gene',  'j_a_gene', 'v_b_gene', 'j_b_gene',
+                   'cdr3_a_aa', 'cdr3_b_aa',
+                   'cdr1_a_aa', 'cdr2_a_aa', 'pmhc_a_aa',
+                   'cdr1_b_aa', 'cdr2_b_aa', 'pmhc_b_aa',
+                   'cdr3_b_nucseq', 'cdr3_a_nucseq']
+
+
 """
 
 from collections import Counter
@@ -15,7 +43,7 @@ def get_10X_clones(organism,
                    allow_unknown_genes = False):
 
     """
-    Get a clones DataFrame from two key 10X cell ranger files.
+    Produces a clones DataFrame from two key 10X Cell Ranger files.
 
     1. The Filtered contig annotations (CSV) file.
     2. The Clonotype consensus annotations (CSV) file.
@@ -35,10 +63,9 @@ def get_10X_clones(organism,
 
     Returns
     -------
-    DataFrame with the following columns
-    ['clone_id', 'subject', 'count', 'v_a_gene', 'j_a_gene', 'v_b_gene',
-    'j_b_gene', 'cdr3_a_aa', 'cdr3_a_nucseq', 'cdr3_b_aa', 'cdr3_b_nucseq',
-    'alpha_umi', 'beta_umi', 'num_alphas', 'num_betas']
+    df : DataFrame
+        DataFrame with the following columns : ['clone_id', 'subject', 'count', 'v_a_gene', 'j_a_gene', 'v_b_gene',
+        'j_b_gene', 'cdr3_a_aa', 'cdr3_a_nucseq', 'cdr3_b_aa', 'cdr3_b_nucseq', 'alpha_umi', 'beta_umi', 'num_alphas', 'num_betas']
 
     Example
     -------
@@ -80,12 +107,12 @@ def get_10X_clones(organism,
                                                        include_gammadelta,
                                                        allow_unknown_genes)
 
-    return _make_clones_df(organism, clonotype2tcrs, clonotype2barcodes )
-
+    df = _make_clones_df(organism, clonotype2tcrs, clonotype2barcodes )
+    return df
 
 def _parse_csv_file( csvfile ):
     """
-    From a csv file, get header and all lines as a list of dictionaries.
+    Gets header and all lines as a list of dictionaries from a csv file.
 
     Parameters
     ----------
@@ -94,7 +121,7 @@ def _parse_csv_file( csvfile ):
 
     Returns
     -------
-    tuple(header, all_info)
+    tuple
 
     header : list
         list of string columns names
@@ -103,7 +130,7 @@ def _parse_csv_file( csvfile ):
 
     Example
     -------
-    This function run on the following csvfile
+    If this function were run on the following csvfile
 
     .. code-block::
 
@@ -111,7 +138,7 @@ def _parse_csv_file( csvfile ):
         1,2
         3,4
 
-    would return:
+    it would return a tuple:
 
     .. code-block::
 
@@ -133,7 +160,8 @@ def _read_tcr_data( organism,
                   include_gammadelta,
                   allow_unknown_genes):
     """
-    Parse TCR data, only taking 'productive' TCRs
+    Parses TCR data, only taking 'productive' TCRs as defined by the Cell Ranger
+    files.
 
     organism : str
         "mouse" or "human"
@@ -164,6 +192,7 @@ def _read_tcr_data( organism,
     2. Clonotype consensus annotations (CSV) (cca.csv)
 
     Required Fields in **contig_annotations_csvfile**
+
     +------------------+--------------------------------------------------+
     | FIELD            | EXAMPLE VALUE                                    |
     +------------------+--------------------------------------------------+
@@ -204,7 +233,9 @@ def _read_tcr_data( organism,
     | raw_consensus_id | clonotype14_consensus_1                          |
     +------------------+--------------------------------------------------+
 
+
     Required Fields in **consensus_annotations_csvfile**
+
     +--------------+-----------------------------------------------+
     | FIELD        | EXAMPLE VALUE                                 |
     +--------------+-----------------------------------------------+
@@ -236,6 +267,7 @@ def _read_tcr_data( organism,
     +--------------+-----------------------------------------------+
     | umis         | 9                                             |
     +--------------+-----------------------------------------------+
+
     """
     # Perform basic check that inputs conform with expectation.
     assert organism in ["mouse", "human"]
@@ -339,8 +371,12 @@ def _make_clones_df(organism, clonotype2tcrs, clonotype2barcodes):
     """
     Make a clones DataFrame with information parsed from the 10X csv files
 
+    Parameters
+    ----------
     organism : str
+
     clonotype2tcrs : dict
+
     clonotype2barcodes : dict
 
     Returns
