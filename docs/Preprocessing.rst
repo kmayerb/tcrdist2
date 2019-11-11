@@ -45,7 +45,7 @@ Pre-Processing the 10X Data Files
 
 Some pre-processing of the data is required to create a tcrdist2
 compatible clone file from the 10X Cell Ranger files. This is done using
-:py:meth:``tcrdist.process_10X.get_10X_clones``.
+:py:meth:`tcrdist.preprocess_10X.get_10X_clones`.
 
 .. code:: python
 
@@ -61,7 +61,7 @@ compatible clone file from the 10X Cell Ranger files. This is done using
     # filtered_contig_annotations_csvfile
     fca = 'vdj_v1_hs_pbmc_t_filtered_contig_annotations.csv'
     ca =  'vdj_v1_hs_pbmc_t_consensus_annotations.csv'
-    clones_df = process_10X.get_10X_clones(organism = 'human',
+    clones_df = preprocess_10X.get_10X_clones(organism = 'human',
                                            filtered_contig_annotations_csvfile = fca,
                                            consensus_annotations_csvfile = ca)
     clones_df.head()
