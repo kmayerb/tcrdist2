@@ -79,4 +79,4 @@ PACKAGE_DATA = {'tcrdist': ['datasets/test_human_pairseqs.tsv',
                             'external/blast-2.2.16/bin/*',
                             'external/tablesorter/*']}
                             #]}#[pjoin('datasets', 'test_human_pairseqs.tsv'),pjoin('datasets', 'test_mouse_pairseqs.tsv'), pjoin('db', '*'), pjoin('external', '*')]}
-REQUIRES = ["numpy", "pandas", "scipy", "matplotlib", "parasail","seaborn", "statsmodels"]
+REQUIRES = ["numpy", "pandas", "scipy", "matplotlib", "parasail","seaborn", "statsmodels", "sklearn", "tables"]
