@@ -49,6 +49,8 @@ You should see, the message:
 Using Cython-powered Fisher's exact test
 ```
 
+## Development Files
+
 If you wish, use the following set of commands to install testing files and legacy blast (replace the `download_from` argument to `'dropbox_osx'` or `'dropbox_linux'` based on your operating system).
 
 ```
