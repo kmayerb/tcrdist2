@@ -2,6 +2,7 @@ from tcrdist.repertoire import _map_clone_df_to_TCRMotif_clone_df
 import pytest
 import pandas as pd
 import numpy as np
+tempSkip = pytest.mark.skip(reason="Temporarily skipping for efficiency.")
 
 def test__map_clone_df_to_TCRMotif_clone_df():
     """
@@ -158,6 +159,8 @@ def generate_tr():
     tr._tcrdist_legacy_method_alpha_beta()
     return tr
 
+
+@tempSkip
 def test_save_to_hdf5(generate_tr):
     """
     Here we save a TCRrep instance to hdf5 and then reopen and test that the parts
