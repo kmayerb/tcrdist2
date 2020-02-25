@@ -49,6 +49,14 @@ You should see, the message:
 Using Cython-powered Fisher's exact test
 ```
 
+If you wish, use the following set of commands to install testing files and legacy blast (replace the `download_from` argument to `'dropbox_osx'` or `'dropbox_linux'` based on your operating system).
+
+```
+python -c "import tcrdist as td; td.install_test_files.install_test_files()"
+python -c "import tcrdist as td; td.setup_db.install_all_next_gen()"
+python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'dropbox_osx')"
+```
+
 ## Citing
 
 ##### Quantifiable predictive features define epitope-specific T cell receptor repertoires
