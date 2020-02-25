@@ -23,14 +23,31 @@ can be found at  [tcrdist2.readthedocs.io](https://tcrdist2.readthedocs.io/en/la
 
 ## Installation
 
-The development version of tcrdist2 compatible with Python 2.7 or Python 3.6
+The development version of tcrdist2 compatible with Python 3.6 or later. It
 can be cloned or installed directly.
 
 ```bash
   pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 ```
 
+To test out code used in the documented examples. Create a venv. Install tcrdist2. Install [fishersapi](https://github.com/agartland/fishersapi). 
 
+```bash
+python3 -m venv ./tenv
+source tenv/bin/activate
+pip install git+https://github.com/kmayerb/tcrdist2.git@0.0.3
+pip install git+https://github.com/agartland/fishersapi.git#egg=fishersapi
+```
+
+Quickly test installation
+```
+python -c "import tcrdist"
+```
+
+You should see, the message:
+```
+Using Cython-powered Fisher's exact test
+```
 
 ## Citing
 
