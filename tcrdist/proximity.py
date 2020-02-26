@@ -21,8 +21,11 @@ class TCRproximity():
     nearest percentile of epitope-specific TCRs are summed with a weight that
     decreases from nearest to farthest neighbours by their rank.
     Importantly, NN-distance scores are calculated after removing all
-    neigbors from the same subject as the receptor being scored
-    (effectively a leave-one-subjectout control).
+    neighbors from the same subject as the receptor being scored
+    (effectively a leave-one-subject-out control).
+    Or, if a subjects_folds dictionary is provided, NN-distance scores are
+    calculated for each subject's TCR only based on subjects not in its fold
+    (i.e., based on subjects in its training folds).
 
     To compute AUROC scores for a NN-distance classifier,
     epitope-specific TCRs (positives) and other receptors (negatives)
@@ -35,7 +38,7 @@ class TCRproximity():
     '''
 
     def __init__(self, tcrrep, target_epitope, other_epitopes,
-                 nn_percentile=10, chain='alpha-beta', cdrs='all'):
+                 nn_percentile=10, chain='alpha-beta', cdrs='all', subjects_folds=None):
         '''
         :param tcrrep: TCRrep object with the clone_df TCRs dataframe
                       and TCRdist distances matrix to be analyzed
@@ -50,12 +53,22 @@ class TCRproximity():
         :param nn_percentile: int. the percentile of target epitope samples
                       considered for NN-distance score calculation.
                       Negative percentile means take exactly -percentile top n
-        :param chain: Chain/s distance matrix to consider.
+        :param chain: string. Chain/s distance matrix to consider. Possible values:
                       'alpha', 'beta', 'alpha-beta', 'gamma', 'delta' or 'gamma-delta'.
-        :param cdrs:  'cdr3' or 'all'. CDRs distance matrix to consider.
-                      Depending on chain being 'alpha' / 'beta' / 'alpha-beta' / ... :
+        :param cdrs:  'cdr3' or 'all'. CDRs distance matrix to consider. Possible values,
+                      depending on chain being 'alpha' / 'beta' / 'alpha-beta' / ... :
                       if 'cdr3': consider tcrrep.cdr3_a_aa_pw / tcrrep.cdr3_b_aa_pw / tcrrep.cdr3_a_aa_pw + tcrrep.cdr3_b_aa_pw / ...
                       if 'all': consider tcrrep.dist_a / tcrrep.dist_b / tcrrep.paired_tcrdist / tcrrep.dist_g / tcrrep.dist_d / tcrrep.paired_tcrdist
+        :param subjects_folds: a dictionary (keys are ints. Each value is a list of
+                      strings - subjects, as described next). For each fold there is a key
+                      numbered from 0 to the number_of_folds-1. A key holds a list with
+                      all subjects in the fold. For each TCR of a subject in fold x,
+                      only subjects in other folds will be used for calculating the TCR's
+                      NN-score ("training"). Basically, this is a leave-some-subjects-out
+                      cross-validation procedure.
+                      Default is None. If none - NN-score is calculated after removing all
+                      neighbors from the same subject (effectively a leave-one-subject-out
+                      cross-validation procedure).
         '''
 
         self.tcrrep  = tcrrep
@@ -64,7 +77,7 @@ class TCRproximity():
         self.nn_percentile = nn_percentile
         self.chain = chain
         self.cdrs = cdrs
-
+        self.subjects_folds = subjects_folds
         self.dist_matrix = self._choose_dist_matrix()
 
         # Get only relevant indices - of target epitope and other epitopes
@@ -123,9 +136,9 @@ class TCRproximity():
         '''
         Calculate the NN-distance scores for all TCRs, in respect to the
         target epitope-specific TCRs only. For each TCR, only consider
-        TCRs from other subjects as neighbors. Calculation is made based on
-        the nearest neighbors percentile, summing their weighted distances
-        (by order rank).
+        TCRs from other subjects (or subjects in other folds, if self.subjects_folds
+        was provided) as neighbors. Calculation is made based on the nearest
+        neighbors percentile, summing their weighted distances (by order rank).
         '''
         self.prox_df['nn_score'] = None
 
@@ -134,8 +147,14 @@ class TCRproximity():
 
         # For each TCR (target epitope-specific and others), calc nn_score
         for ind_TCR, row in self.prox_df.iterrows():
-            # Get distances to non-subject, target epitope-specific TCRs
-            ind_non_subject = self.prox_df.index[self.prox_df['subject'] != row['subject']]  # Index hold out all data from that subject
+            # Get distances to non-subject/training folds, target epitope-specific TCRs
+            if self.subjects_folds is None:
+                ind_non_subject = self.prox_df.index[self.prox_df['subject'] != row['subject']]  # Index hold out all data from that subject
+            else:
+                subject_fold = self._find_subjects_fold(row['subject'])
+                subjects_in_other_folds = self._subjects_in_other_folds_to_list(subject_fold)
+                ind_non_subject = self.prox_df.index[self.prox_df['subject'].isin(subjects_in_other_folds)]  # Index use only data from that subject's training set
+
             ind_epitope_non_subject = ind_only_epitope.intersection(ind_non_subject)
             distances_ep_non_subject = self.dist_matrix[ind_TCR, ind_epitope_non_subject]  # Get Distances from the ith row, holding out subject
 
@@ -149,10 +168,12 @@ class TCRproximity():
         Compute the NN-distance score of a single TCR, to TCRs of the given distances
         (i.e., the epitope-specific TCRs), using the closest percentile of them.
 
-        :param dist_list: TCRdist distances to the TCRs (in the epitope-specific repertoire)
-        :param percentile: percent of TCRs to consider (from the epitope-specific repertoire).
+        :param dist_list: list. TCRdist distances to the TCRs (in the epitope-specific
+                          repertoire)
+        :param percentile: int/float. Percent of TCRs to consider (from the epitope-
+                          specific repertoire).
                           negative percentile means take exactly -percentile top n
-        :return: NN-distance score of the TCR (to the epitope-specific repertoire)
+        :return: float. The NN-distance score of the TCR
         '''
         dist_list.sort()
         assert dist_list[0] <= dist_list[-1]
@@ -209,30 +230,30 @@ class TCRproximity():
         return {'axes': ax, 'auc': roc_auc, 'rates': {'fpr': fpr, 'tpr': tpr}}
 
 
-    @staticmethod
-    def _plot_roc(auc_val, fpr, tpr, title='ROC curve', ax=None):
+    def _find_subjects_fold(self, subject_name):
         '''
-        Plot receiver operating characteristic (ROC) curve.
-
-        :param auc_val: precalculated AUC value
-        :param fpr: vector of false positive rates
-        :param tpr: vector of true positive rates
-        :param title: figure title string
-        :param ax: matplotlib axes object. If given, plot will be created over it.
-        :return: matplotlib axes object containing the ROC plot.
+        For a given subject, find its fold in the self.subjects_folds dict.
+        :param subject_name: string.
+        :return: int - fold number
         '''
+        for fold in self.subjects_folds.keys():
+            if subject_name in self.subjects_folds[fold]:
+                return fold
 
-        if ax is None:
-            ax = plt.gca()
 
-        ax.plot([0, 1], [0, 1], 'k--')
-        ax.plot(fpr, tpr, label='AUC = {:.3f}'.format(auc_val))
-        ax.set_xlabel('False positive rate')
-        ax.set_ylabel('True positive rate')
-        ax.set_title(title, color='#800000')
-        ax.legend(loc='best')
+    def _subjects_in_other_folds_to_list(self, fold):
+        '''
+        For a given fold number, return a list with all subjects
+        in all other folds.
 
-        return ax
+        :param fold: int.
+        :return: A list of strings - subjects in all other folds.
+        '''
+        new_list = []
+        for check_fold in self.subjects_folds.keys():
+            if check_fold != fold:
+                new_list += self.subjects_folds[check_fold]
+        return new_list
 
 
     def plot_NN_score_distribution(self, ax=None):
@@ -252,5 +273,32 @@ class TCRproximity():
         ax.set_xlabel('NN_score')
         ax.set_ylabel('Frequency')
         return ax
+
+
+    @staticmethod
+    def _plot_roc(auc_val, fpr, tpr, title='ROC curve', ax=None):
+        '''
+        Plot receiver operating characteristic (ROC) curve.
+
+        :param auc_val: float between 0-1. precalculated AUC value
+        :param fpr: list/array of floats. vector of false positive rates
+        :param tpr: list/array of floats. vector of true positive rates
+        :param title: string. figure title string
+        :param ax: matplotlib axes object. If given, plot will be created over it.
+        :return: matplotlib axes object containing the ROC plot.
+        '''
+
+        if ax is None:
+            ax = plt.gca()
+
+        ax.plot([0, 1], [0, 1], 'k--')
+        ax.plot(fpr, tpr, label='AUC = {:.3f}'.format(auc_val))
+        ax.set_xlabel('False positive rate')
+        ax.set_ylabel('True positive rate')
+        ax.set_title(title, color='#800000')
+        ax.legend(loc='best')
+
+        return ax
+
 
 
