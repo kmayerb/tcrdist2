@@ -653,7 +653,7 @@ class TCRrep:
         self.paired_tcrdist = tcrdist
         self.paired_tcrdist_weights = {k:weights[k] for k in full_keys}
         r = {'paired_tcrdist' : tcrdist,
-                'paired_tcrdist_weights' : {k:weights[k] for k in full_keys}}
+            'paired_tcrdist_weights' : {k:weights[k] for k in full_keys}}
         if store_result:
             self.stored_tcrdist.append(r)
         return(r)
@@ -982,7 +982,8 @@ class TCRrep:
                                                                 'cdr3_b_aa_pw': 0,
                                                                 'cdr2_b_aa_pw': 0,
                                                                 'cdr1_b_aa_pw': 0,
-                                                                'pmhc_b_aa_pw': 0,} )['paired_tcrdist'].copy()
+                                                                'pmhc_b_aa_pw': 0},
+                                                                 chains = ["alpha", "beta"])['paired_tcrdist'].copy()
 
         distB = self.compute_paired_tcrdist(replacement_weights= {'cdr3_a_aa_pw': 0,
                                                                 'cdr2_a_aa_pw': 0,
@@ -991,7 +992,8 @@ class TCRrep:
                                                                 'cdr3_b_aa_pw': 1,
                                                                 'cdr2_b_aa_pw': 1,
                                                                 'cdr1_b_aa_pw': 1,
-                                                                'pmhc_b_aa_pw': 1,} )['paired_tcrdist'].copy()
+                                                                'pmhc_b_aa_pw': 1},
+                                                                chains = ["alpha", "beta"])['paired_tcrdist'].copy()
 
         # Calling tr.compute_paired_tcrdist() computs the
         # the final paired chain TCR-distance which is stored as
@@ -1002,6 +1004,87 @@ class TCRrep:
         # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
         self.dist_a = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
         self.dist_b = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
+    
+    def _tcrdist_legacy_method_gamma_delta(self, processes = 1):
+        """
+        Runs the legacy tcrdist pairwise comparison gamma/delta
+
+        Arguments
+        ---------
+        processes : int
+
+
+        Notes
+        -----
+        # CALCULATE tcrdist distance metric. Here we show all the manual steps to
+        # implement the original Dash et al. tcrdist approach.
+
+        # To do this we calculate distance for each CDR separately, and
+        # we use the metric "tcrdist_cdr3" for the cdr3 and "tcrdist_cdr1"
+        # everywhere else
+        """
+        self.compute_pairwise_all(chain = "gamma",                        # <11
+                                 metric = 'tcrdist_cdr3',
+                                 compute_specific_region = 'cdr3_g_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "gamma",                        # 11
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'cdr1_g_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "gamma",                        # 11
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'cdr2_g_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "gamma",                        # 11
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'pmhc_g_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "delta",                         # 12
+                                 metric = 'tcrdist_cdr3',
+                                 compute_specific_region = 'cdr3_d_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "delta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'cdr1_d_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "delta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'cdr2_d_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "delta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'pmhc_d_aa',
+                                 processes = processes)
+
+        distA = self.compute_paired_tcrdist(replacement_weights= {'cdr3_g_aa_pw': 1,
+                                                                'cdr2_g_aa_pw': 1,
+                                                                'cdr1_g_aa_pw': 1,
+                                                                'pmhc_g_aa_pw': 1,
+                                                                'cdr3_d_aa_pw': 0,
+                                                                'cdr2_d_aa_pw': 0,
+                                                                'cdr1_d_aa_pw': 0,
+                                                                'pmhc_d_aa_pw': 0},
+                                                                chains = ["gamma", "delta"])['paired_tcrdist'].copy()
+
+        distB = self.compute_paired_tcrdist(replacement_weights= {'cdr3_g_aa_pw': 0,
+                                                                'cdr2_g_aa_pw': 0,
+                                                                'cdr1_g_aa_pw': 0,
+                                                                'pmhc_g_aa_pw': 0,
+                                                                'cdr3_d_aa_pw': 1,
+                                                                'cdr2_d_aa_pw': 1,
+                                                                'cdr1_d_aa_pw': 1,
+                                                                'pmhc_d_aa_pw': 1},
+                                                                chains = ["gamma", "delta"] )['paired_tcrdist'].copy()
+
+        # Calling tr.compute_paired_tcrdist() computs the
+        # the final paired chain TCR-distance which is stored as
+        # tr.paired_tcrdist, which we confirm is simply the sum of distA and distB
+        self.compute_paired_tcrdist(chains = ["gamma", "delta"])
+        assert np.all(((distA + distB) - self.paired_tcrdist) == 0)
+
+        # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
+        self.dist_g = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
+        self.dist_d = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)    
 
     def drop_stored_results(self):
         """
