@@ -82,36 +82,131 @@ def bostock_cat_colors(color_sets = ["set3"]):
     return categorical_colors
 
 
+def cluster_viz2(px,
+                clone_df,
+                col_1_var:str,
+                colors_1:list,
+                color_1_values:list = None,
+                col_2_var:str = None,
+                colors_2:list = None, 
+                color_2_values:list = None,
+                title = ""):
+    """
+    Parameters
+    ----------
+    px : pandas DataFrame
+        DataFrame with pairwise distances row and col order
+        matching clone_df DataFrame
+    clone_df : pandas DataFrame
+        DataFrame containing ordered list of epitope
+    col_1_var : str
+        name of column with catagorical variable that will 
+        be used for row colors 
+    colors_1 : list of hex colors (e.g. 
+        bostock_cat_colors(['set1','set2']) or can be manually supplied)
+    color_1_value : list 
+        This is OPTIONAL if you want to specify the order of 
+        value to be matched with the order of the colors you 
+        supplied, otherwise clond_df[col_1_var].unique() will
+        be used to populate.
+    col_2_var : str
+        OPTIONAL name of column with catagorical variable that will 
+        be used for col colors 
+    colors_2 : OPTIONAL list of hex colors (e.g. 
+        bostock_cat_colors(['set1','set2']) or can be manually supplied)
+    color_2_value : list 
+        This is OPTIONAL if you want to specify the order of 
+        value to be matched with the order of the colors you 
+        supplied, otherwise clond_df[col_1_var].unique() will
+        be used to populate.
+     title : string
+        figure title
+
+    Returns
+    -------
+    g : seaborn clustermap
+
+    Example
+    -------
+    from tcrdist.vis_tools import bostock_cat_colors, cluster_viz2
+    tcrdist_cdr3g  = pd.DataFrame(tr.cdr3_g_aa_pw)
+    cluster_viz2(px = tcrdist_cdr3g,
+            clone_df=tr.clone_df,
+            col_1_var = "dominant",
+            colors_1 = bostock_cat_colors(['set3']),
+            col_2_var = "sample_type",
+            colors_2 = bostock_cat_colors(['set1']),
+            title = "Gamma Chain (CDR3 Only)")
+    """
+    if col_1_var is not None:
+        if color_1_values is None:
+            color_1_values = clone_df[col_1_var].unique()
+            lut = dict(zip(color_1_values, colors_1))
+            row_colors = clone_df[col_1_var].map(lut)        
+    else:
+        color_1_values = None
+        row_colors = None
+         
+    if col_2_var is not None:
+        if color_2_values is None:
+            color_2_values = clone_df[col_2_var].unique()
+        lut2 = dict(zip(color_2_values, colors_2))
+        col_colors = clone_df[col_2_var].map(lut2)
+    else:
+        color_2_values = None
+        col_colors = None
+
+    # Cluster using seaborn
+    g = sns.clustermap(data= px,
+                       row_colors = row_colors,
+                       col_colors = col_colors,
+                       row_cluster=True,
+                       col_cluster=True,
+                       yticklabels=False,
+                       xticklabels=False,
+                      )
+
+    # Make a Custom Legend
+    for label in color_1_values:
+        g.ax_col_dendrogram.bar(0, 0, color=lut[label],
+                                label=label, linewidth=0)
+    if col_2_var is not None:
+        for label in color_2_values:
+            g.ax_col_dendrogram.bar(0, 0, color=lut2[label],
+                                    label=label, linewidth=0)                            
+
+    g.ax_row_dendrogram.set_visible(False)
+    g.ax_col_dendrogram.legend(loc="center", ncol = 4)
+    g.cax.set_position([.97, .2, .03, .45])
+    g.fig.suptitle(title, fontsize=20)
+
+
 def cluster_viz(px,
                 clone_df,
                 epitopes,
                 epitope_colors,
                 title):
     """
+    This is legacy to match stuff on tutorial. 
+    
+    See cluster_viz2 for a better generalized function!!!
+
     Parameters
     ----------
-
     px : pandas DataFrame
         DataFrame with pairwise distances row and col order
         matching clone_df DataFrame
-
     clone_df : pandas DataFrame
         DataFrame containing ordered list of epitope
-
     epitopes : list
         list of strings specifying epitope names
-
     epitope_colors : list
         list of string specifying hex colors
-
     title : string
         figure title
-
     Returns
     -------
-
-    g1 : seaborn clustermap
-
+    g : seaborn clustermap
     """
     lut = dict(zip(epitopes, epitope_colors))
     row_colors = clone_df.epitope.map(lut)
