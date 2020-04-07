@@ -1,5 +1,9 @@
 import numpy as np
 import pandas as pd
+import scipy.spatial
+
+import warnings
+
 import parasail
 from tcrdist import pairwise
 import collections
@@ -1086,17 +1090,25 @@ class TCRrep:
         attributes_dict['attributes'] = list(all_attrs)
 
         for attr, ty in zip(all_attrs, all_types):
-            x = getattr(self,attr)
+            x = getattr(self, attr)
             if not isinstance(x, parasail.bindings_v2.Matrix):
                 if isinstance(x, pd.core.frame.DataFrame):
-                    hdf.put(attr, x, format = 'table', data_columns=True)
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
+                        hdf.put(attr, x, format='table', data_columns=True)
                 if isinstance(x, np.ndarray):
-                    hdf.put(attr, pd.DataFrame(x), format = 'table')
-
+                    if 'pw' in attr:
+                        out = scipy.spatial.distance.squareform(x, force='tovector', checks=False)
+                        out = pd.DataFrame(out)
+                    else:
+                        out = pd.DataFrame(x)
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
+                        hdf.put(attr, out, format='table')
         hdf.get_storer('cell_df').attrs.metadata = json.dumps(attributes_dict)
         hdf.close()
 
-    def rebuild_from_hdf5(self, hdf5_file):
+    def rebuild_from_hdf5(self, hdf5_file, verbose=False):
         """
         Use hdf5 file to rebuild a TCRrep instance.
 
@@ -1129,25 +1141,17 @@ class TCRrep:
         'meta_cols': None,
         'project_id': str,
         'all_genes': collections.OrderedDict,
-        'imgt_aligned_status': bool,
-        'cdr3_a_aa_smat': parasail.bindings_v2.Matrix,
-        'cdr2_a_aa_smat': parasail.bindings_v2.Matrix,
-        'cdr1_a_aa_smat': parasail.bindings_v2.Matrix,
-        'pmhc_a_aa_smat': parasail.bindings_v2.Matrix,
-        'cdr3_b_aa_smat': parasail.bindings_v2.Matrix,
-        'cdr2_b_aa_smat': parasail.bindings_v2.Matrix,
-        'cdr1_b_aa_smat': parasail.bindings_v2.Matrix,
-        'pmhc_b_aa_smat': parasail.bindings_v2.Matrix,
-        'cdr3_a_aa_pw': np.ndarray,
-        'cdr1_a_aa_pw': np.ndarray,
-        'cdr2_a_aa_pw': np.ndarray,
-        'pmhc_a_aa_pw': np.ndarray,
-        'cdr3_b_aa_pw': np.ndarray,
-        'cdr1_b_aa_pw': np.ndarray,
-        'cdr2_b_aa_pw': np.ndarray,
-        'pmhc_b_aa_pw': np.ndarray,
-        'dist_a': pd.core.frame.DataFrame,
-        'dist_b': pd.core.frame.DataFrame}
+        'imgt_aligned_status': bool}
+        attr_to_type.update({'cdr3_%s_aa_smat' % loci: parasail.bindings_v2.Matrix for loci in 'abgd'})
+        attr_to_type.update({'cdr2_%s_aa_smat' % loci: parasail.bindings_v2.Matrix for loci in 'abgd'})
+        attr_to_type.update({'cdr1_%s_aa_smat' % loci: parasail.bindings_v2.Matrix for loci in 'abgd'})
+        attr_to_type.update({'pmhc_%s_aa_smat' % loci: parasail.bindings_v2.Matrix for loci in 'abgd'})
+        attr_to_type.update({'cdr3_%s_aa_pw' % loci: np.ndarray for loci in 'abgd'})
+        attr_to_type.update({'cdr2_%s_aa_pw' % loci: np.ndarray for loci in 'abgd'})
+        attr_to_type.update({'cdr1_%s_aa_pw' % loci: np.ndarray for loci in 'abgd'})
+        attr_to_type.update({'pmhc_%s_aa_pw' % loci: np.ndarray for loci in 'abgd'})
+        attr_to_type.update({'dist_%s' % loci: pd.core.frame.DataFrame for loci in 'abgd'})
+
 
         with pd.HDFStore(hdf5_file) as store:
 
@@ -1155,22 +1159,49 @@ class TCRrep:
             metadata = store.get_storer('cell_df').attrs.metadata
             metadata = json.loads(metadata)
 
-            #
             for attr in metadata['attributes']:
                 try:
-                    print("SETTING {} AS {}".format(attr, attr_to_type[attr] ))
+                    if verbose:
+                        print("SETTING {} AS {}".format(attr, attr_to_type[attr] ))
                 except KeyError:
                     print("YOU TRIED TO SET {} BUT IT IS NOT A RECOGNIZED ATTRRIBUTE OF TCRrep".format(attr))
                     continue
+                if not attr in store:
+                    setattr(self, attr, None)
+                    continue
+
                 if attr_to_type[attr] is pd.core.frame.DataFrame:
                     setattr(self, attr, store[attr])
                 elif attr_to_type[attr] is np.ndarray:
-                    setattr(self, attr, store[attr].values)
+                    if 'pw' in attr:
+                        tmp = store[attr].values
+                        incoming = scipy.spatial.distance.squareform(np.squeeze(tmp),
+                                                                     force='tomatrix',
+                                                                     checks=False)
+                        setattr(self, attr, incoming)
+                    else:
+                        setattr(self, attr, store[attr].values)
                 elif attr_to_type[attr] in [int, str, list, bool, dict]:
                     setattr(self, attr, metadata[attr])
 
+def load_hdf5(filename):
+    """
+    load a TCRrep saved to HDF5 using `save_as_hdf5`
 
+    Parameters
+    ----------
+    filename : string
+        Path to a HDF5 file containing a TCRrep
 
+    Returns
+    -------
+    incoming : TCRrep
+        a new TCRrep object"""
+
+    """Instantiate an empty TCRrep and rebuild from file"""
+    incoming = TCRrep(pd.DataFrame())
+    incoming.rebuild_from_hdf5(filename)
+    return incoming
 
 def _map_gene_to_reference_seq(organism = "human",
                                gene= 'TRAV1-1*02',
