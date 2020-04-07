@@ -7,5 +7,5 @@ scikit-learn==0.17.1
 scipy
 seaborn
 statsmodels
-pytables
+tables
 git+https://github.com/agartland/fishersapi.git#egg=fishersapi
