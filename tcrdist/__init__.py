@@ -29,8 +29,7 @@ from .pairwise import *
 from . import mappers
 from . import vis_tools
 from . import repertoire_db
-from . import rep_diff as stats
-
+from . import stats
 
 
 # from . import embedding  (ImportError: libgfortran.so.1 on linux but not on windows, environmental diff?)
@@ -45,4 +44,5 @@ __all__ = ['processing',
            'repertoire',
            'repertoire_db',
            'mappers',
-           'vis_tools']
+           'vis_tools',
+           'stats']
