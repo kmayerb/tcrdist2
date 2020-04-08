@@ -19,7 +19,9 @@ segtype2greek_label = { 'VA':'V'+greek_alpha, 'JA':'J'+greek_alpha,
                         'VG':'V'+greek_gamma, 'JG':'J'+greek_gamma,
                         'VD':'V'+greek_delta , 'JD':'J'+greek_delta,
                         'v_a_gene':'V'+greek_alpha, 'j_a_gene':'J'+greek_alpha,
-                        'v_b_gene':'V'+greek_beta , 'j_b_gene':'J'+greek_beta,}
+                        'v_b_gene':'V'+greek_beta , 'j_b_gene':'J'+greek_beta,
+                      'v_g_gene':'V'+greek_gamma, 'j_g_gene':'J'+greek_gamma,
+                        'v_d_gene':'V'+greek_delta , 'j_d_gene':'J'+greek_delta}
 
 def _create_svg(cmds, width, height, background_color=None, use_xlink=False):
     out = ''
