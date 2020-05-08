@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import tcrdist as td
 from tcrdist.repertoire import TCRrep
+import os
 
 def test_TCRrep_gamma_delta():
     """
@@ -12,7 +13,7 @@ def test_TCRrep_gamma_delta():
     # Using
         # 1. sant_et_all_clean_stables.py and 
         # 2. clean.py 
-    df = pd.read_csv('tcrdist/test_files_compact/sant.csv', sep = ",")
+    df = pd.read_csv(os.path.join('tcrdist','test_files_compact','sant.csv'), sep = ",")
     tr = TCRrep(cell_df = df, organism = "human", chains = ['gamma','delta'], db_file='gammadelta_db.tsv')  
 
     tr.infer_cdrs_from_v_gene(chain = 'gamma', imgt_aligned=True)

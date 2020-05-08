@@ -40,12 +40,13 @@ role in epitope specificity (see Methods and Extended Data Fig. 3)."
    Plotting
 
 .. toctree::
- :caption: Pre-Processing
- :maxdepth: 2
+   :caption: Pre-Processing
+   :maxdepth: 2
 
- Preprocessing
- Preprocess_10X
- Preprocess_Adaptive
+   Mixcr
+   Preprocess_10X
+   Preprocess_Adaptive
+   Preprocessing
 
 .. _more-details:
 
@@ -57,6 +58,7 @@ role in epitope specificity (see Methods and Extended Data Fig. 3)."
    Proximity
    Subset
    Motifs
+   TCRMotif_Explained
    Mappers
    Storage
    Repertoire
