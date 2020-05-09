@@ -35,6 +35,7 @@ role in epitope specificity (see Methods and Extended Data Fig. 3)."
    :maxdepth: 2
 
    Installation
+   Inputs
    CompleteExample
    Saving
    Plotting
