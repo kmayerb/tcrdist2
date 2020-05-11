@@ -166,7 +166,22 @@ class TCRrep:
         result to attribute self.clone_df
         """
         self.clone_df = _deduplicate(self.cell_df, self.index_cols)
+        
+        # check if any clones were lost due to missing information
+        if np.sum(self.cell_df['count']) != np.sum(self.clone_df['count']):
+            n_cells_lost = np.sum(self.cell_df['count']) - np.sum(self.clone_df['count'])
+            n_cell = np.sum(self.cell_df['count'])
+            warnings.warn("Not all cells/sequences could be grouped into clones.\n")
+            warnings.warn(f"{n_cells_lost} of {n_cell} were not captured. This occurs when any\n") 
+            warnings.warn("of the values in the index columns are null or missing for a given sequence.\n")
+            warnings.warn("To see entries with missing values use: tcrdist.repertoire.TCRrep.show_incomplete()\n")
+        
         return self
+
+    def show_incomplete(self):      
+        ind = self.cell_df[self.index_cols].isnull().any(axis = 1)   
+        incomplete_clones = self.cell_df.loc[ind,self.index_cols].copy()
+        return incomplete_clones  
 
     # def tcr_motif_clones_df(self):
     #     """
