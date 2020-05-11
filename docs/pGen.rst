@@ -87,6 +87,7 @@ Public Method
 
 TCRrep class method :py:func:`tcrdist.repertoire.TCRrep.infer_olga_aa_cdr3_pgens`.
 
+
 Private OlgaModel Class
 =======================
 

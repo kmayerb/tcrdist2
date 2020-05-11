@@ -19,6 +19,8 @@ class OlgaModel:
     ----------
     chain_folder : string
         name of chain specific folder in the olga_default_models folder
+    recomb_type : string
+            'VDJ' or "VJ"
     """
 
 
@@ -131,6 +133,11 @@ class OlgaModel:
         function for computing many generation probabilities. The assumption is that
         data will come from a pd.DataFrame as lists which can contain either
         strings or None
+
+        Parameters
+        ----------
+
+        CDR3_seq : list of strings or None
 
         Returns
         -------
