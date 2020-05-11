@@ -28,14 +28,24 @@ It should be placed the directory where you launch the installation.
 The following will install tcrdist on a linux or macOSX within a virtual
 environment (Recommended).
 
-If you are creating a virtual environment in Linux for the first time, the
+.. code-block:: none
+  
+  pip install wheel
+  pip install -r requirements36.txt
+  pip install git+https://github.com/kmayerb/tcrdist2.git@API2
+
+
+Virtual Env
++++++++++++
+
+You may want to use a virtual env to isolate tcrdist within its own environment.
+If you are creating a virtual environment on a Linux macine for the first time, the
 following preparatory steps may be required.
 
 .. code-block:: none
 
   apt-get python3-dev
   pip install virtualenv
-
 
 With virtualenv installed, continue with the installation:
 
@@ -82,72 +92,6 @@ To install blast within your virtual environment
 .. code-block:: none
 
   python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'ncbi_linux')"
-
-
-
-Dependencies if Using Python 2.7.11
-+++++++++++++++++++++++++++++++++++
-
-.. tip::
-
-  We are no longer supporting python 2.7. We have made extra effort to
-  update other code bases such as olga to run in python 3.6. Please contact
-  us if you have an urgent need for python 2.7 compatibility.
-
-If you are going to install the python 2.7.11 dependencies it is highly recommended that tcrdist2
-is installed within a `python virtual environment <https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/>`_.
-Using a virtual environment isolates the program's dependencies so that
-installing legacy packages for python (2.7.11) -- numpy (1.10.1), scipy (0.16.0),
-scikit-learn (0.17.1), and matplotlib (1.4.3) --
-does not interfere with any of your other ongoing python projects.
-
-Setting up a virtual env takes less than 5 minutes using the commands below.
-
-To configure your machine to run tcrdist2 using the correct dependencies,
-use the `requirements.txt <https://github.com/kmayerb/tcrdist2/blob/API2/requirements.txt>`_
-file provided in the tcrdist2 github repository.
-
-With python 2.7.11, pip, virtualenv already installed:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: none
-
-  virtualenv venv
-  source ./venv/bin/activate
-  pip install -r requirements.txt
-  pip install git+https://github.com/kmayerb/tcrdist2.git@API2
-
-
-
-Using Conda to install python 2.7.11, pip, and virtualenv
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The instructions below assume that you have a working version of condas
-installed or can install python 2.7.11 by other means.
-
-.. code-block:: none
-
-  conda create -n py27v python=2.7.11 pip virtualenv
-  conda activate py27v
-  virtualenv venv
-  conda deactivate
-  conda deactivate
-  source ./venv/bin/activate
-  pip install -r requirements.txt
-  pip install git+https://github.com/kmayerb/tcrdist2.git@API2
-
-
-#. Using condas, install a base python interpretor (Python version 2.7.11) with pip and virtualenv.
-   **conda create -n py27v python=2.7.11 pip virtualenv**
-#. Activate it: **conda activate py27v**
-#. Make a virtual env that will contain all of tcrdists dependencies: **virtualenv venv**
-#. Deactivate condas env (twice to deactivate py27v and base) : **conda deactivate**
-#. Source venv : **source ./venv/bin/activate.**
-#. pip install all tcrdists dependencies **pip install -r requirements.txt**
-   (download `requirements.txt <https://github.com/kmayerb/tcrdist2/blob/API2/requirements.txt>`_
-   and place it in your working directory)
-#. pip install tcrdist2 from GitHub **pip install git+https://github.com/kmayerb/tcrdist2.git@API2**
-#. OPTIONAL: Install Blast Tools (see section below)
 
 
 Optional Blast Tools
