@@ -40,6 +40,7 @@ Load tcrdist2
   from tcrdist.cdr3_motif import TCRMotif
   from tcrdist.subset import TCRsubset
   from tcrdist.storage import StoreIOMotif, StoreIOEntropy
+  from tcrdist.plotting import plot_pwm
 
 
 Example Data
@@ -172,7 +173,6 @@ The steps in the code block below:
                chains = ["A","B"],
                dist_a = distA_subset,
                dist_b = distB_subset)
-
 
 
 Motifs
