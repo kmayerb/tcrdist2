@@ -37,7 +37,7 @@ assert op.isdir( path_to_blargs )
 sys.path.append(path_to_blargs)
 
 db_file = 'alphabeta_db.tsv' # db file corresponding to original publication
-# db_file = gammadelta_db.tsv' # db file corresponding to gamma deltas
+#db_file = 'gammadelta_db.tsv' # db file corresponding to gamma deltas
 
 def path_to_current_db_files(db_file=db_file):
     db_file = op.join(path_to_db, db_file)
