@@ -54,18 +54,20 @@ role in epitope specificity (see Methods and Extended Data Fig. 3)."
 .. toctree::
    :caption: More details
    :maxdepth: 2
-
-   PairwiseDistance
-   Proximity
-   Subset
+   
    Motifs
-   TCRMotif_Explained
    Mappers
-   Storage
-   Repertoire
-   Pairwise
-   Processing
    Neighborhood
+   OlgaModel
+   Pairwise
+   PairwiseDistance
+   pGen
+   Processing
+   Proximity 
+   Repertoire
+   Storage
+   Subset
+   TCRMotif_Explained
    WhatIsNew
 
 

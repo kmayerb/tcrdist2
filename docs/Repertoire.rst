@@ -20,5 +20,5 @@ parallelized alignment and distance computation between amino acid strings in th
 .. automodule:: tcrdist.repertoire
 
 .. autoclass:: TCRrep
-    :members: infer_cdrs_from_v_gene, deduplicate, compute_pairwise_all, compute_paired_tcrdist, reduce_file_size, save_as_hdf5, rebuild_from_hdf5
+    :members: infer_cdrs_from_v_gene, deduplicate, compute_pairwise_all, compute_paired_tcrdist, infer_olga_aa_cdr3_pgens, reduce_file_size, save_as_hdf5, rebuild_from_hdf5
     :show-inheritance:

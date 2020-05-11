@@ -6,6 +6,15 @@ Data
 
 The tcrdist2 standard input is a pandas.DataFrame
 
+The header and first line of a typical input for beta-chain analysis would look like this:
+
++------------+------------+------------+------------+------------+----------------------+-----------------------------------------------------------+
+| subject    | epitope    | count      | v_b_gene   | j_b_gene   | cdr3_b_aa            | cdr3_b_nucseq                                             |
++============+============+============+============+============+======================+===========================================================+
+| s1         |   NP       |   1        | TRBV1*01   | TRBJ1-1*01 | CACDSLGDKSSWDTRQMFF  | TGTGCCTGTGACTCGCTGGGGGATAAGAGCTCCTGGGACACCCGACAGATGTTTTTC |
++------------+------------+------------+------------+------------+----------------------+-----------------------------------------------------------+			
+
+
 Column names reflect the chain under investigation. 
 - a : alpha
 - b : beta
@@ -41,14 +50,6 @@ The following are usually inferred from germline reference v-gene but can be sup
 
   CDR2.5, the pMHC-facing loop between CDR2 and CDR3, are referred to in tcrdist2 as pmhc_a and phmc_b, respectively.
 
-
-Therefore, the typical input for beta-chain analysis would look like this:
-
-+------------+------------+------------+------------+------------+----------------------+-----------------------------------------------------------+
-| subject    | epitope    | count      | v_b_gene   | j_b_gene   | cdr3_b_aa            | cdr3_b_nucseq                                             |
-+============+============+============+============+============+======================+===========================================================+
-| s1         |   NP       |   1        | TRBV1*01   | TRBJ1-1*01 | CACDSLGDKSSWDTRQMFF  | TGTGCCTGTGACTCGCTGGGGGATAAGAGCTCCTGGGACACCCGACAGATGTTTTTC |
-+------------+------------+------------+------------+------------+----------------------+-----------------------------------------------------------+			
 
 
 Arguments
