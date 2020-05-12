@@ -91,12 +91,12 @@ def test_hot_start_example_in_full():
 
     # Find Motifs 
     if os.path.isfile(os.path.join("tcrdist", "test_files_compact","dash_PA_cluster_5_motifs.csv")):
-        ts.motif_df = pd.read_csv("dash_PA_cluster_5_motifs.csv")
+        ts.motif_df = pd.read_csv(os.path.join("tcrdist", "test_files_compact","dash_PA_cluster_5_motifs.csv"))
     else:
         motif_df = ts.find_motif()
 
     # Save Motifs
-    ts.motif_df.to_csv("dash_PA_cluster_5_motifs.csv", index = False)
+    ts.motif_df.to_csv(os.path.join("tcrdist", "test_files_compact","dash_PA_cluster_5_motifs.csv"), index = False)
 
     # Preprocess Motifs 
     motif_list_a = list()
