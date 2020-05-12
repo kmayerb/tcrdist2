@@ -1,0 +1,406 @@
+<svg height="200" version="1.1" width="600" xmlns="http://www.w3.org/2000/svg">
+<text fill="red" font-family="monospace" font-size="100" transform="scale(0.238095,0.982011)" x="0.000000" y="75.000000">6D-6*01</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.238095,0.067725)" x="0.000000" y="1162.500000">6D-6*03</text>
+
+<text fill="blue" font-family="monospace" font-size="100" transform="scale(0.277778,0.016931)" x="0.000000" y="4725.000000">6-2*01</text>
+
+
+<rect height="80" style="fill:none;stroke:black;stroke-width:1" width="100" x="0" y="0"/>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.384615,1.066667)" x="273.000000" y="75.000000">C</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,1.049735)" x="333.000000" y="75.000000">A</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="333.000000" y="4725.000000">V</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,1.066667)" x="393.000000" y="75.000000">L</text>
+
+<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.384615,0.812698)" x="453.000000" y="75.000000">G</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.067725)" x="453.000000" y="975.000000">V</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.067725)" x="453.000000" y="1050.000000">A</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.384615,0.050794)" x="453.000000" y="1475.000000">C</text>
+
+<text fill="red" font-family="monospace" font-size="100" transform="scale(0.384615,0.033862)" x="453.000000" y="2287.500000">E</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="453.000000" y="4650.000000">S</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="453.000000" y="4725.000000">I</text>
+
+<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.384615,0.541799)" x="513.000000" y="75.000000">G</text>
+
+<text fill="red" font-family="monospace" font-size="100" transform="scale(0.384615,0.152381)" x="513.000000" y="341.666667">E</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.384615,0.101587)" x="513.000000" y="587.500000">S</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.101587)" x="513.000000" y="662.500000">A</text>
+
+<text fill="blue" font-family="monospace" font-size="100" transform="scale(0.384615,0.067725)" x="513.000000" y="1068.750000">R</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.033862)" x="513.000000" y="2212.500000">L</text>
+
+<text fill="red" font-family="monospace" font-size="100" transform="scale(0.384615,0.033862)" x="513.000000" y="2287.500000">D</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="513.000000" y="4650.000000">T</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="513.000000" y="4725.000000">P</text>
+
+<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.384615,1.049735)" x="573.000000" y="75.000000">G</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="573.000000" y="4725.000000">S</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.384615,0.897354)" x="633.000000" y="75.000000">S</text>
+
+<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.384615,0.118519)" x="633.000000" y="642.857143">G</text>
+
+<text fill="blue" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="633.000000" y="4575.000000">R</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="633.000000" y="4650.000000">M</text>
+
+<text fill="red" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="633.000000" y="4725.000000">D</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,1.015873)" x="693.000000" y="75.000000">N</text>
+
+<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.384615,0.033862)" x="693.000000" y="2325.000000">G</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="693.000000" y="4725.000000">S</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.384615,0.948148)" x="753.000000" y="75.000000">Y</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.067725)" x="753.000000" y="1125.000000">N</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="753.000000" y="4575.000000">W</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="753.000000" y="4650.000000">S</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="753.000000" y="4725.000000">A</text>
+
+<text fill="blue" font-family="monospace" font-size="100" transform="scale(0.384615,0.694180)" x="813.000000" y="75.000000">K</text>
+
+<text fill="purple" font-family="monospace" font-size="100" transform="scale(0.384615,0.355556)" x="813.000000" y="221.428571">Q</text>
+
+<text fill="blue" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="813.000000" y="4725.000000">R</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.998942)" x="873.000000" y="75.000000">L</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.050794)" x="873.000000" y="1550.000000">P</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="873.000000" y="4725.000000">I</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.384615,0.660317)" x="933.000000" y="75.000000">T</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.389418)" x="933.000000" y="202.173913">I</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.016931)" x="933.000000" y="4725.000000">F</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.711111)" x="993.000000" y="75.000000">F</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.355556)" x="993.000000" y="225.000000">W</text>
+
+
+<rect height="80" style="fill:none;stroke:black;stroke-width:1" width="300" x="105" y="0"/>
+
+<rect height="36.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307693" x="105.0" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307693" x="105.0" y="118.0"/>
+
+<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307693" x="105.0" y="118.0"/>
+
+<rect height="36.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307693" x="112.6923076923077" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307693" x="112.6923076923077" y="118.0"/>
+
+<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307693" x="112.6923076923077" y="118.0"/>
+
+<rect height="36.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="120.38461538461539" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="120.38461538461539" y="118.0"/>
+
+<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="120.38461538461539" y="118.0"/>
+
+<rect height="36.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307708" x="128.07692307692307" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307708" x="128.07692307692307" y="118.0"/>
+
+<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307708" x="128.07692307692307" y="118.0"/>
+
+<rect height="36.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="135.76923076923077" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="135.76923076923077" y="118.0"/>
+
+<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="135.76923076923077" y="118.0"/>
+
+<rect height="36.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307708" x="143.46153846153845" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307708" x="143.46153846153845" y="118.0"/>
+
+<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307708" x="143.46153846153845" y="118.0"/>
+
+<rect height="35.428571428571416" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="151.15384615384616" y="82"/>
+
+<rect height="0.5714285714285694" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="151.15384615384616" y="117.42857142857142"/>
+
+<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="151.15384615384616" y="117.99999999999999"/>
+
+<rect height="35.428571428571416" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307708" x="158.84615384615384" y="82"/>
+
+<rect height="0.5714285714285694" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307708" x="158.84615384615384" y="117.42857142857142"/>
+
+<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307708" x="158.84615384615384" y="117.99999999999999"/>
+
+<rect height="34.85714285714286" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="166.53846153846155" y="82"/>
+
+<rect height="1.1428571428571388" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="166.53846153846155" y="116.85714285714286"/>
+
+<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="166.53846153846155" y="118.0"/>
+
+<rect height="8.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="174.23076923076923" y="82"/>
+
+<rect height="28.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="174.23076923076923" y="90.0"/>
+
+<rect height="0.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="174.23076923076923" y="118.0"/>
+
+<rect height="7.428571428571431" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307708" x="181.9230769230769" y="82"/>
+
+<rect height="18.285714285714292" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307708" x="181.9230769230769" y="89.42857142857143"/>
+
+<rect height="10.285714285714278" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307708" x="181.9230769230769" y="107.71428571428572"/>
+
+<rect height="6.857142857142861" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307708" x="189.6153846153846" y="82"/>
+
+<rect height="16.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307708" x="189.6153846153846" y="88.85714285714286"/>
+
+<rect height="13.142857142857139" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307708" x="189.6153846153846" y="104.85714285714286"/>
+
+<rect height="6.285714285714292" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="197.30769230769232" y="82"/>
+
+<rect height="11.42857142857143" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="197.30769230769232" y="88.28571428571429"/>
+
+<rect height="18.285714285714278" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="197.30769230769232" y="99.71428571428572"/>
+
+<rect height="6.285714285714292" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="205.0" y="82"/>
+
+<rect height="8.57142857142857" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="205.0" y="88.28571428571429"/>
+
+<rect height="21.14285714285714" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="205.0" y="96.85714285714286"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307708" x="212.69230769230768" y="82"/>
+
+<rect height="13.714285714285708" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307708" x="212.69230769230768" y="82.0"/>
+
+<rect height="22.285714285714292" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307708" x="212.69230769230768" y="95.71428571428571"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307708" x="220.3846153846154" y="82"/>
+
+<rect height="13.714285714285708" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307708" x="220.3846153846154" y="82.0"/>
+
+<rect height="22.285714285714292" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307708" x="220.3846153846154" y="95.71428571428571"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="228.0769230769231" y="82"/>
+
+<rect height="13.142857142857139" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="228.0769230769231" y="82.0"/>
+
+<rect height="22.85714285714286" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="228.0769230769231" y="95.14285714285714"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="235.76923076923077" y="82"/>
+
+<rect height="6.285714285714292" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="235.76923076923077" y="82.0"/>
+
+<rect height="29.714285714285708" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="235.76923076923077" y="88.28571428571429"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307708" x="243.46153846153845" y="82"/>
+
+<rect height="1.1428571428571388" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307708" x="243.46153846153845" y="82.0"/>
+
+<rect height="34.85714285714286" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307708" x="243.46153846153845" y="83.14285714285714"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307651" x="251.15384615384616" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307651" x="251.15384615384616" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307651" x="251.15384615384616" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307736" x="258.8461538461538" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307736" x="258.8461538461538" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307736" x="258.8461538461538" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="266.53846153846155" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="266.53846153846155" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="266.53846153846155" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="274.2307692307692" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="274.2307692307692" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="274.2307692307692" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307736" x="281.9230769230769" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307736" x="281.9230769230769" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307736" x="281.9230769230769" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="289.61538461538464" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="289.61538461538464" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="289.61538461538464" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="297.3076923076923" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="297.3076923076923" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="297.3076923076923" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307736" x="305.0" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307736" x="305.0" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307736" x="305.0" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307622" x="312.69230769230774" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307622" x="312.69230769230774" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307622" x="312.69230769230774" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307736" x="320.38461538461536" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307736" x="320.38461538461536" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307736" x="320.38461538461536" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="328.0769230769231" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="328.0769230769231" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="328.0769230769231" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="335.7692307692308" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="335.7692307692308" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="335.7692307692308" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307736" x="343.46153846153845" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307736" x="343.46153846153845" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307736" x="343.46153846153845" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307622" x="351.1538461538462" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307622" x="351.1538461538462" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307622" x="351.1538461538462" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307736" x="358.8461538461538" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307736" x="358.8461538461538" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307736" x="358.8461538461538" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="366.53846153846155" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="366.53846153846155" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="366.53846153846155" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="374.2307692307692" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="374.2307692307692" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="374.2307692307692" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307736" x="381.9230769230769" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307736" x="381.9230769230769" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307736" x="381.9230769230769" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="389.61538461538464" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="389.61538461538464" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="389.61538461538464" y="82.0"/>
+
+<rect height="0.0" style="fill:silver;stroke:silver;stroke-width:1" width="7.692307692307679" x="397.3076923076923" y="82"/>
+
+<rect height="0.0" style="fill:red;stroke:red;stroke-width:1" width="7.692307692307679" x="397.3076923076923" y="82.0"/>
+
+<rect height="36.0" style="fill:dimgray;stroke:dimgray;stroke-width:1" width="7.692307692307679" x="397.3076923076923" y="82.0"/>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.030520)" x="393.000000" y="6553.151005">L</text>
+
+<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.384615,0.192090)" x="453.000000" y="1017.742776">G</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.016007)" x="453.000000" y="12287.913315">V</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.016007)" x="453.000000" y="12362.913315">A</text>
+
+<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.384615,0.073212)" x="513.000000" y="2659.147912">G</text>
+
+<text fill="red" font-family="monospace" font-size="100" transform="scale(0.384615,0.020591)" x="513.000000" y="9529.748131">E</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.384615,0.013727)" x="513.000000" y="14369.622197">S</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.013727)" x="513.000000" y="14444.622197">A</text>
+
+<text fill="orange" font-family="monospace" font-size="100" transform="scale(0.384615,0.228235)" x="573.000000" y="875.081679">G</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.384615,0.017795)" x="633.000000" y="11224.867958">S</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.384615,0.022004)" x="693.000000" y="9085.426699">N</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.384615,0.023265)" x="753.000000" y="8587.192833">Y</text>
+
+
+<rect height="200.0" style="fill:none;stroke:black;stroke-width:1" width="300" x="105" y="0"/>
+
+<text fill="red" font-family="monospace" font-size="100" transform="scale(0.333333,0.541799)" x="1230.000000" y="75.000000">53*01</text>
+
+<text fill="green" font-family="monospace" font-size="100" transform="scale(0.333333,0.338624)" x="1230.000000" y="195.000000">33*01</text>
+
+<text fill="black" font-family="monospace" font-size="100" transform="scale(0.416667,0.050794)" x="984.000000" y="1375.000000">6*01</text>
+
+<text fill="blue" font-family="monospace" font-size="100" transform="scale(0.333333,0.033862)" x="1230.000000" y="2137.500000">56*01</text>
+
+<text fill="gold" font-family="monospace" font-size="100" transform="scale(0.416667,0.016931)" x="984.000000" y="4350.000000">9*02</text>
+
+<text fill="lime" font-family="monospace" font-size="100" transform="scale(0.333333,0.016931)" x="1230.000000" y="4425.000000">42*01</text>
+
+<text fill="olive" font-family="monospace" font-size="100" transform="scale(0.333333,0.016931)" x="1230.000000" y="4500.000000">38*01</text>
+
+<text fill="maroon" font-family="monospace" font-size="100" transform="scale(0.333333,0.016931)" x="1230.000000" y="4575.000000">32*01</text>
+
+<text fill="lightblue" font-family="monospace" font-size="100" transform="scale(0.333333,0.016931)" x="1230.000000" y="4650.000000">31*01</text>
+
+<text fill="magenta" font-family="monospace" font-size="100" transform="scale(0.333333,0.016931)" x="1230.000000" y="4725.000000">22*01</text>
+
+
+<rect height="80" style="fill:none;stroke:black;stroke-width:1" width="100" x="410" y="0"/>
+
+<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="128.000">PA A #clones=87</text>
+
+<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="136.000">chi-sq: 3216.8</text>
+
+<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="144.000">motif: ^..vG.G..f.v.f</text>
+
+<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="152.000">match-: 42 48.3%</text>
+
+<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="160.000">match+: 63 72.4%</text>
+
+<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="168.000">expect: 0.534</text>
+
+<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="176.000">enrich: 78.6</text>
+
+<text fill="black" font-family="Droid Sans Mono" font-size="8.0" font-weight="normal" x="410.000" xml:space="preserve" y="176.000">enrich: 78.6</text>
+
+</svg>
