@@ -8,7 +8,7 @@ def test_hot_start_example_in_full():
     import os
     import pandas as pd
     import numpy as np
-    import IPython
+    #import IPython
 
     # tcrdist classes
     from tcrdist.repertoire import TCRrep
