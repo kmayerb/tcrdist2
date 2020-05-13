@@ -388,3 +388,30 @@ def map_genes_to_first_alleles(genes, organism):
             alleles.append(None)
             warnings.warn("{} not found in mapping DB, no allele could be mapped for this gene".format(g))
     return(alleles)
+
+def populate_legacy_fields(df, chains =['alpha', 'beta']):
+    """
+    For instances when we only have v_x_gene and v_j_gene and we need to supply
+    'va_countreps' and 'va_gene' for use of tcrdist.subset.TCRsubset()
+    """
+    if 'alpha' in chains:
+        df['va_countreps'] = df['v_a_gene'].copy()
+        df['ja_countreps'] = df['j_a_gene'].copy()
+        df['va_gene'] = df['v_a_gene'].copy()
+        df['ja_gene'] = df['j_a_gene'].copy()
+    if 'beta' in chains:
+        df['vb_countreps'] = df['v_b_gene'].copy()
+        df['jb_countreps'] = df['j_b_gene'].copy()
+        df['vb_gene'] = df['v_b_gene'].copy()
+        df['jb_gene'] = df['j_b_gene'].copy()
+    if 'gamma' in chains:
+        df['vg_countreps'] = df['v_g_gene'].copy()
+        df['jg_countreps'] = df['j_g_gene'].copy()
+        df['vg_gene'] = df['v_g_gene'].copy()
+        df['jg_gene'] = df['j_g_gene'].copy()
+    if 'delta' in chains:
+        df['vd_countreps'] = df['v_d_gene'].copy()
+        df['jd_countreps'] = df['j_d_gene'].copy()
+        df['vd_gene'] = df['v_d_gene'].copy()
+        df['jd_gene'] = df['j_d_gene'].copy()
+    return(df)

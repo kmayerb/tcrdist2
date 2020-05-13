@@ -35,10 +35,12 @@ role in epitope specificity (see Methods and Extended Data Fig. 3)."
    :maxdepth: 2
 
    Installation
+   HotStart
    Inputs
    CompleteExample
    Saving
    Plotting
+   
 
 .. toctree::
    :caption: Pre-Processing
@@ -48,6 +50,7 @@ role in epitope specificity (see Methods and Extended Data Fig. 3)."
    Preprocess_10X
    Preprocess_Adaptive
    Preprocessing
+   tcrdist1_to_tcrdist2
 
 .. _more-details:
 

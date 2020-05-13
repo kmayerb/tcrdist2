@@ -17,10 +17,10 @@ There are two major object classes of tcrdist2 that are exposed to the user:
 
 * **TCRsubset** :py:class:`tcrdist.subset.TCRsubset` - analyzes epitope specificity for a specific subset of a TCR repertoire
 
-Rather than delve into the thicket of details and options available in the program,
+On this page, rather than delve into the thicket of options available in tcrdist2,
 we focus on one instructive example that illustrates the integration of
 the program's major features. We reserve more detailed explanations
-for separate sections, each with its own page in this documentation.
+for separate sections.
 
 .. tip::
   A note on the syntax used in the following coded examples: we instantiate
@@ -31,10 +31,11 @@ Load tcrdist2
 
 .. code-block:: python
 
+  import os
   import pandas as pd
   import numpy as np
   import tcrdist as td
-
+  
   from tcrdist import mappers
   from tcrdist.repertoire import TCRrep
   from tcrdist.cdr3_motif import TCRMotif
@@ -44,39 +45,22 @@ Load tcrdist2
 
 
 Example Data
-#############
+############
 
-This example uses the mouse clones files from the Dash et al. 2017 study.
-The clones file can be downloaded (`clones <https://www.dropbox.com/s/l0z12f8lc752wfx/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv?dl=1>`_ 2MB).
-Searching for motifs in tcrdist2 is a slow step in the pipeline.
-Thus for this example, users may wish to use precomputed candidate motifs.
-A file with these motifs generated for TCRs specific to the PA epitope
-(found in a protein from the mouse influenza virus) can be downloaded.
-(`PA motifs <https://www.dropbox.com/s/z7wwmwb1n6dpq74/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones_cdr3_motifs_PA.log?dl=1>`_ 32KB).
 
-The steps in the code block below:
+This example uses the mouse clones recognizing the PA epitope 
+from the Dash et al. 2017 study.
 
-1. Load the clones file as a Pandas DataFrame.
-2. Select only those clones specific to the F2 or PA epitopes. Note, we choose two here, so we can later illustrate subsetting by epitope specificity.
-3. Load an appropriate mapping object (i.e. a dictionary of old and new column names).
-4. Apply the mapping object to the the original DataFrame, to select and rename columns.
+.. tip::
+  Information on how to convert tcrdist1 clones files can be found in :ref:`tcrdist1totcrdist2`, 
+  and more information on input data format can be found in  :ref:`Inputs`.
+  
+The file can be downloaded directly (`dash.csv <https://raw.githubusercontent.com/kmayerb/tcrdist2/API2/tcrdist/test_files_compact/dash.csv>`_ 375KB). 
 
 .. code-block:: python
 
-  #1
-  tcrdist_clone_fn = 'mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv'
-  tcrdist_clone_df = pd.read_csv(tcrdist_clone_fn, sep = "\t")
-
-  # 2
-  ind = (tcrdist_clone_df.epitope == "PA") | (tcrdist_clone_df.epitope == "F2")
-  tcrdist_clone_df = tcrdist_clone_df[ind].copy()
-
-  #3
-  mapping = mappers.tcrdist_clone_df_to_tcrdist2_mapping
-  #4
-  tcrdist2_df = mappers.generic_pandas_mapper(df = tcrdist_clone_df,
-                                              mapping = mapping)
-
+  tcrdist2_df = pd.read_csv("dash.csv")
+  tcrdist2_df = tcrdist2_df[tcrdist2_df.epitope == "PA"].copy()
 
 Pairwise Distance
 #################
@@ -113,8 +97,6 @@ The steps in the code block below:
                    'cdr1_a_aa', 'cdr2_a_aa', 'pmhc_a_aa',
                    'cdr1_b_aa', 'cdr2_b_aa', 'pmhc_b_aa',
                    'cdr3_b_nucseq', 'cdr3_a_nucseq',
-                   'va_countreps', 'ja_countreps',
-                   'vb_countreps', 'jb_countreps',
                    'va_gene', 'vb_gene',
                    'ja_gene', 'jb_gene']
 
