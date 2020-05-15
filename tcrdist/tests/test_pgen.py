@@ -150,13 +150,14 @@ class test_olga_in_python3(unittest.TestCase):
         r = my_olga_model.compute_aa_cdr3_pgens(human_a.cdr3_a_aa,
                                                 None,
                                                 None)
+        """
         print("FOR HUMAN INSPECTION")
         for x,y in zip(human_a.cdr3_a_aa_pgen_naive, r):
             if not np.isclose(x,y):
                 s = "*"
             else:
                 s= ""
-            print(x,y,s)
+            print(x,y,s)"""
         r = np.array(r)
         self.assertTrue(np.allclose(r, human_a.cdr3_a_aa_pgen_naive))
 
@@ -169,13 +170,14 @@ class test_olga_in_python3(unittest.TestCase):
                                                 human_a.v_a_gene,
                                                 human_a.j_a_gene)
 
+        """
         print("FOR HUMAN INSPECTION")
         for x,y in zip(human_a.cdr3_a_aa_pgen_vj, r):
             if not np.isclose(x,y):
                 s = "*"
             else:
                 s= ""
-            print(x,y,s)
+            print(x,y,s)"""
         r = np.array(r)
         self.assertTrue(np.allclose(r, human_a.cdr3_a_aa_pgen_vj))
 

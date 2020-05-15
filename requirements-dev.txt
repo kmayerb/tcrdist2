@@ -74,4 +74,6 @@ webencodings==0.5.1
 widgetsnbextension==3.4.2
 zipp==0.5.1
 statsmodels==0.10.1
+parmap
 git+https://github.com/agartland/fishersapi.git#egg=fishersapi
+git+https://github.com/agartland/pwseqdist.git#egg=pwseqdist
