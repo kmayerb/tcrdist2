@@ -328,51 +328,49 @@ class GenomicDataVDJ(GenomicData):
 
         """
 
-        params_file = open(params_file_name, 'r')
+        with open(params_file_name, 'r') as params_file:
+            in_delV = False
+            in_delDl = False
+            in_delDr = False
+            in_delJ = False
 
 
-        in_delV = False
-        in_delDl = False
-        in_delDr = False
-        in_delJ = False
-
-
-        for line in params_file:
-            if line.startswith('#Deletion;V_gene;'):
-                in_delV = True
-                in_delDl = False
-                in_delDr = False
-                in_delJ = False
-            elif line.startswith('#Deletion;D_gene;Three_prime;'):
-                in_delV = False
-                in_delDl = False
-                in_delDr = True
-                in_delJ = False
-            elif line.startswith('#Deletion;D_gene;Five_prime;'):
-                in_delV = False
-                in_delDl = True
-                in_delDr = False
-                in_delJ = False
-            elif line.startswith('#Deletion;J_gene;'):
-                in_delV = False
-                in_delDl = False
-                in_delDr = False
-                in_delJ = True
-            elif any([in_delV, in_delDl, in_delDr, in_delJ]) and line.startswith('%'):
-                if int(line.split(';')[-1]) == 0:
-                    if in_delV:
-                        self.max_delV_palindrome = np.abs(int(line.lstrip('%').split(';')[0]))
-                    elif in_delDl:
-                        self.max_delDl_palindrome = np.abs(int(line.lstrip('%').split(';')[0]))
-                    elif in_delDr:
-                        self.max_delDr_palindrome = np.abs(int(line.lstrip('%').split(';')[0]))
-                    elif in_delJ:
-                        self.max_delJ_palindrome = np.abs(int(line.lstrip('%').split(';')[0]))
-            else:
-                in_delV = False
-                in_delDl = False
-                in_delDr = False
-                in_delJ = False
+            for line in params_file:
+                if line.startswith('#Deletion;V_gene;'):
+                    in_delV = True
+                    in_delDl = False
+                    in_delDr = False
+                    in_delJ = False
+                elif line.startswith('#Deletion;D_gene;Three_prime;'):
+                    in_delV = False
+                    in_delDl = False
+                    in_delDr = True
+                    in_delJ = False
+                elif line.startswith('#Deletion;D_gene;Five_prime;'):
+                    in_delV = False
+                    in_delDl = True
+                    in_delDr = False
+                    in_delJ = False
+                elif line.startswith('#Deletion;J_gene;'):
+                    in_delV = False
+                    in_delDl = False
+                    in_delDr = False
+                    in_delJ = True
+                elif any([in_delV, in_delDl, in_delDr, in_delJ]) and line.startswith('%'):
+                    if int(line.split(';')[-1]) == 0:
+                        if in_delV:
+                            self.max_delV_palindrome = np.abs(int(line.lstrip('%').split(';')[0]))
+                        elif in_delDl:
+                            self.max_delDl_palindrome = np.abs(int(line.lstrip('%').split(';')[0]))
+                        elif in_delDr:
+                            self.max_delDr_palindrome = np.abs(int(line.lstrip('%').split(';')[0]))
+                        elif in_delJ:
+                            self.max_delJ_palindrome = np.abs(int(line.lstrip('%').split(';')[0]))
+                else:
+                    in_delV = False
+                    in_delDl = False
+                    in_delDr = False
+                    in_delJ = False
 
 
 class GenomicDataVJ(GenomicData):
@@ -446,29 +444,27 @@ class GenomicDataVJ(GenomicData):
             File name for an IGoR parameter file of a VJ generative model.
 
         """
-        params_file = open(params_file_name, 'r')
+        with open(params_file_name, 'r') as params_file:
+            in_delV = False
+            in_delJ = False
 
 
-        in_delV = False
-        in_delJ = False
-
-
-        for line in params_file:
-            if line.startswith('#Deletion;V_gene;'):
-                in_delV = True
-                in_delJ = False
-            elif line.startswith('#Deletion;J_gene;'):
-                in_delV = False
-                in_delJ = True
-            elif any([in_delV, in_delJ]) and line.startswith('%'):
-                if int(line.split(';')[-1]) == 0:
-                    if in_delV:
-                        self.max_delV_palindrome = np.abs(int(line.lstrip('%').split(';')[0]))
-                    elif in_delJ:
-                        self.max_delJ_palindrome = np.abs(int(line.lstrip('%').split(';')[0]))
-            else:
-                in_delV = False
-                in_delJ = False
+            for line in params_file:
+                if line.startswith('#Deletion;V_gene;'):
+                    in_delV = True
+                    in_delJ = False
+                elif line.startswith('#Deletion;J_gene;'):
+                    in_delV = False
+                    in_delJ = True
+                elif any([in_delV, in_delJ]) and line.startswith('%'):
+                    if int(line.split(';')[-1]) == 0:
+                        if in_delV:
+                            self.max_delV_palindrome = np.abs(int(line.lstrip('%').split(';')[0]))
+                        elif in_delJ:
+                            self.max_delJ_palindrome = np.abs(int(line.lstrip('%').split(';')[0]))
+                else:
+                    in_delV = False
+                    in_delJ = False
 
 #%% Functions for germline sequence load
 #(assumes IGoR files, and the anchor .csv files)
@@ -489,17 +485,16 @@ def load_genomic_CDR3_anchor_pos_and_functionality(anchor_pos_file_name):
     """
 
     anchor_pos_and_functionality = {}
-    anchor_pos_file = open(anchor_pos_file_name, 'r')
+    with open(anchor_pos_file_name, 'r') as anchor_pos_file:
+        first_line = True
+        for line in anchor_pos_file:
+            if first_line:
+                first_line = False
+                continue
 
-    first_line = True
-    for line in anchor_pos_file:
-        if first_line:
-            first_line = False
-            continue
-
-        split_line = line.split(',')
-        split_line = [x.strip() for x in split_line]
-        anchor_pos_and_functionality[split_line[0]] = [int(split_line[1]), split_line[2].strip().strip('()')]
+            split_line = line.split(',')
+            split_line = [x.strip() for x in split_line]
+            anchor_pos_and_functionality[split_line[0]] = [int(split_line[1]), split_line[2].strip().strip('()')]
 
     return anchor_pos_and_functionality
 
@@ -523,21 +518,19 @@ def read_igor_V_gene_parameters(params_file_name):
         List of genomic V information.
 
     """
-    params_file = open(params_file_name, 'r')
+    with open(params_file_name, 'r') as params_file:
+        V_gene_info = {}
 
-    V_gene_info = {}
-
-    in_V_gene_sec = False
-    for line in params_file:
-        if line.startswith('#GeneChoice;V_gene;'):
-            in_V_gene_sec = True
-        elif in_V_gene_sec:
-            if line[0] == '%':
-                split_line = line[1:].split(';')
-                V_gene_info[split_line[0]] = [split_line[1], int(split_line[2])]
-            else:
-                break
-    params_file.close()
+        in_V_gene_sec = False
+        for line in params_file:
+            if line.startswith('#GeneChoice;V_gene;'):
+                in_V_gene_sec = True
+            elif in_V_gene_sec:
+                if line[0] == '%':
+                    split_line = line[1:].split(';')
+                    V_gene_info[split_line[0]] = [split_line[1], int(split_line[2])]
+                else:
+                    break
 
     genV = [[]]*len(list(V_gene_info.keys()))
 
@@ -563,21 +556,19 @@ def read_igor_D_gene_parameters(params_file_name):
         List of genomic D information.
 
     """
-    params_file = open(params_file_name, 'r')
+    with open(params_file_name, 'r') as params_file:
+        D_gene_info = {}
 
-    D_gene_info = {}
-
-    in_D_gene_sec = False
-    for line in params_file:
-        if line.startswith('#GeneChoice;D_gene;'):
-            in_D_gene_sec = True
-        elif in_D_gene_sec:
-            if line[0] == '%':
-                split_line = line[1:].split(';')
-                D_gene_info[split_line[0]] = [split_line[1], int(split_line[2])]
-            else:
-                break
-    params_file.close()
+        in_D_gene_sec = False
+        for line in params_file:
+            if line.startswith('#GeneChoice;D_gene;'):
+                in_D_gene_sec = True
+            elif in_D_gene_sec:
+                if line[0] == '%':
+                    split_line = line[1:].split(';')
+                    D_gene_info[split_line[0]] = [split_line[1], int(split_line[2])]
+                else:
+                    break
 
     genD = [[]]*len(list(D_gene_info.keys()))
 
@@ -606,21 +597,19 @@ def read_igor_J_gene_parameters(params_file_name):
         List of genomic J information.
 
     """
-    params_file = open(params_file_name, 'r')
+    with open(params_file_name, 'r') as params_file:
+        J_gene_info = {}
 
-    J_gene_info = {}
-
-    in_J_gene_sec = False
-    for line in params_file:
-        if line.startswith('#GeneChoice;J_gene;'):
-            in_J_gene_sec = True
-        elif in_J_gene_sec:
-            if line[0] == '%':
-                split_line = line[1:].split(';')
-                J_gene_info[split_line[0]] = [split_line[1], int(split_line[2])]
-            else:
-                break
-    params_file.close()
+        in_J_gene_sec = False
+        for line in params_file:
+            if line.startswith('#GeneChoice;J_gene;'):
+                in_J_gene_sec = True
+            elif in_J_gene_sec:
+                if line[0] == '%':
+                    split_line = line[1:].split(';')
+                    J_gene_info[split_line[0]] = [split_line[1], int(split_line[2])]
+                else:
+                    break
 
     genJ = [[]]*len(list(J_gene_info.keys()))
 
