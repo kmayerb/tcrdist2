@@ -53,6 +53,7 @@ def test__map_clone_df_to_TCRMotif_clone_df_KeyError_message():
         _map_clone_df_to_TCRMotif_clone_df(df)
     assert 'clone_df must have columns names: subject' in str(excinfo.value)
 
+@tempSkip
 def test_data_type_conversion_with_reduce_file_size():
     """
     Test that successfull conversion of np attributes from
