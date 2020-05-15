@@ -159,6 +159,8 @@ def generate_tr():
     tr._tcrdist_legacy_method_alpha_beta()
     return tr
 
+
+
 def test_save_to_hdf5(generate_tr):
     """
     Here we save a TCRrep instance to hdf5 and then reopen and test that the parts
