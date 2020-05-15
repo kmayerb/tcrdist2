@@ -13,6 +13,8 @@ Flexible tools for parallelized computation of pairwise distance.
 apply_pw_distance_metric_w_multiprocessing() is the core function!
 
 """
+
+
 def _f_pwdist_parallel_using_distance_wrapper(indices):
     """
     Function for parallel processing of pairwise distance method via
@@ -198,18 +200,22 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
 
         global distance_wrapper
         distance_wrapper = dw
+    if processes == 1:
+        set_global(sequences, distance_wrapper_new)
+        res = f(get_pwdist_indices(sequences))
+    else:
+        # creates pool, and runs intializer functoin
+        p = multiprocessing.Pool(processes = processes,
+                                 initializer = set_global,
+                                 initargs=(sequences, distance_wrapper_new,))
 
-    # creates pool, and runs intializer functoin
-    p = multiprocessing.Pool(processes = processes,
-                             initializer = set_global,
-                             initargs=(sequences, distance_wrapper_new,))
+        # map function to the parralel processes
 
-    # map function to the parralel processes
-
-    multiprocessed_result  = p.map(f, indices)
-    p.close()
-    p.join()
-    return(flatten(multiprocessed_result))
+        multiprocessed_result  = p.map(f, indices)
+        p.close()
+        p.join()
+        res = flatten(multiprocessed_result)
+    return res
 
 
 def nw_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
@@ -834,7 +840,7 @@ def unpack_dd_to_kkv(dd):
 
 
 
-def f(index):#= ["CAGQASQGNLIF","CAGQASQGNLIFA","CAGQASQGNLIAA","CAGQASQGNLIFAAA","CAGQASQGNLIFAAAAA", "CAGQASQGNLIFG"]):
+def f(index, unique_seqs):#= ["CAGQASQGNLIF","CAGQASQGNLIFA","CAGQASQGNLIAA","CAGQASQGNLIFAAA","CAGQASQGNLIFAAAAA", "CAGQASQGNLIFG"]):
     # index is a tuple, first is the rows to loop over,
     # second is the columns
     index_p1 = index[0]
@@ -908,7 +914,7 @@ def apply_pairwise_distance_multiprocessing(sequences,
 
     # unique_seq is a list of unique sequences
 
-
+    processes = int(processes)
     chunks = 2*processes
     total_number_of_seqs = len(sequences)
     index = list(range(0, total_number_of_seqs))
@@ -917,6 +923,7 @@ def apply_pairwise_distance_multiprocessing(sequences,
     # index is chunked into two parts (row, and column) so that
     # the pairwise distance task can be mapped to multiple processes
     def partition(l, n):
+        n = int(n)
         return([l[i:i + n] for i in range(0, len(l), n)])
 
     def set_global(x):
@@ -931,16 +938,19 @@ def apply_pairwise_distance_multiprocessing(sequences,
     index = [(index_p1[i], index_p2[i]) for i in range(chunks)]
     # Set up pool multiprocessing
 
-    p = multiprocessing.Pool(processes = processes,
+    '''p = multiprocessing.Pool(processes = processes,
                              initializer = set_global,
-                             initargs=(sequences,))
+                             initargs=(sequences,))'''
+    #pool = multiprocessing.Pool(processes=processes)
+    pooled_storage=parmap.map(f, index, sequences, pm_parallel=False)
+
     # map function to the parralel processes
-    pooled_storage  = p.map(f, index)
+    # pooled_storage  = p.map(f, index)
 
 
     #pooled_storage = parmap.starmap(f, index = index, unique_seqs = sequences)
-    p.close()
-    p.join()
+    #p.close()
+    #p.join()
     return(pooled_storage)
 
 

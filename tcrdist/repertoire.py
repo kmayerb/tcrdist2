@@ -1,19 +1,23 @@
 import numpy as np
 import pandas as pd
 import scipy.spatial
-
-import warnings
-
-import parasail
-from tcrdist import pairwise
 import collections
 import json
-#from tcrdist.cdr3s_human import pb_cdrs
 import warnings
 import pickle
-from tcrdist import repertoire_db
-from tcrdist import pgen
-from tcrdist import mappers
+
+import parasail
+
+from . import repertoire_db
+from . import pgen
+from . import mappers
+from . import pairwise
+
+from fg_shared import _git
+import sys
+from os.path import join as opj
+sys.path.append(opj(_git, 'pwseqdist'))
+import pwseqdist as pwsd
 
 
 #from paths import path_to_matrices
@@ -1338,27 +1342,53 @@ def _deduplicate(cell_df, index_cols):
     clones = cell_df.groupby(index_cols)['count'].agg(np.sum).reset_index()
     return clones
 
-def _compute_pairwise(sequences, metric = "nw", processes = 2, user_function = None, **kwargs):
-    """
-    Wrapper for pairwise.apply_pw_distance_metric_w_multiprocessing()
+def _compute_pairwise(sequences, metric='nw', processes=2, user_function=None, **kwargs):
+    """Wrapper for pairwise.apply_pw_distance_metric_w_multiprocessing()
 
     Parameters
     ----------
     sequences : list
-
     metric : string
-
     processes : int
-
     user_function : function
+    **kwargs : keyword arguments passed to metric function
 
     Returns
     -------
-
     pw_full_np : np.ndarray
-        matrix of pairwise comparisons
-
+        matrix of pairwise comparisons"""
+    processes = 1
     """
+    if metric == 'nw':
+        metric_func = pwsd.metrics.nw_metric
+    elif metric == 'hamming':
+        metric_func = pwsd.metrics.nw_hamming_metric
+    elif metric == 'tcrdist_cdr3':
+        metric_func = pairwise.tcrdist_cdr3_metric
+    elif metric in ['tcrdist_cdr1', 'tcrdist_cdr2', 'tcrdist_cdr2.5', 'tcrdist_pmhc']:
+        metric_func = pairwise.tcrdist_cdr1_metric
+    elif metric == 'hamming_aligned':
+        metric_func = pwsd.metrics.hamming_distance
+    elif not user_function is None:
+        metric_func = user_function
+    else:
+        msg = 'repertoire._compute_pairwise: metric %s is not supported'
+        raise ValueError(msg % metric)
+    
+    if metric in ['nw', 'hamming']:
+        if not 'matrix' in kwargs:
+            kwargs['matrix'] = parasail.blosum62
+
+    dvec = pwsd.apply_pairwise_sq(sequences.values, metric_func,
+                                  ncpus=processes, **kwargs)
+    pw_full_np = scipy.spatial.distance.squareform(dvec)
+    # pw_df = pd.DataFrame(pw, index=sequences, columns=sequences)
+
+    print(sequences.shape)
+    print(dvec.shape)
+    print(pw.shape)
+    #print(dvec)"""
+    
     unique_seqs = pd.Series(sequences).unique()
 
     pw = pairwise.apply_pw_distance_metric_w_multiprocessing(
@@ -1372,8 +1402,8 @@ def _compute_pairwise(sequences, metric = "nw", processes = 2, user_function = N
     pw_df = pd.DataFrame(pw, index = unique_seqs, columns = unique_seqs)
     pw_full = pw_df.loc[sequences, sequences]
     pw_full_np = pw_full.values
-    return(pw_full_np)
-
+    return pw_full_np
+    
 def _map_clone_df_to_TCRMotif_clone_df(df):
     """
     TODO: TEST REPLACEMENT WITH MUCH SIMPLER GENERIC
