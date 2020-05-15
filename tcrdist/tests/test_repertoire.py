@@ -63,7 +63,7 @@ class test_repertoire(unittest.TestCase):
         testrep.deduplicate()
         testrep.infer_olga_aa_cdr3_pgens(chain = "alpha")
         testrep.infer_olga_aa_cdr3_pgens(chain = "beta")
-        print(testrep.clone_df.cdr3_a_aa_pgen)
+        #print(testrep.clone_df.cdr3_a_aa_pgen)
         self.assertTrue(isinstance(testrep.clone_df.cdr3_a_aa_pgen, pd.Series))
         self.assertTrue(np.all([ isinstance(testrep.clone_df.cdr3_a_aa_pgen, pd.Series),
                                 isinstance(testrep.clone_df.cdr3_b_aa_pgen, pd.Series)]))
@@ -81,7 +81,7 @@ class test_repertoire(unittest.TestCase):
                                          cdr3_only = True)
         testrep.infer_olga_aa_cdr3_pgens(chain = "beta",
                                          cdr3_only = True)
-        print(testrep.clone_df.cdr3_a_aa_pgen)
+        #print(testrep.clone_df.cdr3_a_aa_pgen)
         self.assertTrue(np.all([ isinstance(testrep.clone_df.cdr3_a_aa_pgen, pd.Series),
                                  isinstance(testrep.clone_df.cdr3_b_aa_pgen, pd.Series)]))
 

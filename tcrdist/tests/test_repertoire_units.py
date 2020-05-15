@@ -103,7 +103,7 @@ def test_data_type_conversion_with_reduce_file_size():
 
     #5
     tr._tcrdist_legacy_method_alpha_beta()
-    print(type(tr.cdr3_a_aa_pw[1,1]))
+    #print(type(tr.cdr3_a_aa_pw[1,1]))
     assert isinstance(tr.cdr3_a_aa_pw[1,1], np.float64)
     assert isinstance(tr.cdr3_b_aa_pw[1,1], np.float64)
     tr.reduce_file_size()
@@ -159,8 +159,6 @@ def generate_tr():
     tr._tcrdist_legacy_method_alpha_beta()
     return tr
 
-
-@tempSkip
 def test_save_to_hdf5(generate_tr):
     """
     Here we save a TCRrep instance to hdf5 and then reopen and test that the parts
@@ -169,7 +167,7 @@ def test_save_to_hdf5(generate_tr):
     TODO: For DataFrames are row indices retained?
     """
     tr = generate_tr
-    print(tr.chains)
+    #print(tr.chains)
     tr.project_id = "Example Save and Reload"
     tr.reduce_file_size()
     tr.stored_tcrdist = None

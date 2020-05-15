@@ -541,8 +541,6 @@ class TCRrep:
                 warnings.warn("{} not found, no distances computed for {}".format(index_col, index_col))
                 continue
 
-
-
             # COMPUTE PAIRWISE
             # If kwargs were passed use them, otherwise pass chain-sp. smat from above
             if ('matrix' in kwargs) or ("open" in kwargs):

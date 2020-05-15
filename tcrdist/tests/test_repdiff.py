@@ -3,6 +3,7 @@ import os.path as op
 import inspect
 import pandas as pd
 import numpy as np
+import warnings
 
 import tcrdist as td
 from tcrdist.repertoire import TCRrep
@@ -22,7 +23,9 @@ class test_stats(unittest.TestCase):
         tr.index_cols =['subject',
                         'cdr3_b_aa']
         tr.deduplicate()
-        tr.compute_pairwise_all(chain='beta', metric='nw', proceses=1)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            tr.compute_pairwise_all(chain='beta', metric='nw', proceses=1)
         self.pw = tr.cdr3_b_aa_pw
 
         np.random.seed(110820)
