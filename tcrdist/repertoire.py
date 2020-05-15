@@ -17,7 +17,7 @@ from fg_shared import _git
 import sys
 from os.path import join as opj
 sys.path.append(opj(_git, 'pwseqdist'))
-import pwseqdist as pwsd
+import pwseqdist
 
 
 #from paths import path_to_matrices
@@ -774,31 +774,31 @@ class TCRrep:
 
         """
         if "alpha" in self.chains:
-            self.cdr3_a_aa_smat = parasail.blosum62
-            self.cdr2_a_aa_smat = parasail.blosum62
-            self.cdr1_a_aa_smat = parasail.blosum62
-            self.pmhc_a_aa_smat = parasail.blosum62
+            self.cdr3_a_aa_smat = 'blosum62'
+            self.cdr2_a_aa_smat = 'blosum62'
+            self.cdr1_a_aa_smat = 'blosum62'
+            self.pmhc_a_aa_smat = 'blosum62'
             self.index_cols.append("cdr3_a_aa")
 
         if 'beta' in self.chains:
-            self.cdr3_b_aa_smat = parasail.blosum62
-            self.cdr2_b_aa_smat = parasail.blosum62
-            self.cdr1_b_aa_smat = parasail.blosum62
-            self.pmhc_b_aa_smat = parasail.blosum62
+            self.cdr3_b_aa_smat = 'blosum62'
+            self.cdr2_b_aa_smat = 'blosum62'
+            self.cdr1_b_aa_smat = 'blosum62'
+            self.pmhc_b_aa_smat = 'blosum62'
             self.index_cols.append("cdr3_b_aa")
 
         if 'gamma' in self.chains:
-            self.cdr3_g_aa_smat = parasail.blosum62
-            self.cdr2_g_aa_smat = parasail.blosum62
-            self.cdr1_g_aa_smat = parasail.blosum62
-            self.pmhc_g_aa_smat = parasail.blosum62
+            self.cdr3_g_aa_smat = 'blosum62'
+            self.cdr2_g_aa_smat = 'blosum62'
+            self.cdr1_g_aa_smat = 'blosum62'
+            self.pmhc_g_aa_smat = 'blosum62'
             self.index_cols.append("cdr3_g_aa")
 
         if 'delta' in self.chains:
-            self.cdr3_d_aa_smat = parasail.blosum62
-            self.cdr2_d_aa_smat = parasail.blosum62
-            self.cdr1_d_aa_smat = parasail.blosum62
-            self.pmhc_d_aa_smat = parasail.blosum62
+            self.cdr3_d_aa_smat = 'blosum62'
+            self.cdr2_d_aa_smat = 'blosum62'
+            self.cdr1_d_aa_smat = 'blosum62'
+            self.pmhc_d_aa_smat = 'blosum62'
             self.index_cols.append("cdr3_d_aa")
 
 
@@ -826,7 +826,7 @@ class TCRrep:
             elif index_col.startswith("pmhc_a"):
                 smat = self.pmhc_a_aa_smat
             else:
-                smat = parasail.blosum62
+                smat = 'blosum62'
                 warnings.warn("Using default parasail.blosum62 because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
         if chain == "beta":
             if index_col.startswith("cdr3_b"):
@@ -838,7 +838,7 @@ class TCRrep:
             elif index_col.startswith("pmhc_b"):
                 smat = self.pmhc_b_aa_smat
             else:
-                smat = parasail.blosum62
+                smat = 'blosum62'
                 warnings.warn("Using default parasail.blosum62 because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
         if chain == "gamma":
             if index_col.startswith("cdr3_g"):
@@ -850,7 +850,7 @@ class TCRrep:
             elif index_col.startswith("pmhc_g"):
                 smat = self.pmhc_g_aa_smat
             else:
-                smat = parasail.blosum62
+                smat = 'blosum62'
                 warnings.warn("Using default parasail.blosum62 because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
         if chain == "delta":
             if index_col.startswith("cdr3_d"):
@@ -862,7 +862,7 @@ class TCRrep:
             elif index_col.startswith("pmhc_d"):
                 smat = self.pmhc_d_aa_smat
             else:
-                smat = parasail.blosum62
+                smat = 'blosum62'
                 warnings.warn("Using default parasail.blosum62 because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
 
         return(smat)
@@ -1357,18 +1357,18 @@ def _compute_pairwise(sequences, metric='nw', processes=2, user_function=None, *
     -------
     pw_full_np : np.ndarray
         matrix of pairwise comparisons"""
-    processes = 1
-    """
+    # processes = 1
+    
     if metric == 'nw':
-        metric_func = pwsd.metrics.nw_metric
+        metric_func = pwseqdist.metrics.nw_metric
     elif metric == 'hamming':
-        metric_func = pwsd.metrics.nw_hamming_metric
+        metric_func = pwseqdist.metrics.nw_hamming_metric
     elif metric == 'tcrdist_cdr3':
         metric_func = pairwise.tcrdist_cdr3_metric
     elif metric in ['tcrdist_cdr1', 'tcrdist_cdr2', 'tcrdist_cdr2.5', 'tcrdist_pmhc']:
         metric_func = pairwise.tcrdist_cdr1_metric
     elif metric == 'hamming_aligned':
-        metric_func = pwsd.metrics.hamming_distance
+        metric_func = pwseqdist.metrics.hamming_distance
     elif not user_function is None:
         metric_func = user_function
     else:
@@ -1377,17 +1377,39 @@ def _compute_pairwise(sequences, metric='nw', processes=2, user_function=None, *
     
     if metric in ['nw', 'hamming']:
         if not 'matrix' in kwargs:
-            kwargs['matrix'] = parasail.blosum62
+            kwargs['matrix'] = 'blosum62'
 
-    dvec = pwsd.apply_pairwise_sq(sequences.values, metric_func,
+    dvec = pwseqdist.apply_pairwise_sq(sequences.values, metric_func,
                                   ncpus=processes, **kwargs)
+    """This may not be neccessary in all use cases of the distances.
+    Consider returning the vector form."""
     pw_full_np = scipy.spatial.distance.squareform(dvec)
+    """
+    pw = pairwise.apply_pw_distance_metric_w_multiprocessing(
+                    sequences = sequences, #! BUG FIX (sequences changed to unique_seqs)
+                    metric = metric,
+                    user_function = user_function,
+                    processes= 1,
+                    **kwargs)
+    pw = pairwise._pack_matrix(pw)
+    if not np.all(pw_full_np == pw):
+        print('dvec', dvec)
+        print(pw_full_np)
+        print(pw)
+        print(pw_full_np == pw)
+        print('pwsd_outer', pw_full_np[1, 2])
+        print('tcrdist_outer', pw[1, 2])
+        print(sequences)
+        print(sequences[1])
+        print(sequences[2])
+        print(kwargs['matrix'].name)
+        print(metric)
     # pw_df = pd.DataFrame(pw, index=sequences, columns=sequences)
 
-    print(sequences.shape)
-    print(dvec.shape)
-    print(pw.shape)
-    #print(dvec)"""
+    #print(sequences.shape)
+    #print(dvec.shape)
+    #print(pw_full_np.shape)
+    #print(dvec)
     
     unique_seqs = pd.Series(sequences).unique()
 
@@ -1401,7 +1423,7 @@ def _compute_pairwise(sequences, metric='nw', processes=2, user_function=None, *
     pw = pairwise._pack_matrix(pw)
     pw_df = pd.DataFrame(pw, index = unique_seqs, columns = unique_seqs)
     pw_full = pw_df.loc[sequences, sequences]
-    pw_full_np = pw_full.values
+    pw_full_np = pw_full.values"""
     return pw_full_np
     
 def _map_clone_df_to_TCRMotif_clone_df(df):

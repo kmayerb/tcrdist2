@@ -23,11 +23,15 @@ class test_repertoire(unittest.TestCase):
 
     def test_TCRrep___init_creates_cdr3_a_aa_smat(self):
         testrep = TCRrep(cell_df = example_df, chains = ["alpha", "beta"])
-        self.assertTrue(isinstance(testrep.cdr3_a_aa_smat.matrix, np.ndarray))
+        """Changed this test now that matrix for nw_metric is required
+        to be the name of a parasail matrix (e.g. "blosum62")"""
+        self.assertTrue(isinstance(testrep.cdr3_a_aa_smat, str))
 
     def test_TCRrep___init_creates_cdr3_b_aa_smat(self):
+        """Changed this test now that matrix for nw_metric is required
+        to be the name of a parasail matrix (e.g. "blosum62")"""
         testrep = TCRrep(cell_df = example_df, chains = ["alpha", "beta"])
-        self.assertTrue(isinstance(testrep.cdr3_b_aa_smat.matrix, np.ndarray))
+        self.assertTrue(isinstance(testrep.cdr3_b_aa_smat, str))
 
     def test_TCRrep___deduplicate_creates_clone_df_as_pdDF(self):
         testrep = TCRrep(cell_df = example_df, chains = ["alpha", "beta"])
@@ -92,8 +96,8 @@ class test_repertoire(unittest.TestCase):
         testrep.index_cols.append("epitope")                         # (2)
         testrep.index_cols.append("subject")
         testrep.deduplicate()                                    # (3)
-        testrep.cdr3_a_aa_smat = parasail.blosum62               # (4)
-        testrep.cdr3_b_aa_smat = parasail.blosum62
+        testrep.cdr3_a_aa_smat = 'blosum62'               # (4)
+        testrep.cdr3_b_aa_smat = 'blosum62'
         testrep.compute_pairwise(chain = "alpha")                # (5)
         testrep.compute_pairwise(chain = "beta")                 # (6)
         tcrdist = testrep.cdr3_a_aa_pw + testrep.cdr3_b_aa_pw    # (7)
@@ -120,8 +124,8 @@ class test_repertoire(unittest.TestCase):
         testrep.index_cols.append("epitope")                         # (2)
         testrep.index_cols.append("subject")
         testrep.deduplicate()                                    # (3)
-        testrep.cdr3_a_aa_smat = parasail.blosum62               # (4)
-        testrep.cdr3_b_aa_smat = parasail.blosum62
+        testrep.cdr3_a_aa_smat = 'blosum62'               # (4)
+        testrep.cdr3_b_aa_smat = 'blosum62'
         testrep.compute_pairwise(chain = "alpha", metric = "hamming")                # (5)
         testrep.compute_pairwise(chain = "beta", metric = "hamming")                 # (6)
         tcrdist = testrep.cdr3_a_aa_pw + testrep.cdr3_b_aa_pw    # (7)
@@ -166,6 +170,11 @@ class test_repertoire(unittest.TestCase):
           'cdr3_b_aa_pw': 1,
           'pmhc_a_aa_pw': 1,
           'pmhc_b_aa_pw': 1}}
+        #print(r['paired_tcrdist'][1, 2])
+        #print(expected['paired_tcrdist'][1, 2])
+        #print(tr.clone_df.iloc[1])
+        #print(tr.clone_df.iloc[2])
+        #print(r['paired_tcrdist'] == expected['paired_tcrdist'])
 
         self.assertTrue((r['paired_tcrdist'] == expected['paired_tcrdist']).all())
 
@@ -174,8 +183,8 @@ class test_repertoire(unittest.TestCase):
         testrep.index_cols.append("epitope")                         # (2)
         testrep.index_cols.append("subject")
         testrep.deduplicate()                                    # (3)
-        testrep.cdr3_a_aa_smat = parasail.blosum62               # (4)
-        testrep.cdr3_b_aa_smat = parasail.blosum62
+        testrep.cdr3_a_aa_smat = 'blosum62'               # (4)
+        testrep.cdr3_b_aa_smat = 'blosum62'
         testrep.compute_pairwise(chain="alpha")                # (5)
         testrep.compute_pairwise(chain="beta")                 # (6)
         tcrdist = testrep.cdr3_a_aa_pw + testrep.cdr3_b_aa_pw    # (7)

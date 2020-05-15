@@ -121,7 +121,7 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
         pairwise.apply_pw_distance_metric_w_multiprocessing(
             sequences,
             metric = "nw",
-            **{'open':3, 'extend':3, 'matrix':parasail.blosum62})
+            **{'open':3, 'extend':3, 'matrix':'blosum62'})
 
     In practice, this would be called from the :py:class:`tcrdist.repertoire.TCRrep`
     class.
@@ -132,7 +132,7 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
                                         metric = "nw",
                                         open = 3,
                                         extend = 3,
-                                        matrix = parasail.blosum62)
+                                        matrix = 'blosum62')
 
     NOTICE that any metric function taking two strings as input can be supplied via
     the :py:attr:`user_function` arg.
@@ -218,7 +218,7 @@ def apply_pw_distance_metric_w_multiprocessing(sequences,
     return res
 
 
-def nw_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
+def nw_metric(s1, s2, matrix = 'blosum62', open = 3, extend = 3):
     """
     Function applying Parasail's Needleman-Wuncsh Algorithm to get a distance
     between any two sequences.
@@ -256,13 +256,14 @@ def nw_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
 
 
     """
-    xx = parasail.nw_stats(s1, s1, open=open, extend=extend, matrix=matrix).score
-    yy = parasail.nw_stats(s2, s2, open=open, extend=extend, matrix=matrix).score
-    xy = parasail.nw_stats(s1, s2, open=open, extend=extend, matrix=matrix).score
+    p_matrix = getattr(parasail, matrix)
+    xx = parasail.nw_stats(s1, s1, open=open, extend=extend, matrix=p_matrix).score
+    yy = parasail.nw_stats(s2, s2, open=open, extend=extend, matrix=p_matrix).score
+    xy = parasail.nw_stats(s1, s2, open=open, extend=extend, matrix=p_matrix).score
     D = xx + yy - 2 * xy
     return D
 
-def hm_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
+def hm_metric(s1, s2, matrix = 'blosum62', open = 3, extend = 3):
     """
     Function applying Parasail's Needleman-Wuncsh Algorithm to allign and get
     a Hamming Distance between any two sequences: number of mismatched positions
@@ -294,10 +295,11 @@ def hm_metric(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
 
 
     """
-    xy = parasail.nw_stats(s1, s2, open=open, extend=extend, matrix=matrix)
-    xy_t = parasail.nw_trace(s1, s2, open=open, extend=extend, matrix=matrix)
-    hamming_distance = len(xy_t.traceback.comp)-xy.matches
-    return hamming_distance
+    p_matrix = getattr(parasail, matrix)
+    xy = parasail.nw_stats(s1, s2, open=open, extend=extend, matrix=p_matrix)
+    xy_t = parasail.nw_trace(s1, s2, open=open, extend=extend, matrix=p_matrix)
+    D = len(xy_t.traceback.comp)-xy.matches
+    return D
 
 def tcrdist_cdr3_metric(s1,s2, **kwargs):
     """
