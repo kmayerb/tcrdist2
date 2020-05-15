@@ -7,21 +7,14 @@ import warnings
 import pickle
 
 import parasail
+import pwseqdist
 
 from . import repertoire_db
 from . import pgen
 from . import mappers
 from . import pairwise
 
-from fg_shared import _git
-import sys
-from os.path import join as opj
-sys.path.append(opj(_git, 'pwseqdist'))
-import pwseqdist
-
-
 #from paths import path_to_matrices
-
 
 #This replaces: from tcrdist.cdr3s_human import pb_cdrs
 pb_cdrs = repertoire_db.generate_pbr_cdr()
