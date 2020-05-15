@@ -1259,7 +1259,7 @@ class TCRrep:
                 except KeyError:
                     print("YOU TRIED TO SET {} BUT IT IS NOT A RECOGNIZED ATTRRIBUTE OF TCRrep".format(attr))
                     continue
-                if not attr in store:
+                if not attr in store and not attr in metadata:
                     setattr(self, attr, None)
                     continue
 

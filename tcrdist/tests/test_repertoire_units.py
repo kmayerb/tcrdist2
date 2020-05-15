@@ -158,38 +158,3 @@ def generate_tr():
     #5
     tr._tcrdist_legacy_method_alpha_beta()
     return tr
-
-@tempSkip
-def test_save_to_hdf5(generate_tr):
-    """
-    Here we save a TCRrep instance to hdf5 and then reopen and test that the parts
-    are identical to the original.
-
-    TODO: For DataFrames are row indices retained?
-
-    We have a test for HDF5 in test_repertoire.py.
-    """
-    tr = generate_tr
-    #print(tr.chains)
-    tr.project_id = "Example Save and Reload"
-    # tr.reduce_file_size()
-    tr.stored_tcrdist = None
-    tr.save_as_hdf5("tr_test.h5")
-
-    from tcrdist.repertoire import TCRrep
-    tr2 = TCRrep(cell_df = pd.DataFrame({1:[0]}), organism = "mouse")
-    tr2.rebuild_from_hdf5("tr_test.h5")
-    # TEST asset that all but  'all_genes' and 'stored_tcrdist' are true
-    test_that = {x : np.all(getattr(tr, x) == getattr(tr2, x)) for x in tr.__dict__.keys()}
-    print(dir(test_that))
-    assert test_that['chains']
-    assert test_that['organism']
-    assert test_that['cdr3_a_aa_pw']
-    assert test_that['cdr3_b_aa_pw']
-    assert test_that['cdr2_a_aa_pw']
-    assert test_that['cdr2_b_aa_pw']
-    assert test_that['cdr1_a_aa_pw']
-    assert test_that['cdr1_b_aa_pw']
-    assert test_that['clone_df']
-    assert test_that['cell_df']
-    assert test_that['paired_tcrdist']

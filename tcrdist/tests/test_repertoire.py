@@ -199,6 +199,7 @@ class test_repertoire(unittest.TestCase):
         incoming_tcrdist = incoming.cdr3_a_aa_pw + incoming.cdr3_b_aa_pw
 
         self.assertTrue((tcrdist == incoming_tcrdist).all())
+        self.assertTrue(testrep.chains == incoming.chains)
 
 
 if __name__ == '__main__':
