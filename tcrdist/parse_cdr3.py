@@ -1,10 +1,12 @@
 import logging
 logger = logging.getLogger('parse_cdr3.py')
 
-from .all_genes import all_genes, gap_character
+from .all_genes import gap_character
+from .all_genes import all_genes as all_genes_default
 
 def get_cdr3_and_j_match_counts( organism, ab, qseq, j_gene, min_min_j_matchlen = 3,
-                                 extended_cdr3 = False ):
+                                 extended_cdr3 = False,
+                                 all_genes = all_genes_default ):
     #fasta = all_fasta[organism]
     jg = all_genes[organism][j_gene]
 
@@ -87,7 +89,8 @@ def get_cdr3_and_j_match_counts( organism, ab, qseq, j_gene, min_min_j_matchlen 
 
 
 
-def parse_cdr3( organism, ab, qseq, v_gene, j_gene, q2v_align, extended_cdr3 = False ):
+def parse_cdr3( organism, ab, qseq, v_gene, j_gene, q2v_align, extended_cdr3 = False,
+                all_genes = all_genes_default  ):
     ## v_align is a mapping from 0-indexed qseq positions to 0-indexed v_gene protseq positions
     #fasta = all_fasta[ organism ]
     #align_fasta = all_align_fasta[ organism ]

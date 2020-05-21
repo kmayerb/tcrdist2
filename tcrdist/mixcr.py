@@ -148,9 +148,10 @@ def remove_entries_with_invalid_vgene(df, chain:str,organism:str):
     v = _validate_gene_names(series = df[gene_names[chain][0]], chain = chain, organism = organism)
     n_invalid_v_names = df[v == False].shape[0]
     invalid_names =df[v == False][gene_names[chain][0]].unique()
-    sys.stderr.write(f"Because of invalid v_gene names, dropping {n_invalid_v_names} with names:\n")
-    for n in invalid_names:
-        sys.stderr.write(f"{n}\n")
+    if n_invalid_v_names > 0:
+        sys.stderr.write(f"Because of invalid v_gene names, dropping {n_invalid_v_names} with names:\n")
+        for n in invalid_names:
+            sys.stderr.write(f"{n}\n")
     
     return df[v].copy()
     

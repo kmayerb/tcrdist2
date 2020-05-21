@@ -1,3 +1,4 @@
+tcrdist/external/*
 .DS_Store
 *.pyc
 *~

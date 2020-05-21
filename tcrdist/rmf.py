@@ -4,9 +4,12 @@ import pandas as pd
 
 from . import util
 from . import parse_tsv
-from .all_genes import all_genes
+#from .all_genes import all_genes # 
 from . import tcr_sampler
 from . import paths
+from .all_genes import all_genes as all_genes_default
+
+from tcrdist.repertoire_db import RefGeneSet
 
 def _get_amino_acid_consensus_character( counts ):
     topcount,topaa = max( ( (y,x) for x,y in counts.items() ) )
@@ -64,6 +67,7 @@ def parse_dataframe(df,k = 'epitope'):
 def _generate_tcrs_dict_from_clones_dataframe(df,
                                               epitopes,
                                               organism,
+                                              all_genes,
                                               junction_bars=True,
                                               return_as_tuple = True):
     """
@@ -143,6 +147,7 @@ def _generate_tcrs_dict_from_clones_dataframe(df,
     all_tcrs = {}
     all_rep2label_rep = {}
     all_rep2label_rep_color = {}
+    
     for epitope in epitopes:
         infos = all_tcr_infos[epitope]
         util.assign_label_reps_and_colors_based_on_most_common_genes_in_repertoire( infos, organism )
@@ -169,15 +174,16 @@ def _generate_tcrs_dict_from_clones_dataframe(df,
 
             ## note-- we are using mm1 reps here, same as in find_cdr3_motifs.py
             ##
+            
             va_rep = all_genes[organism][va].mm1_rep
             ja_rep = all_genes[organism][ja].rep
             vb_rep = all_genes[organism][vb].mm1_rep
             jb_rep = all_genes[organism][jb].rep
 
             a_junction_results = tcr_sampler.analyze_junction( organism, va_gene, ja_gene, cdr3a, cdr3a_nucseq,
-                                                               return_cdr3_nucseq_src=True )
+                                                               return_cdr3_nucseq_src=True, all_genes = all_genes )
             b_junction_results = tcr_sampler.analyze_junction( organism, vb_gene, jb_gene, cdr3b, cdr3b_nucseq,
-                                                               return_cdr3_nucseq_src=True )
+                                                               return_cdr3_nucseq_src=True, all_genes = all_genes  )
 
             cdr3a_new_nucseq, cdr3a_protseq_masked, cdr3a_protseq_new_nucleotide_countstring,\
                 a_trims,a_inserts,cdr3a_nucseq_src = a_junction_results
@@ -224,7 +230,8 @@ def _generate_read_motif_dicts_from_clones_file(clones_file,
                                                 epitopes,
                                                 organism,
                                                 junction_bars=True,
-                                                return_as_tuple = False):
+                                                return_as_tuple = False,
+                                                all_genes = all_genes_default):
     """
     2019-10-16
 
@@ -299,6 +306,7 @@ def _generate_read_motif_dicts_from_clones_file(clones_file,
     all_tcrs = {}
     all_rep2label_rep = {}
     all_rep2label_rep_color = {}
+    all_genes = RefGeneSet(db_file = db_file).all_genes
     for epitope in epitopes:
         infos = all_tcr_infos[epitope]
         util.assign_label_reps_and_colors_based_on_most_common_genes_in_repertoire( infos, organism )
@@ -331,9 +339,9 @@ def _generate_read_motif_dicts_from_clones_file(clones_file,
             jb_rep = all_genes[organism][jb].rep
 
             a_junction_results = tcr_sampler.analyze_junction( organism, va_gene, ja_gene, cdr3a, cdr3a_nucseq,
-                                                               return_cdr3_nucseq_src=True )
+                                                               return_cdr3_nucseq_src=True, all_genes=all_genes)
             b_junction_results = tcr_sampler.analyze_junction( organism, vb_gene, jb_gene, cdr3b, cdr3b_nucseq,
-                                                               return_cdr3_nucseq_src=True )
+                                                               return_cdr3_nucseq_src=True, all_genes=all_genes)
 
             cdr3a_new_nucseq, cdr3a_protseq_masked, cdr3a_protseq_new_nucleotide_countstring,\
                 a_trims,a_inserts,cdr3a_nucseq_src = a_junction_results
@@ -377,13 +385,15 @@ def _generate_read_motif_dicts_from_clones_file(clones_file,
 
 
 def _generate_read_motif_ng_tcrs_dict(chains,
-                                     organism = "mouse",
+                                     organism,
+                                     db_file = "alphabeta_db.tsv",
                                      ng_log_file_A = None,
                                      ng_log_file_B = None,
                                      ng_log_file_G = None,
                                      ng_log_file_D = None,
                                      ng_path       = None,
-                                     max_ng_lines  = 5000000):
+                                     max_ng_lines  = 5000000,
+                                     all_genes = all_genes_default):
     """
     Parameters
     ----------
@@ -413,12 +423,12 @@ def _generate_read_motif_ng_tcrs_dict(chains,
         ng_log_file_A = 'new_nextgen_chains_{}_A.tsv'.format(organism)
     if ng_log_file_B is None:
         ng_log_file_B = 'new_nextgen_chains_{}_B.tsv'.format(organism)
-    if ng_log_file_G is None:
-        ng_log_file_G = 'new_nextgen_chains_{}_G.tsv'.format(organism)
-    if ng_log_file_D is None:
-        ng_log_file_D = 'new_nextgen_chains_{}_D.tsv'.format(organism)
+    # if ng_log_file_G is None:
+    #     ng_log_file_G = 'new_nextgen_chains_{}_A.tsv'.format(organism)
+    # if ng_log_file_D is None:
+    #     ng_log_file_D = 'new_nextgen_chains_{}_B.tsv'.format(organism)
     if ng_path is None:
-        ng_path = paths.path_to_current_db_files()
+        ng_path = paths.path_to_current_db_files(db_file = db_file)
 
     ng_tcrs = {k:[] for k in chains}
 
@@ -428,13 +438,13 @@ def _generate_read_motif_ng_tcrs_dict(chains,
             ng_logfile = ng_log_file_A
         if chain == "B":
             ng_logfile = ng_log_file_B
-        if chain == "G":
-            ng_logfile = ng_log_file_G
-        if chain == "D":
-            ng_logfile = ng_log_file_D
+        # if chain == "G":
+        #     ng_logfile = ng_log_file_G
+        # if chain == "D":
+        #     ng_logfile = ng_log_file_D
 
         ng_logfile = os.path.join(ng_path, ng_logfile)
-
+        sys.stdout.write(f"GENERATING READ MOTIF NG TCRS DICT WITH {ng_logfile}\n")
         if not os.path.isfile(ng_logfile):
             raise OSError('WARNING::missing nextgen TCR chains file: {}'.format(ng_logfile))
 
@@ -452,7 +462,16 @@ def _generate_read_motif_ng_tcrs_dict(chains,
             if not counter % 500000:
                 pass
                 #basic.Log(`counter`+' '+`num_chains`+' '+ng_logfile)
-            v_reps = set( ( util.get_mm1_rep( x, organism ) for x in l[0].split(',') ) ) ## mm1 reps
+            # v_reps = set( ( util.get_mm1_rep( x, organism ) for x in l[0].split(',') ) ) ## mm1 reps
+            # TRYING TO USE ALL GENE APPROACH TO REMOVE util --> 
+            # ~/TCRDIST/tcrdist2/tcrdist/util.py in get_mm1_rep(gene, organism)
+            #      25     vj = gene[3]
+            #      26     if vj == 'V':
+            # ---> 27         rep = cdr3s_human.all_loopseq_representative_mm1[ organism ][ gene ]
+            #      28     else:
+            #      29         rep = cdr3s_human.all_jseq_representative[ organism ][ gene ]
+
+            v_reps = set( ( all_genes[organism][x].mm1_rep for x in l[0].split(',') ) )
             j_reps = l[1].split(',')
             cdr3,cdr3_nucseq = l[2:4]
 
