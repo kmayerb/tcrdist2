@@ -1,8 +1,8 @@
-from .pvalue_adjustment import adjustnonnan
-from .rep_diff import neighborhoodDiff, hclusterDiff
-from .catcorr import catcorr
+from fishersapi import adjustnonnan, fishers_frame
+from .rep_diff import neighbor_diff, hcluster_diff, member_summ
 
-__all__ = ['neighborhoodDiff',
-		   'hclusterDiff',
+__all__ = ['neighborhood_diff',
+		   'hcluster_diff',
+		   'member_summ',
 		   'adjustnonnan',
-		   'catcorr']
+		   'fishers_frame']

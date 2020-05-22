@@ -1,6 +1,5 @@
 import unittest
 import os.path as op
-import inspect
 import pandas as pd
 import numpy as np
 import warnings
@@ -33,20 +32,19 @@ class test_stats(unittest.TestCase):
                                             Stim=np.random.choice(['A', 'B', 'C'], size=tr.clone_df.shape[0], p=[0.4, 0.1, 0.5]))
 
     def test_chm_NN(self):
-        res = td.stats.neighborhoodDiff(self.clone_df, self.pw, x_cols=['Visit', 'Stim'], test='chm')
+        res = td.stats.neighborhood_diff(self.clone_df, self.pw, x_cols=['Visit', 'Stim'], test_method='chm')
         self.assertTrue(res.shape[0] == self.clone_df.shape[0])
 
     def test_fishers_NN(self):
-        res = td.stats.neighborhoodDiff(self.clone_df, self.pw, x_cols=['Visit'], test='fishers')
+        res = td.stats.neighborhood_diff(self.clone_df, self.pw, x_cols=['Visit'], test_method='fishers')
         self.assertTrue(res.shape[0] == self.clone_df.shape[0])
 
     def test_chi2_NN(self):
-        res = td.stats.neighborhoodDiff(self.clone_df, self.pw, x_cols=['Visit'], test='chi2')
-        res = td.stats.neighborhoodDiff(self.clone_df, self.pw, x_cols=['Visit'], test='chi2+fishers')
+        res = td.stats.neighborhood_diff(self.clone_df, self.pw, x_cols=['Visit'], test_method='chi2')
         self.assertTrue(res.shape[0] == self.clone_df.shape[0])
 
     def test_fishers_HC(self):
-        res = td.stats.hclusterDiff(self.clone_df, self.pw, x_cols=['Visit'], test='fishers')
+        res = td.stats.hcluster_diff(self.clone_df, self.pw, x_cols=['Visit'], test_method='fishers')
     
 if __name__ == '__main__':
     unittest.main()
