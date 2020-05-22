@@ -1,7 +1,7 @@
 from . import all_genes_db
 from collections import Counter
 import numpy as np
-from tcrdist.pairwise import hm_metric, nw_metric, hm_matches
+from tcrdist.pairwise import hm_metric, nw_metric
 import warnings
 
 class TCRcodon():
