@@ -20,7 +20,7 @@ def test_columns():
        'CDR3.amino.acid.sequence', 'nSeqCDR3', 'refPoints', 'CD',
        'cdr3aa_length'])
     
-    minervia_alpha_map = {'Rank' : 'clone_id',
+    minervina_alpha_map = {'Rank' : 'clone_id',
                         'Read.count' : 'count',
                         'Read.proportion' : 'prop',
                         'CDR3.nucleotide.sequence': 'cdr3_a_nucseq',
@@ -35,8 +35,8 @@ def test_columns():
                         'CD' : 'cd',
                         'cdr3aa_length' : 'cdr3_a_aa_len'}
 
-    df = df.rename(columns=minervia_alpha_map)
-    assert set(df.columns.to_list()) == set(minervia_alpha_map.values()) 
+    df = df.rename(columns=minervina_alpha_map)
+    assert set(df.columns.to_list()) == set(minervina_alpha_map.values()) 
     dftcr = df[['clone_id','count','v_b_gene','j_b_gene','cdr3_a_aa','cdr3_a_nucseq']]
 
 
@@ -49,14 +49,14 @@ testfiles = [   ('contracting_clones_M_alpha.tsv', 'alpha'),
                 ('expanding_clones_W_alpha.tsv',  'alpha'),
                 ('expanding_clones_W_beta.tsv', 'beta')]
 @pytest.mark.parametrize("f, my_chain", testfiles)
-def test_convert_minervia_to_mixcr_run_tcrdist(f,my_chain):
+def test_convert_minervina_to_mixcr_run_tcrdist(f,my_chain):
     
     fn =os.path.join('tcrdist','test_files', f)
     df = pd.read_csv(fn, sep = "\t")
     df['bestVGene'] = df['bestVGene'].apply(lambda s : s + "*00")
     df['bestJGene'] = df['bestJGene'].apply(lambda s : s + "*00")
     
-    map_minervia_to_mixcr = \
+    map_minervina_to_mixcr = \
         {'Rank':'cloneId',
         'Read.count':'cloneCount',
         'Read.proportion':'cloneFraction',
@@ -67,7 +67,7 @@ def test_convert_minervia_to_mixcr_run_tcrdist(f,my_chain):
         'CDR3.amino.acid.sequence':'aaSeqCDR3',
         'refPoints':'refPoints'}
 
-    df = df.rename(columns = map_minervia_to_mixcr)
+    df = df.rename(columns = map_minervina_to_mixcr)
     # CREATE A FAUX MIXCR OUTPUT
     df.to_csv('dfmix.clns.txt', index = False, sep = "\t")
     # USE TCRDIST2 TOOL FOR PORTING MIXCR OUTPUTS
@@ -147,7 +147,7 @@ def test_combine_betas_and_alphas():
         df['bestVGene'] = df['bestVGene'].apply(lambda s : s + "*00")
         df['bestJGene'] = df['bestJGene'].apply(lambda s : s + "*00")
 
-        map_minervia_to_mixcr = \
+        map_minervina_to_mixcr = \
             {'Rank':'cloneId',
             'Read.count':'cloneCount',
             'Read.proportion':'cloneFraction',
@@ -160,7 +160,7 @@ def test_combine_betas_and_alphas():
         
 
 
-        df = df.rename(columns = map_minervia_to_mixcr)
+        df = df.rename(columns = map_minervina_to_mixcr)
         # CREATE A FAUX MIXCR OUTPUT
         df.to_csv('dfmix.clns.txt', index = False, sep = "\t")
         dfmix = mixcr.mixcr_to_tcrdist2(chain = my_chain,
