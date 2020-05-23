@@ -170,7 +170,7 @@ class TCRrep:
             n_cell = np.sum(self.cell_df['count'])
             warnings.warn(f"Not all cells/sequences could be grouped into clones. {n_cells_lost} of {n_cell} were not captured. This occurs when any of the values in the index columns are null or missing for a given sequence. To see entries with missing values use: tcrdist.repertoire.TCRrep.show_incomplete()\n")
         
-        # if no clone id column provided then create one as a sequence of numbers
+        # if no clone id column provided thetrn create one as a sequence of numbers
         if "clone_id" not in self.clone_df:
             N = self.clone_df.shape[0]
             self.clone_df['clone_id'] = range(1, N + 1 ,1)
@@ -1023,7 +1023,120 @@ class TCRrep:
         # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
         self.dist_a = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
         self.dist_b = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
-    
+
+    def _tcrdist_legacy_method_alpha(self, processes = 1):
+        """
+        Runs the legacy tcrdist pairwise comparison
+
+        Arguments
+        ---------
+        processes : int
+
+
+        Notes
+        -----
+        # CALCULATE tcrdist distance metric. Here we show all the manual steps to
+        # implement the original Dash et al. tcrdist approach.
+
+        # To do this we calculate distance for each CDR separately, and
+        # we use the metric "tcrdist_cdr3" for the cdr3 and "tcrdist_cdr1"
+        # everywhere else
+        """
+
+
+        if "gamma" in self.chains or "delta" in self.chains:
+            raise ValueError("TCRrep.chains contains `gamma`. You might want "\
+            "TCRrep._tcrdist_legacy_method_gamma_delta")
+
+        self.compute_pairwise_all(chain = "alpha",                        # <11
+                                    metric = 'tcrdist_cdr3',
+                                    compute_specific_region = 'cdr3_a_aa',
+                                    processes = processes)
+        self.compute_pairwise_all(chain = "alpha",                        # 11
+                                    metric = "tcrdist_cdr1",
+                                    compute_specific_region = 'cdr1_a_aa',
+                                    processes = processes)
+        self.compute_pairwise_all(chain = "alpha",                        # 11
+                                    metric = "tcrdist_cdr1",
+                                    compute_specific_region = 'cdr2_a_aa',
+                                    processes = processes)
+        self.compute_pairwise_all(chain = "alpha",                        # 11
+                                    metric = "tcrdist_cdr1",
+                                    compute_specific_region = 'pmhc_a_aa',
+                                    processes = processes)
+
+        distA = self.compute_paired_tcrdist(replacement_weights= {'cdr3_a_aa_pw': 1,
+                                                                'cdr2_a_aa_pw': 1,
+                                                                'cdr1_a_aa_pw': 1,
+                                                                'pmhc_a_aa_pw': 1},
+                                                                chains = ["alpha"])['paired_tcrdist'].copy()
+                                                                        # Calling tr.compute_paired_tcrdist() computs the
+        # the final paired chain TCR-distance which is stored as
+        # tr.paired_tcrdist, which we confirm is simply the sum of distA and distB
+        self.compute_paired_tcrdist()
+        assert np.all((distA - self.paired_tcrdist) == 0)
+
+        # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
+        self.dist_a = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
+
+
+    def _tcrdist_legacy_method_beta(self, processes = 1):
+        """
+        Runs the legacy tcrdist pairwise comparison
+
+        Arguments
+        ---------
+        processes : int
+
+
+        Notes
+        -----
+        # CALCULATE tcrdist distance metric. Here we show all the manual steps to
+        # implement the original Dash et al. tcrdist approach.
+
+        # To do this we calculate distance for each CDR separately, and
+        # we use the metric "tcrdist_cdr3" for the cdr3 and "tcrdist_cdr1"
+        # everywhere else
+        """
+
+
+        if "gamma" in self.chains or "delta" in self.chains:
+            raise ValueError("TCRrep.chains contains `gamma`. You might want "\
+            "TCRrep._tcrdist_legacy_method_gamma_delta")
+
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = 'tcrdist_cdr3',
+                                 #user_function = tcrdist_metric_align_cdr3s_false,
+                                 compute_specific_region = 'cdr3_b_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'cdr1_b_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'cdr2_b_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'pmhc_b_aa',
+                                 processes = processes)
+
+        distB = self.compute_paired_tcrdist(replacement_weights= {
+                                                                'cdr3_b_aa_pw': 1,
+                                                                'cdr2_b_aa_pw': 1,
+                                                                'cdr1_b_aa_pw': 1,
+                                                                'pmhc_b_aa_pw': 1},
+                                                                chains = ["beta"])['paired_tcrdist'].copy()
+
+        self.compute_paired_tcrdist()
+        assert np.all(((distB) - self.paired_tcrdist) == 0)
+
+        # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
+        self.dist_b = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
+
+
+
     def _tcrdist_legacy_method_gamma_delta(self, processes = 1):
         """
         Runs the legacy tcrdist pairwise comparison gamma/delta
