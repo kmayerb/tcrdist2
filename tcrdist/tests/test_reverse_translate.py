@@ -117,7 +117,7 @@ def test_get_bets_j_gene():
     x = tc.get_best_j_gene(aa_seq = someseq, verbose = True)
     assert x == 'TRDJ1*01'
     # test for all
-    xx = [tc.get_best_j_gene(aa_seq = x, verbose = True) for x in df['cdr3_d_aa']]
+    xx = [tc.get_best_j_gene(aa_seq = x, verbose = False) for x in df['cdr3_d_aa']]
     vc = pd.Series(xx).value_counts().to_dict()
     assert vc == {'TRDJ1*01': 271, 'TRDJ3*01': 66, 'TRDJ2*01': 20, 'TRDJ4*01': 9}
 
