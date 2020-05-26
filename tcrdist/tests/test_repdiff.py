@@ -10,7 +10,7 @@ from tcrdist.repertoire import TCRrep
 class test_stats(unittest.TestCase):
     @classmethod
     def setUpClass(self):
-        filename = op.join(td.__path__[0], 'datasets', 'vdjDB_PMID28636592.tsv')
+        filename = op.join(td.__path__[0], 'test_files', 'vdjDB_PMID28636592.tsv')
         pd_df = pd.read_csv(filename, sep='\t')
         t_df = td.mappers.vdjdb_to_tcrdist2(pd_df=pd_df)
 
@@ -32,6 +32,9 @@ class test_stats(unittest.TestCase):
                                             Stim=np.random.choice(['A', 'B', 'C'], size=tr.clone_df.shape[0], p=[0.4, 0.1, 0.5]))
 
     def test_chm_NN(self):
+        print(self.clone_df.shape)
+        print(self.clone_df.head())
+        print(self.pw.shape)
         res = td.stats.neighborhood_diff(self.clone_df, self.pw, x_cols=['Visit', 'Stim'], test_method='chm')
         self.assertTrue(res.shape[0] == self.clone_df.shape[0])
 
