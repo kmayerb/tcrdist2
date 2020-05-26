@@ -35,6 +35,18 @@ class test_stats(unittest.TestCase):
         print(self.clone_df.shape)
         print(self.clone_df.head())
         print(self.pw.shape)
+        import hierdiff as hd
+        print(dir(hd))
+        print(hd.__spec__)
+        res = hd.neighborhood_tally(df=self.clone_df,
+                                  pwmat=self.pw,
+                                  x_cols=['Visit', 'Stim'],
+                                  count_col='count',
+                                  knn_neighbors=50,
+                                  knn_radius=None,
+                                  subset_ind=None,
+                                  cluster_ind=None)
+
         res = td.stats.neighborhood_diff(self.clone_df, self.pw, x_cols=['Visit', 'Stim'], test_method='chm')
         self.assertTrue(res.shape[0] == self.clone_df.shape[0])
 
