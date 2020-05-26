@@ -161,7 +161,7 @@ def hcluster_diff(clone_df, pwmat, x_cols, Z=None, count_col='count', subset_ind
                                   Z=Z,
                                   count_col=count_col,
                                   subset_ind=subset_ind,
-                                  hclust_method='complete',
+                                  method='complete',
                                   optimal_ordering=optimal_ordering)
     if not test_method is None:
         res = hd.cluster_association_test(res, y_col='cmember', method=test_method)
