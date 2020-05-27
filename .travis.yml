@@ -13,4 +13,3 @@ script:
   - python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'ncbi_linux');"
   - python -c "import tcrdist as td; td.setup_db.install_all_next_gen()"
   - python -c "import tcrdist as td; td.install_test_files.install_test_files()"
-  - pytest tcrdist/tests/test_repdiff.py
