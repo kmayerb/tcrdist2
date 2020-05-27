@@ -70,10 +70,10 @@ def mixcr_to_tcrdist2(chain:str,
         raise ValueError ("one of seq_fn or clones_fn must be provided")
         
     
-    gene_names = {  'alpha': ['v_a_gene','d_a_gene','j_a_gene'],
-                    'beta' : ['v_b_gene','d_b_gene','j_b_gene'],
-                    'gamma': ['v_g_gene','d_g_gene','j_g_gene'],
-                    'delta': ['v_d_gene','d_d_gene','j_d_gene']}
+    gene_names = {  'alpha': ['v_a_gene','d_a_gene','j_a_gene',"cdr3_a_nucseq","cdr3_a_aa"],
+                    'beta' : ['v_b_gene','d_b_gene','j_b_gene',"cdr3_b_nucseq","cdr3_b_aa"],
+                    'gamma': ['v_g_gene','d_g_gene','j_g_gene',"cdr3_g_nucseq","cdr3_g_aa"],
+                    'delta': ['v_d_gene','d_d_gene','j_d_gene',"cdr3_d_nucseq","cdr3_d_aa"]}
     
     if chain not in gene_names.keys():
         raise KeyError ("chain must be 'alpha','beta','gamma', or 'delta'")
@@ -90,8 +90,8 @@ def mixcr_to_tcrdist2(chain:str,
         seqs_df   = seqs_df.rename(columns = {  'allVHitsWithScore' : gene_names[chain][0],                    
                                                 'allDHitsWithScore' : gene_names[chain][1], 
                                                 'allJHitsWithScore' : gene_names[chain][2],
-                                                'nSeqCDR3'          : "cdr3_d_nucseq",
-                                                'aaSeqCDR3'         : "cdr3_d_aa"})
+                                                'nSeqCDR3'          : gene_names[chain][3],
+                                                'aaSeqCDR3'         : gene_names[chain][4]})
         df = seqs_df.copy()
 
     elif clones_fn is not None:
@@ -108,8 +108,8 @@ def mixcr_to_tcrdist2(chain:str,
                                                     'allVHitsWithScore' : gene_names[chain][0],                    
                                                     'allDHitsWithScore' : gene_names[chain][1], 
                                                     'allJHitsWithScore' : gene_names[chain][2],
-                                                    'nSeqCDR3'          : "cdr3_d_nucseq",
-                                                    'aaSeqCDR3'         : "cdr3_d_aa"})
+                                                    'nSeqCDR3'          : gene_names[chain][3],
+                                                    'aaSeqCDR3'         : gene_names[chain][4]})
         df = clones_df.copy()
     
     return(df)

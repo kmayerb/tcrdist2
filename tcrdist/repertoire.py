@@ -168,10 +168,12 @@ class TCRrep:
         if np.sum(self.cell_df['count']) != np.sum(self.clone_df['count']):
             n_cells_lost = np.sum(self.cell_df['count']) - np.sum(self.clone_df['count'])
             n_cell = np.sum(self.cell_df['count'])
-            warnings.warn("Not all cells/sequences could be grouped into clones.\n")
-            warnings.warn(f"{n_cells_lost} of {n_cell} were not captured. This occurs when any\n") 
-            warnings.warn("of the values in the index columns are null or missing for a given sequence.\n")
-            warnings.warn("To see entries with missing values use: tcrdist.repertoire.TCRrep.show_incomplete()\n")
+            warnings.warn(f"Not all cells/sequences could be grouped into clones. {n_cells_lost} of {n_cell} were not captured. This occurs when any of the values in the index columns are null or missing for a given sequence. To see entries with missing values use: tcrdist.repertoire.TCRrep.show_incomplete()\n")
+        
+        # if no clone id column provided then create one as a sequence of numbers
+        if "clone_id" not in self.clone_df:
+            N = self.clone_df.shape[0]
+            self.clone_df['clone_id'] = range(1, N + 1 ,1)
         
         return self
 
@@ -557,7 +559,7 @@ class TCRrep:
     def compute_paired_tcrdist(self,
                                chains = ['alpha', 'beta'],
                                replacement_weights = {},
-                               store_result = True):
+                               store_result = False):
         """
         Computes tcrdistance metric combining distances metrics across multiple
         T Cell Receptor CDR regions.
@@ -954,6 +956,9 @@ class TCRrep:
         """
 
 
+        if "gamma" in self.chains or "delta" in self.chains:
+            raise ValueError("TCRrep.chains contains `gamma`. You might want "\
+            "TCRrep._tcrdist_legacy_method_gamma_delta")
 
         self.compute_pairwise_all(chain = "alpha",                        # <11
                                  metric = 'tcrdist_cdr3',

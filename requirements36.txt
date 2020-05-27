@@ -12,3 +12,4 @@ parmap
 fishersapi
 pwseqdist
 hierdiff
+numba
