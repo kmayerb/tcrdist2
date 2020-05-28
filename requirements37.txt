@@ -1,5 +1,5 @@
 pytest==5.4.1
-pandas==1.0.0
+pandas==1.0.3
 future>=0.17.1
 matplotlib==3.0.3
 numpy==1.18.1
@@ -11,6 +11,6 @@ statsmodels>=0.10.1
 tables
 parmap
 numba
-git+https://github.com/agartland/fishersapi.git#egg=fishersapi
-git+https://github.com/agartland/pwseqdist.git#egg=pwseqdist
-
+fishersapi
+pwseqdist
+hierdiff

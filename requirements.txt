@@ -9,6 +9,7 @@ seaborn
 statsmodels
 tables
 parmap
+fishersapi
+pwseqdist
+hierdiff
 numba
-git+https://github.com/agartland/fishersapi.git#egg=fishersapi
-git+https://github.com/agartland/pwseqdist.git#egg=pwseqdist

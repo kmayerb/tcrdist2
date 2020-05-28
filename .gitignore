@@ -3,6 +3,10 @@
 *~
 .cache/
 testing_ref/
+tcrdist/external/*
+tcrdist.log
+tcrdist/test_files/*
+tmp/*
 
 
 # Byte-compiled / optimized / DLL files
