@@ -20,6 +20,9 @@ def install_test_files():
     install_dropbox_file("mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv",
                          "https://www.dropbox.com/s/l0z12f8lc752wfx/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv?dl=1",
                          "test_files")
+    install_dropbox_file("M_F1_2019_alpha_tcrdist2.csv",
+                        "https://www.dropbox.com/s/p0g6izun8qqw0m6/M_F1_2019_alpha_tcrdist2.csv?dl=1",
+                        "test_files")
 
 
 def install_dropbox_file(filename,
