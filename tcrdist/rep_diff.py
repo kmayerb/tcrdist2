@@ -223,7 +223,7 @@ def member_summ(res_df, clone_df, count_col='count', addl_cols=[], addl_n=1):
             summ[res_row[label_col]] = np.round(res_row[freq_col], 3)
 
         for c in [c for c in addl_cols]:
-            summ[c] = _top_N_str(m, c, count_col, summ_n)
+            summ[c] = _top_N_str(m, c, count_col, addl_n)
         summ = pd.Series(summ, name=resi)
         split.append(summ)
     summ = pd.DataFrame(split)
