@@ -3,6 +3,7 @@ import re
 import pandas as pd 
 import numpy as np
 from tcrdist import repertoire_db
+import warnings
 
 
 def mixcr_to_tcrdist2(chain:str, 
@@ -148,12 +149,42 @@ def remove_entries_with_invalid_vgene(df, chain:str,organism:str):
     v = _validate_gene_names(series = df[gene_names[chain][0]], chain = chain, organism = organism)
     n_invalid_v_names = df[v == False].shape[0]
     invalid_names =df[v == False][gene_names[chain][0]].unique()
-    sys.stderr.write(f"Because of invalid v_gene names, dropping {n_invalid_v_names} with names:\n")
+    warnings.warn(f"Because of invalid v_gene names, dropping {n_invalid_v_names} with names:\n")
     for n in invalid_names:
         sys.stderr.write(f"{n}\n")
     
     return df[v].copy()
-    
+
+def _valid_cdr3(cdr3):
+    """
+    Examples
+    --------
+    >>> _valid_cdr3("AAAA")
+    True
+    >>> _valid_cdr3("AA.A")
+    False
+    """
+    amino_acids = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
+    valid = np.all([aa in amino_acids for aa in cdr3])
+    return valid
+
+def remove_entries_with_invalid_cdr3(df, chain:str):
+
+    chain_names = { 'alpha': 'cdr3_a_aa',
+                    'beta' : 'cdr3_b_aa',
+                    'gamma': 'cdr3_g_aa',
+                    'delta': 'cdr3_d_aa',}
+   
+    cdr3_x_aa = chain_names[chain]
+    print(cdr3_x_aa)
+    v = df[cdr3_x_aa].apply(lambda x : _valid_cdr3(x))
+
+    n_invalid_cdr3 = df[v == False].shape[0]
+    invalid_names =df[v == False][cdr3_x_aa].unique()
+   
+    warnings.warn(f"Because of invalid cdr3a names, dropping {n_invalid_cdr3}: {invalid_names}\n")
+   
+    return df[v].copy()
     
 def _change_TRAVDV_to_TRAVdashDV(s:str):
     """

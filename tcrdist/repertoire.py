@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import scipy.spatial
+from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 import collections
 import json
 import warnings
@@ -14,8 +15,8 @@ from . import pgen
 from . import mappers
 from . import pairwise
 
+# includes tools for use with explore.py
 #from paths import path_to_matrices
-
 #This replaces: from tcrdist.cdr3s_human import pb_cdrs
 pb_cdrs = repertoire_db.generate_pbr_cdr()
 
@@ -170,7 +171,7 @@ class TCRrep:
             n_cell = np.sum(self.cell_df['count'])
             warnings.warn(f"Not all cells/sequences could be grouped into clones. {n_cells_lost} of {n_cell} were not captured. This occurs when any of the values in the index columns are null or missing for a given sequence. To see entries with missing values use: tcrdist.repertoire.TCRrep.show_incomplete()\n")
         
-        # if no clone id column provided then create one as a sequence of numbers
+        # if no clone id column provided thetrn create one as a sequence of numbers
         if "clone_id" not in self.clone_df:
             N = self.clone_df.shape[0]
             self.clone_df['clone_id'] = range(1, N + 1 ,1)
@@ -729,6 +730,147 @@ class TCRrep:
             self.cdr3_g_aa_pw = pw
         elif chain == "delta":
             self.cdr3_d_aa_pw = pw
+    
+    def generate_cluster_index(self, t = 75, criterion = "distance", method =  "complete", append_counts = False):
+        """
+        Add 'cluster_index' column to TCRrep.clone_df 
+
+        Parameters
+        ----------
+
+        t : int
+            scipy.cluster.hierarchy.fcluster param t
+        criterion : str 
+            scipy.cluster.hierarchy.fcluster param criterion 
+        method : str 
+            scipy.cluster.linkage parma method 
+        
+        Notes
+        -----
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.fcluster.html
+        """
+        compressed_dmat = scipy.spatial.distance.squareform(self.paired_tcrdist, force = "vector")
+        Z = linkage(compressed_dmat, method = "complete")
+        cluster_index = fcluster(Z, t = t, criterion = criterion)
+        assert len(cluster_index) == self.clone_df.shape[0]
+        assert len(cluster_index) == self.paired_tcrdist.shape[0]
+        self.clone_df['cluster_index'] = cluster_index
+        if append_counts:
+            self._append_cluster_count()
+            self._append_seq_counts_per_cluster()
+
+    def _append_cluster_count(self):
+        """
+        Appends the number of clones in a cluster to each row of TCRrep.clone_df
+        """
+        cluster_count = self.clone_df.cluster_index.value_counts().\
+            reset_index().\
+            rename(columns = {'index':'cluster_index', "cluster_index": "cluster_count"}).\
+            copy()
+        self.clone_df = self.clone_df.merge(cluster_count, how= "left", left_on = "cluster_index", right_on = "cluster_index")
+
+    def _append_seq_counts_per_cluster(self):
+        """
+        Appends the sum of seq counts per cluster to each row of TCRrep.clone_df
+        """
+        seq_counts = self.clone_df.\
+            groupby(['cluster_index'])['count'].sum().\
+            reset_index().\
+            rename(columns = {'count':'seq_count'})
+
+        self.clone_df = self.clone_df.merge(seq_counts, how = "left", left_on = "cluster_index", right_on = "cluster_index")    
+
+    def ispublic(self, gr, var = "subject", n = 1):
+        """
+        Return True if a cluster public, defined as comprised of members from multiple individuals 
+        or cell subsets (e.g., CD4/CD8) 
+        
+        Parameters
+        ----------
+        gr : group
+            within pandas Data.Frame.groupby
+        var : str
+            variable name of class that group most transcend to be considered public
+        m : int
+            number of unique values of selected variable to be considered public
+        
+        Returns
+        -------
+        r : bool
+            True if a cluster public
+        
+        """
+        r = len(gr[var].value_counts()) > n
+        if r:
+            return 'public'
+        else:
+            return 'private'
+
+    def get_func_stat(self, gr, var, func = np.median, **kwargs):
+        """
+        get summary statistic by applying a func to a group
+        
+        Parameter
+        ---------
+        gr : group
+            within pandas Data.Frame.groupby
+        var : str
+            variable name of class that group most transcend to be considered public
+        func : function
+            function that can operate on a series or list of values specified by var
+            
+        Returns
+        -------
+        r : float or int
+        
+        """
+        r = func(gr[var], **kwargs)
+        return r
+
+    def get_cluster_summary(self, df=None, groupvar = 'cluster_index'):
+        """get_cluster_pgen_and_count_summary """
+        if df is None:
+            df = self.clone_df.copy()
+        cluster_summary = list()
+        assert groupvar in df.columns
+        assert "pgen" in df.columns
+        assert "count" in df.columns
+        for name, group in df.groupby([groupvar]):
+            public = self.ispublic(group, "subject")
+            cluster_summary.append({"cluster_index" : name, 
+                                "public"        : public,
+                                "min_pgen"      : self.get_func_stat(gr = group, var = "pgen", func = np.min),
+                                "median_pgen"   : self.get_func_stat(gr = group, var = "pgen", func = np.median),
+                                "max_pgen"      : self.get_func_stat(gr = group, var = "pgen", func = np.max), 
+                                "cluster_count"  : group.shape[0],
+                                "seq_count"     : self.get_func_stat(gr = group, var = "count", func = np.sum),
+                                "seq_min"       : self.get_func_stat(gr = group, var = "count", func = np.min),
+                                "seq_median"    : self.get_func_stat(gr = group, var = "count", func = np.median),
+                                "seq_max"       : self.get_func_stat(gr = group, var = "count", func = np.max)})
+
+        cluster_summary = pd.DataFrame(cluster_summary)
+        self.cluster_summary = cluster_summary
+        return cluster_summary
+
+    def tsne(self, X = None, n_components=2 , random_state = 310, axis_names = ["tSNE1","tSNE2"]):
+        warnings.warn("RUNNING sklearn.manifold.TSNE WHICH MAY TAKE A FEW MINUTES")
+        from sklearn.manifold import TSNE
+        if X is None:
+            X = self.paired_tcrdist        
+        X_embedded = TSNE(n_components=n_components, random_state = random_state).fit_transform(X)
+        tsne_df = pd.DataFrame(X_embedded, columns = axis_names )
+        assert(tsne_df.shape[0] == self.clone_df.shape[0])
+        self.clone_df = pd.concat([self.clone_df, tsne_df], axis = 1)
+    
+    def mds(self, X = None, n_components=2 , dissimilarity='precomputed', axis_names = ["MDS1","MDS2"]):
+        warnings.warn("RUNNING sklearn.manifold.MDS WHICH MAY TAKE A FEW MINUTES")
+        from sklearn.manifold import MDS
+        if X is None:
+            X = self.paired_tcrdist     
+        X_embedded_mds = MDS(n_components=n_components, dissimilarity=dissimilarity).fit_transform(X)
+        mds_df = pd.DataFrame(X_embedded_mds, columns = axis_names)
+        assert(mds_df.shape[0] == self.clone_df.shape[0])
+        self.clone_df = pd.concat([self.clone_df, mds_df], axis = 1)
 
     def _validate_organism(self):
         if self.organism not in ["human", "mouse"]:
@@ -1023,7 +1165,120 @@ class TCRrep:
         # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
         self.dist_a = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
         self.dist_b = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
-    
+
+    def _tcrdist_legacy_method_alpha(self, processes = 1):
+        """
+        Runs the legacy tcrdist pairwise comparison
+
+        Arguments
+        ---------
+        processes : int
+
+
+        Notes
+        -----
+        # CALCULATE tcrdist distance metric. Here we show all the manual steps to
+        # implement the original Dash et al. tcrdist approach.
+
+        # To do this we calculate distance for each CDR separately, and
+        # we use the metric "tcrdist_cdr3" for the cdr3 and "tcrdist_cdr1"
+        # everywhere else
+        """
+
+
+        if "gamma" in self.chains or "delta" in self.chains:
+            raise ValueError("TCRrep.chains contains `gamma`. You might want "\
+            "TCRrep._tcrdist_legacy_method_gamma_delta")
+
+        self.compute_pairwise_all(chain = "alpha",                        # <11
+                                    metric = 'tcrdist_cdr3',
+                                    compute_specific_region = 'cdr3_a_aa',
+                                    processes = processes)
+        self.compute_pairwise_all(chain = "alpha",                        # 11
+                                    metric = "tcrdist_cdr1",
+                                    compute_specific_region = 'cdr1_a_aa',
+                                    processes = processes)
+        self.compute_pairwise_all(chain = "alpha",                        # 11
+                                    metric = "tcrdist_cdr1",
+                                    compute_specific_region = 'cdr2_a_aa',
+                                    processes = processes)
+        self.compute_pairwise_all(chain = "alpha",                        # 11
+                                    metric = "tcrdist_cdr1",
+                                    compute_specific_region = 'pmhc_a_aa',
+                                    processes = processes)
+
+        distA = self.compute_paired_tcrdist(replacement_weights= {'cdr3_a_aa_pw': 1,
+                                                                'cdr2_a_aa_pw': 1,
+                                                                'cdr1_a_aa_pw': 1,
+                                                                'pmhc_a_aa_pw': 1},
+                                                                chains = ["alpha"])['paired_tcrdist'].copy()
+                                                                        # Calling tr.compute_paired_tcrdist() computs the
+        # the final paired chain TCR-distance which is stored as
+        # tr.paired_tcrdist, which we confirm is simply the sum of distA and distB
+        self.compute_paired_tcrdist()
+        assert np.all((distA - self.paired_tcrdist) == 0)
+
+        # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
+        self.dist_a = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
+
+
+    def _tcrdist_legacy_method_beta(self, processes = 1):
+        """
+        Runs the legacy tcrdist pairwise comparison
+
+        Arguments
+        ---------
+        processes : int
+
+
+        Notes
+        -----
+        # CALCULATE tcrdist distance metric. Here we show all the manual steps to
+        # implement the original Dash et al. tcrdist approach.
+
+        # To do this we calculate distance for each CDR separately, and
+        # we use the metric "tcrdist_cdr3" for the cdr3 and "tcrdist_cdr1"
+        # everywhere else
+        """
+
+
+        if "gamma" in self.chains or "delta" in self.chains:
+            raise ValueError("TCRrep.chains contains `gamma`. You might want "\
+            "TCRrep._tcrdist_legacy_method_gamma_delta")
+
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = 'tcrdist_cdr3',
+                                 #user_function = tcrdist_metric_align_cdr3s_false,
+                                 compute_specific_region = 'cdr3_b_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'cdr1_b_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'cdr2_b_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'pmhc_b_aa',
+                                 processes = processes)
+
+        distB = self.compute_paired_tcrdist(replacement_weights= {
+                                                                'cdr3_b_aa_pw': 1,
+                                                                'cdr2_b_aa_pw': 1,
+                                                                'cdr1_b_aa_pw': 1,
+                                                                'pmhc_b_aa_pw': 1},
+                                                                chains = ["beta"])['paired_tcrdist'].copy()
+
+        self.compute_paired_tcrdist()
+        assert np.all(((distB) - self.paired_tcrdist) == 0)
+
+        # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
+        self.dist_b = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
+
+
+
     def _tcrdist_legacy_method_gamma_delta(self, processes = 1):
         """
         Runs the legacy tcrdist pairwise comparison gamma/delta
