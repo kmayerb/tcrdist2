@@ -60,6 +60,15 @@ class test_stats(unittest.TestCase):
 
     def test_fishers_HC(self):
         res = td.stats.hcluster_diff(self.clone_df, self.pw, x_cols=['Visit'], test_method='fishers')
-    
+
+    def test_member_summ(self):
+        res = td.stats.hcluster_diff(self.clone_df, self.pw, x_cols=['Visit'], test_method='fishers')
+        
+        summ_df = td.stats.member_summ(res_df=res, clone_df=self.clone_df, count_col='count')
+        res = res.join(summ_df)
+
+        summ_df = td.stats.member_summ(res_df=res, clone_df=self.clone_df, count_col='count', addl_cols=['Stim'])
+        res = res.join(summ_df)
+
 if __name__ == '__main__':
     unittest.main()
