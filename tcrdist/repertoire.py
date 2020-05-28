@@ -15,8 +15,8 @@ from . import pgen
 from . import mappers
 from . import pairwise
 
+# includes tools for use with explore.py
 #from paths import path_to_matrices
-
 #This replaces: from tcrdist.cdr3s_human import pb_cdrs
 pb_cdrs = repertoire_db.generate_pbr_cdr()
 
