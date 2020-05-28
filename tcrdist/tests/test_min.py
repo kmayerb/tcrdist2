@@ -1,5 +1,4 @@
 #cloneId	cloneCount	cloneFraction	clonalSequence	bestVGene	bestDGene	bestJGene	bestVFamily	bestJFamily	aaSeqCDR3	nSeqCDR3	refPoints
-
 import pytest
 import os 
 import numpy as np
@@ -7,11 +6,14 @@ import pandas as pd
 from tcrdist.repertoire import TCRrep
 from tcrdist import mixcr
 
+time_sensitive = True
+@pytest.mark.skipif(time_sensitive, reason="DONT RUN THIS TIME SENSTIVE TEST")
 def test_load():
     assert os.path.isfile('tcrdist/test_files/contracting_clones_M_alpha.tsv')
     fn =os.path.join('tcrdist','test_files','contracting_clones_M_alpha.tsv')
     assert os.path.isfile(fn)
 
+@pytest.mark.skipif(time_sensitive, reason="DONT RUN THIS TIME SENSTIVE TEST")
 def test_columns():
     fn =os.path.join('tcrdist','test_files','contracting_clones_M_alpha.tsv')
     df = pd.read_csv(fn, sep = "\t")
@@ -49,6 +51,7 @@ testfiles = [   ('contracting_clones_M_alpha.tsv', 'alpha'),
                 ('expanding_clones_W_alpha.tsv',  'alpha'),
                 ('expanding_clones_W_beta.tsv', 'beta')]
 @pytest.mark.parametrize("f, my_chain", testfiles)
+@pytest.mark.skipif(time_sensitive, reason="DONT RUN THIS TIME SENSTIVE TEST")
 def test_convert_minervina_to_mixcr_run_tcrdist(f,my_chain):
     
     fn =os.path.join('tcrdist','test_files', f)
@@ -91,7 +94,7 @@ def test_convert_minervina_to_mixcr_run_tcrdist(f,my_chain):
         tr = TCRrep(cell_df = dfmix, organism = "human", chains=['beta'])
 
     tr.infer_cdrs_from_v_gene(chain = my_chain, imgt_aligned = True)
-    tr.cell_df['subject'] = 'M'
+    tr.cell_df['subject'] = 'X'
     tr.cell_df['epitope'] = 'X'
     
     if my_chain == "alpha":
@@ -118,7 +121,7 @@ def test_convert_minervina_to_mixcr_run_tcrdist(f,my_chain):
         assert isinstance(tr.cdr3_b_aa_pw, np.ndarray)
         assert isinstance(tr.paired_tcrdist, np.ndarray)
 
-
+@pytest.mark.skipif(time_sensitive, reason="DONT RUN THIS TIME SENSTIVE TEST")
 def test_combine_betas_and_alphas():
     import pytest
     import os 
@@ -129,24 +132,24 @@ def test_combine_betas_and_alphas():
     import multiprocessing
     
 
-    testfiles = [('contracting_clones_M_alpha.tsv', 'alpha'), 
-                ('contracting_clones_M_beta.tsv',  'beta'),
-                ('contracting_clones_W_alpha.tsv', 'alpha'), 
-                ('contracting_clones_W_beta.tsv',  'beta'),
-                ('expanding_clones_M_alpha.tsv',  'alpha'),
-                ('expanding_clones_M_beta.tsv',  'beta'),
-                ('expanding_clones_W_alpha.tsv',  'alpha'),
-                ('expanding_clones_W_beta.tsv', 'beta')]
+    testfiles = [('contracting_clones_M_alpha.tsv', 'alpha', 'M', 'contracting'), 
+                ('contracting_clones_M_beta.tsv',  'beta', 'M', 'contracting'),
+                ('contracting_clones_W_alpha.tsv', 'alpha', 'W', 'contracting'), 
+                ('contracting_clones_W_beta.tsv',  'beta', 'W','contracting'),
+                ('expanding_clones_M_alpha.tsv',  'alpha', 'M', 'expanding'),
+                ('expanding_clones_M_beta.tsv',  'beta', 'M', 'expanding'),
+                ('expanding_clones_W_alpha.tsv',  'alpha', 'W', 'expanding'),
+                ('expanding_clones_W_beta.tsv', 'beta', 'W', 'expanding')]
 
     betas = []
     alphas = []
 
-    for f,my_chain in testfiles:
+    for f,my_chain,sub,group in testfiles:
         fn =os.path.join('tcrdist','test_files', f)
         df = pd.read_csv(fn, sep = "\t")
         df['bestVGene'] = df['bestVGene'].apply(lambda s : s + "*00")
         df['bestJGene'] = df['bestJGene'].apply(lambda s : s + "*00")
-
+        print(df.columns)
         map_minervina_to_mixcr = \
             {'Rank':'cloneId',
             'Read.count':'cloneCount',
@@ -162,17 +165,22 @@ def test_combine_betas_and_alphas():
 
         df = df.rename(columns = map_minervina_to_mixcr)
         # CREATE A FAUX MIXCR OUTPUT
+        print(df.columns)
         df.to_csv('dfmix.clns.txt', index = False, sep = "\t")
         dfmix = mixcr.mixcr_to_tcrdist2(chain = my_chain,
                                 organism = "human",
                                 clones_fn = 'dfmix.clns.txt')
         dfmix['CD'] = df['CD'].copy()
+        dfmix['proportion'] = df['cloneFraction'].copy()
         dfmix = mixcr.remove_entries_with_invalid_vgene(dfmix,
                                                 chain = my_chain,
                                                 organism = "human")
 
         dfmix = mixcr.remove_entries_with_invalid_cdr3(dfmix, chain = my_chain)
         dfmix['source'] = f
+        dfmix['subject'] = sub
+        dfmix['epitope'] = 'X'
+        dfmix['trajectory'] = group
         
         if my_chain == "alpha":
             alphas.append(dfmix)
@@ -193,17 +201,17 @@ def test_combine_betas_and_alphas():
             tr = TCRrep(cell_df = dfmix, organism = "human", chains=['beta'])
 
         tr.infer_cdrs_from_v_gene(chain = my_chain, imgt_aligned = True)
-        tr.cell_df['subject'] = 'M'
-        tr.cell_df['epitope'] = 'X'
+
+        
         
         if my_chain == "alpha":
-            tr.index_cols = ['clone_id', 'subject', 'epitope',
+            tr.index_cols = ['clone_id', 'subject', 'epitope', 'trajectory',
                             'v_a_gene','j_a_gene', 
                             'cdr3_a_aa', 'cdr1_a_aa', 'cdr2_a_aa', 'pmhc_a_aa',
                             'cdr3_a_nucseq', 'CD','source']
         
         elif my_chain == "beta":
-            tr.index_cols = ['clone_id', 'subject', 'epitope',
+            tr.index_cols = ['clone_id', 'subject', 'epitope', 'trajectory',
                             'v_b_gene','j_b_gene', 
                             'cdr3_b_aa', 'cdr1_b_aa', 'cdr2_b_aa', 'pmhc_b_aa',
                             'cdr3_b_nucseq', 'CD','source']
@@ -223,8 +231,8 @@ def test_combine_betas_and_alphas():
             assert isinstance(tr.paired_tcrdist, np.ndarray)
         
         tcr_rep_results[my_chain] = tr
-        # import pickle
-        # with open("tcr_rep_results_for_tonight.p", 'wb') as p:
+        #import pickle
+        #with open("minervina_dynamic_clones.p", 'wb') as p:
         #     pickle.dump(tcr_rep_results, p)
 
 
