@@ -857,7 +857,7 @@ class TCRrep:
         from sklearn.manifold import TSNE
         if X is None:
             X = self.paired_tcrdist        
-        X_embedded = SNE(n_components=n_components, metric ='precomputed', random_state = random_state).fit_transform(X)
+        X_embedded = TSNE(n_components=n_components, metric ='precomputed', random_state = random_state).fit_transform(X)
         tsne_df = pd.DataFrame(X_embedded, columns = axis_names )
         assert(tsne_df.shape[0] == self.clone_df.shape[0])
         self.clone_df = pd.concat([self.clone_df, tsne_df], axis = 1)
