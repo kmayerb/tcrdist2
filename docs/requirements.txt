@@ -9,4 +9,8 @@ seaborn==0.9.0
 statsmodels==0.10.1
 sphinx_rtd_theme
 tables
-git+https://github.com/agartland/fishersapi.git#egg=fishersapi
+fishersapi
+pwseqdist
+hierdiff
+zipdist
+numba
