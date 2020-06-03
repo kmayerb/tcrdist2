@@ -449,7 +449,7 @@ class TCRrep:
 
         return(pd.Series(olga_pgens))
     
-    def archive(self, dest = "default_archive", dest_tar_name = "default_archive.tar.gz" ):
+    def archive(self, dest = "default_archive", dest_tar_name = "default_archive.tar.gz", verbose = True):
         """ 
         
         Use Zipdist2 to Make an Archive.tar.gz 
@@ -479,7 +479,7 @@ class TCRrep:
         z._save(dest = dest, dest_tar = dest_tar_name )
         sys.stdout.write(f"\tArchiving your TCRrep using Zipdist2 in [{dest_tar_name}]\n")
     
-    def rebuild(self,  dest_tar_name = "default_archive.tar.gz" ):
+    def rebuild(self,  dest_tar_name = "default_archive.tar.gz", verbose = True ):
         """ 
         Use Zipdist2 to Make an Archive.tar.gz
 
@@ -505,8 +505,8 @@ class TCRrep:
         See :py:meth:`tcrdist.repertoire.archive` for creating TCRrep archive file.
         """
         #tr = TCRrep(cell_df=df.iloc[0:0,:], chains=chains, organism='mouse')
-        z = Zipdist2(name = "default_archive", target = self)
-        z._build(dest_tar = dest_tar_name , target = self)
+        z = Zipdist2(name = "default_archive", target = self, verbose = True)
+        z._build(dest_tar = dest_tar_name , target = self, verbose = True)
         
         # VALIDATION OF INPUTS
         # check that chains are valid.
@@ -520,7 +520,16 @@ class TCRrep:
        
 
 
-    def tcrdist2(self, metric = "nw", processes = None, weights = None, dump = False, reduce = True, save = False, dest = "default_archive", dest_tar_name = "default_archive.tar.gz" ):
+    def tcrdist2(self, 
+                 metric = "nw",
+                 processes = None,
+                 weights = None,
+                 dump = False,
+                 reduce = True,
+                 save = False,
+                 dest = "default_archive",
+                 dest_tar_name = "default_archive.tar.gz",
+                 verbose = True):
         """
         Automated calculation of single chain and paired chain tcr-distances
 
@@ -541,7 +550,8 @@ class TCRrep:
             if True, saves intermediate files to dest
         dest : str
             path to save components
-        
+        verbose : bool
+            If True, provide sys.stdout reports.
 
         
         Notes
@@ -613,14 +623,14 @@ class TCRrep:
         self.deduplicate()
         sys.stdout.write(f"Computing pairwise matrices for multiple Complementarity Determining Regions (CDRs):.\n")
         for chain in self.chains:
-            sys.stdout.write(f"\tComputing pairwise matrices for cdrs within the {chain}-chain using the {metric} metric.\n")
+            if verbose: sys.stdout.write(f"\tComputing pairwise matrices for cdrs within the {chain}-chain using the {metric} metric.\n")
             self.compute_pairwise_all(chain = chain, metric = metric, processes = processes)
         sys.stdout.write("Calculating composite tcrdistance measures:\n")
         self.compute_paired_tcrdist( chains=self.chains, store_result=False)
         for chain in self.chains:
-            sys.stdout.write(f"\tSingle chain pairwise tcrdistances are in attribute : TCRrep.pw_{chain}\n")
-        sys.stdout.write(f"\tCombined pairwise tcrdistances are in attribute     : TCRrep.pw_tcrdist\n")
-        sys.stdout.write(f"\tCDR specific tcrdistances are in attributes, e.g.,  : TCRrep.cdr3_{chain[0]}_aa_pw\n")
+            if verbose: sys.stdout.write(f"\tSingle chain pairwise tcrdistances are in attribute : TCRrep.pw_{chain}\n")
+        if verbose: sys.stdout.write(f"\tCombined pairwise tcrdistances are in attribute     : TCRrep.pw_tcrdist\n")
+        if verbose: sys.stdout.write(f"\tCDR specific tcrdistances are in attributes, e.g.,  : TCRrep.cdr3_{chain[0]}_aa_pw\n")
 
 
         # <dump> boolean controls whether we dump easy to recalculate cdr1, cdr2, pmhc 
@@ -629,12 +639,12 @@ class TCRrep:
         # to a smaller data type.
         if reduce:
             data_type = 'int16'
-            sys.stdout.write(f"Reducing File Size: `reduce` argumment set to {reduce}:\n")
-            self.reduce_file_size( data_type = data_type)
+            if verbose: sys.stdout.write(f"Reducing File Size: `reduce` argumment set to {reduce}:\n")
+            self.reduce_file_size( data_type = data_type, verbose = True)
               
         # pairwise matices, which most users will never again.
         if dump:
-            sys.stdout.write(f"Cleanup: `dump` argument set to {dump}. Dumping individual CDR specific distance matrices:\n")
+            if verbose: sys.stdout.write(f"Cleanup: `dump` argument set to {dump}. Dumping individual CDR specific distance matrices:\n")
             for i in index_cdrs:
                 if i.startswith("cdr1") or i.startswith("cdr2") or i.startswith("pmhc"):
                     if i.endswith("aa"):
@@ -642,13 +652,13 @@ class TCRrep:
                         sys.stdout.write(f"\tDumping : {i}\n")                    
                         self.__dict__[i] = None
         if save:
-            sys.stdout.write(f"Archiving your TCRrep using Zipdist2 (save = {save})\n")
+            if verbose: sys.stdout.write(f"Archiving your TCRrep using Zipdist2 (save = {save})\n")
             # To avoid = ValueError: feather does not support serializing a non-default index for the index; you can .reset_index() to make the index into column(s)
-            self.archive(dest = dest, dest_tar_name = dest_tar_name )
-            sys.stdout.write(f"\tArchiving your TCRrep using Zipdist2 in [{dest_tar_name}]\n")
+            self.archive(dest = dest, dest_tar_name = dest_tar_name, verbose = True)
+            if verbose: sys.stdout.write(f"\tArchiving your TCRrep using Zipdist2 in [{dest_tar_name}]\n")
 
 
-        sys.stdout.write(f"TCRrep.tcrdist2() COMPLETED SUCCESSFULLY, see the docs for Analysis steps!\n")
+        if verbose: sys.stdout.write(f"TCRrep.tcrdist2() COMPLETED SUCCESSFULLY, see the docs for Analysis steps!\n")
 
         
 
@@ -1410,11 +1420,13 @@ class TCRrep:
         # tr.paired_tcrdist, which we confirm is simply the sum of distA and distB
         self.compute_paired_tcrdist()
         assert np.all(((distA + distB) - self.paired_tcrdist) == 0)
+        
+        self.pw_alpha = distA
+        self.pw_beta  = distB
 
         # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
         self.dist_a = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
         self.dist_b = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
-
     def _tcrdist_legacy_method_alpha(self, processes = 1):
         """
         Runs the legacy tcrdist pairwise comparison
@@ -1469,8 +1481,8 @@ class TCRrep:
 
         # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
         self.dist_a = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
-
-
+        self.pw_alpha = distA
+        
     def _tcrdist_legacy_method_beta(self, processes = 1):
         """
         Runs the legacy tcrdist pairwise comparison
@@ -1525,7 +1537,7 @@ class TCRrep:
 
         # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
         self.dist_b = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
-
+        self.pw_beta = distB
 
 
     def _tcrdist_legacy_method_gamma_delta(self, processes = 1):
@@ -1604,7 +1616,9 @@ class TCRrep:
         # tr.paired_tcrdist, which we confirm is simply the sum of distA and distB
         self.compute_paired_tcrdist(chains = ["gamma", "delta"])
         assert np.all(((distA + distB) - self.paired_tcrdist) == 0)
-
+        
+        self.pw_gamma = distA
+        self.pw_delta = distB
         # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
         self.dist_g = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
         self.dist_d = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)    
@@ -1618,7 +1632,7 @@ class TCRrep:
         """
         self.stored_tcrdist = None
 
-    def reduce_file_size(self, attributes = None, data_type = 'int16'):
+    def reduce_file_size(self, attributes = None, data_type = 'int16', verbose = True):
         """
         Parameters
         ----------
@@ -1659,7 +1673,7 @@ class TCRrep:
         # However, only np.arrays will be transformed to the new data type
         for k in attributes:
             if isinstance(getattr(self,k), np.ndarray):
-                sys.stdout.write("\tReducing : {} to {}.\n".format(k, data_type))
+                if verbose: sys.stdout.write("\tReducing : {} to {}.\n".format(k, data_type))
                 self._reduce_file_size_of_np_attribute(k, data_type)
 
 

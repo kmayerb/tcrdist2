@@ -35,8 +35,9 @@ role in epitope specificity (see Methods and Extended Data Fig. 3)."
    :maxdepth: 2
 
    Installation
-   HotStart
    Inputs
+   tcrdist2
+   HotStart
    CompleteExample
    Saving
    Plotting
