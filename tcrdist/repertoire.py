@@ -505,8 +505,8 @@ class TCRrep:
         See :py:meth:`tcrdist.repertoire.archive` for creating TCRrep archive file.
         """
         #tr = TCRrep(cell_df=df.iloc[0:0,:], chains=chains, organism='mouse')
-        z = Zipdist2(name = "default_archive", target = self, verbose = True)
-        z._build(dest_tar = dest_tar_name , target = self, verbose = True)
+        z = Zipdist2(name = "default_archive", target = self)
+        z._build(dest_tar = dest_tar_name , target = self, verbose = verbose)
         
         # VALIDATION OF INPUTS
         # check that chains are valid.
