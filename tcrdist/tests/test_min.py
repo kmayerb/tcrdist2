@@ -231,6 +231,7 @@ def test_combine_betas_and_alphas():
             assert isinstance(tr.paired_tcrdist, np.ndarray)
         
         tcr_rep_results[my_chain] = tr
+    return tcr_rep_results
         #import pickle
         #with open("minervina_dynamic_clones.p", 'wb') as p:
         #     pickle.dump(tcr_rep_results, p)
