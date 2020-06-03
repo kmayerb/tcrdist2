@@ -450,7 +450,29 @@ class TCRrep:
         return(pd.Series(olga_pgens))
     
     def archive(self, dest = "default_archive", dest_tar_name = "default_archive.tar.gz" ):
-        """ Use Zipdist2 to Make an Archive.tar.gz """
+        """ 
+        
+        Use Zipdist2 to Make an Archive.tar.gz 
+
+        Parameters
+        ----------
+        dest : str
+            e.g., 'default_archive'
+        dest_tar_name : str
+            e.g., 'default_archive.tar.gz'
+
+        Example
+        -------
+        .. code-block:: python
+            tr = TCRrep(cell_df = pd.DataFrame(), organism = "mouse")
+            tr.archive(dest = "default_archive", dest_tar_name = "default_archive.tar.gz")
+
+        Notes
+        -----
+        See :py:meth:`tcrdist.repertoire.rebuild`: for reubilding a TCRrep instance from 
+        an TCRrep archive .tar.gz file.
+        
+        """
         self.cell_df_index = self.cell_df.index.copy()
         self.cell_df = self.cell_df.reset_index()
         z = Zipdist2(name = dest_tar_name , target = self)
@@ -458,7 +480,30 @@ class TCRrep:
         sys.stdout.write(f"\tArchiving your TCRrep using Zipdist2 in [{dest_tar_name}]\n")
     
     def rebuild(self,  dest_tar_name = "default_archive.tar.gz" ):
-        """ Use Zipdist2 to Make an Archive.tar.gz """
+        """ 
+        Use Zipdist2 to Make an Archive.tar.gz
+
+        Parameters
+        ----------
+        dest_tar_name : str
+            e.g., 'default_archive.tar.gz'
+
+        Example
+        -------
+        Shows :py:meth:`tcrdist.repertoire.archive` and :py:meth:`tcrdist.repertoire.rebuild` 
+        used together.
+
+        .. code-block:: python
+        
+            tr = TCRrep(cell_df = pd.DataFrame(), organism = "mouse")
+            tr.archive(dest = "default_archive", dest_tar_name = "default_archive.tar.gz")
+            tr_new = TCRrep(cell_df = pd.DataFrame(), organism = "mouse")
+            tr_new.rebuild(dest_tar_name = "default_archive.tar.gz")
+        
+        Notes
+        -----
+        See :py:meth:`tcrdist.repertoire.archive` for creating TCRrep archive file.
+        """
         #tr = TCRrep(cell_df=df.iloc[0:0,:], chains=chains, organism='mouse')
         z = Zipdist2(name = "default_archive", target = self)
         z._build(dest_tar = dest_tar_name , target = self)
