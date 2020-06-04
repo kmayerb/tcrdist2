@@ -3,6 +3,7 @@ import re
 import pandas as pd 
 import numpy as np
 from tcrdist import repertoire_db
+import warnings
 
 
 def mixcr_to_tcrdist2(chain:str, 
@@ -70,10 +71,10 @@ def mixcr_to_tcrdist2(chain:str,
         raise ValueError ("one of seq_fn or clones_fn must be provided")
         
     
-    gene_names = {  'alpha': ['v_a_gene','d_a_gene','j_a_gene'],
-                    'beta' : ['v_b_gene','d_b_gene','j_b_gene'],
-                    'gamma': ['v_g_gene','d_g_gene','j_g_gene'],
-                    'delta': ['v_d_gene','d_d_gene','j_d_gene']}
+    gene_names = {  'alpha': ['v_a_gene','d_a_gene','j_a_gene',"cdr3_a_nucseq","cdr3_a_aa"],
+                    'beta' : ['v_b_gene','d_b_gene','j_b_gene',"cdr3_b_nucseq","cdr3_b_aa"],
+                    'gamma': ['v_g_gene','d_g_gene','j_g_gene',"cdr3_g_nucseq","cdr3_g_aa"],
+                    'delta': ['v_d_gene','d_d_gene','j_d_gene',"cdr3_d_nucseq","cdr3_d_aa"]}
     
     if chain not in gene_names.keys():
         raise KeyError ("chain must be 'alpha','beta','gamma', or 'delta'")
@@ -90,8 +91,8 @@ def mixcr_to_tcrdist2(chain:str,
         seqs_df   = seqs_df.rename(columns = {  'allVHitsWithScore' : gene_names[chain][0],                    
                                                 'allDHitsWithScore' : gene_names[chain][1], 
                                                 'allJHitsWithScore' : gene_names[chain][2],
-                                                'nSeqCDR3'          : "cdr3_d_nucseq",
-                                                'aaSeqCDR3'         : "cdr3_d_aa"})
+                                                'nSeqCDR3'          : gene_names[chain][3],
+                                                'aaSeqCDR3'         : gene_names[chain][4]})
         df = seqs_df.copy()
 
     elif clones_fn is not None:
@@ -108,8 +109,8 @@ def mixcr_to_tcrdist2(chain:str,
                                                     'allVHitsWithScore' : gene_names[chain][0],                    
                                                     'allDHitsWithScore' : gene_names[chain][1], 
                                                     'allJHitsWithScore' : gene_names[chain][2],
-                                                    'nSeqCDR3'          : "cdr3_d_nucseq",
-                                                    'aaSeqCDR3'         : "cdr3_d_aa"})
+                                                    'nSeqCDR3'          : gene_names[chain][3],
+                                                    'aaSeqCDR3'         : gene_names[chain][4]})
         df = clones_df.copy()
     
     return(df)
@@ -148,13 +149,44 @@ def remove_entries_with_invalid_vgene(df, chain:str,organism:str):
     v = _validate_gene_names(series = df[gene_names[chain][0]], chain = chain, organism = organism)
     n_invalid_v_names = df[v == False].shape[0]
     invalid_names =df[v == False][gene_names[chain][0]].unique()
+
     if n_invalid_v_names > 0:
         sys.stderr.write(f"Because of invalid v_gene names, dropping {n_invalid_v_names} with names:\n")
         for n in invalid_names:
             sys.stderr.write(f"{n}\n")
     
     return df[v].copy()
-    
+
+def _valid_cdr3(cdr3):
+    """
+    Examples
+    --------
+    >>> _valid_cdr3("AAAA")
+    True
+    >>> _valid_cdr3("AA.A")
+    False
+    """
+    amino_acids = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
+    valid = np.all([aa in amino_acids for aa in cdr3])
+    return valid
+
+def remove_entries_with_invalid_cdr3(df, chain:str):
+
+    chain_names = { 'alpha': 'cdr3_a_aa',
+                    'beta' : 'cdr3_b_aa',
+                    'gamma': 'cdr3_g_aa',
+                    'delta': 'cdr3_d_aa',}
+   
+    cdr3_x_aa = chain_names[chain]
+    print(cdr3_x_aa)
+    v = df[cdr3_x_aa].apply(lambda x : _valid_cdr3(x))
+
+    n_invalid_cdr3 = df[v == False].shape[0]
+    invalid_names =df[v == False][cdr3_x_aa].unique()
+   
+    warnings.warn(f"Because of invalid cdr3a names, dropping {n_invalid_cdr3}: {invalid_names}\n")
+   
+    return df[v].copy()
     
 def _change_TRAVDV_to_TRAVdashDV(s:str):
     """

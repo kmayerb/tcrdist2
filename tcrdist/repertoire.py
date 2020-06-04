@@ -1,24 +1,26 @@
 import numpy as np
 import pandas as pd
+import tarfile
+import sys
+import os
 import scipy.spatial
-
-import warnings
-
-import parasail
-from tcrdist import pairwise
+from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 import collections
 import json
-#from tcrdist.cdr3s_human import pb_cdrs
 import warnings
 import pickle
-from tcrdist import repertoire_db
-from tcrdist import pgen
-from tcrdist import mappers
+import multiprocessing
+import parasail
+import pwseqdist
+from zipdist.zip2 import Zipdist2 
 
+from . import repertoire_db
+from . import pgen
+from . import mappers
+from . import pairwise
 
+# includes tools for use with explore.py
 #from paths import path_to_matrices
-
-
 #This replaces: from tcrdist.cdr3s_human import pb_cdrs
 pb_cdrs = repertoire_db.generate_pbr_cdr()
 
@@ -75,6 +77,7 @@ class TCRrep:
                  chains=['alpha', 'beta'],
                  organism = "human",
                  db_file = "alphabeta_db.tsv"):
+        self.db_file = db_file
         self.cell_df = cell_df
         self.chains = chains
         self.organism = organism
@@ -88,7 +91,7 @@ class TCRrep:
         self.project_id = "<Your TCR Repertoire Project>"
         self.all_genes = None
         self.imgt_aligned_status = None
-
+        
         # VALIDATION OF INPUTS
         # check that chains are valid.
         self._validate_organism()
@@ -171,10 +174,12 @@ class TCRrep:
         if np.sum(self.cell_df['count']) != np.sum(self.clone_df['count']):
             n_cells_lost = np.sum(self.cell_df['count']) - np.sum(self.clone_df['count'])
             n_cell = np.sum(self.cell_df['count'])
-            warnings.warn("Not all cells/sequences could be grouped into clones.\n")
-            warnings.warn(f"{n_cells_lost} of {n_cell} were not captured. This occurs when any\n") 
-            warnings.warn("of the values in the index columns are null or missing for a given sequence.\n")
-            warnings.warn("To see entries with missing values use: tcrdist.repertoire.TCRrep.show_incomplete()\n")
+            warnings.warn(f"Not all cells/sequences could be grouped into clones. {n_cells_lost} of {n_cell} were not captured. This occurs when any of the values in the index columns are null or missing for a given sequence. To see entries with missing values use: tcrdist.repertoire.TCRrep.show_incomplete()\n")
+        
+        # if no clone id column provided thetrn create one as a sequence of numbers
+        if "clone_id" not in self.clone_df:
+            N = self.clone_df.shape[0]
+            self.clone_df['clone_id'] = range(1, N + 1 ,1)
         
         return self
 
@@ -443,6 +448,222 @@ class TCRrep:
             self.clone_df['cdr3_d_aa_pgen'] = pd.Series(olga_pgens)
 
         return(pd.Series(olga_pgens))
+    
+    def archive(self, dest = "default_archive", dest_tar_name = "default_archive.tar.gz", verbose = True):
+        """ 
+        
+        Use Zipdist2 to Make an Archive.tar.gz 
+
+        Parameters
+        ----------
+        dest : str
+            e.g., 'default_archive'
+        dest_tar_name : str
+            e.g., 'default_archive.tar.gz'
+
+        Example
+        -------
+        .. code-block:: python
+            tr = TCRrep(cell_df = pd.DataFrame(), organism = "mouse")
+            tr.archive(dest = "default_archive", dest_tar_name = "default_archive.tar.gz")
+
+        Notes
+        -----
+        See :py:meth:`tcrdist.repertoire.rebuild`: for reubilding a TCRrep instance from 
+        an TCRrep archive .tar.gz file.
+        
+        """
+        self.cell_df_index = self.cell_df.index.copy()
+        self.cell_df = self.cell_df.reset_index()
+        z = Zipdist2(name = dest_tar_name , target = self)
+        z._save(dest = dest, dest_tar = dest_tar_name )
+        sys.stdout.write(f"\tArchiving your TCRrep using Zipdist2 in [{dest_tar_name}]\n")
+    
+    def rebuild(self,  dest_tar_name = "default_archive.tar.gz", verbose = True ):
+        """ 
+        Use Zipdist2 to Make an Archive.tar.gz
+
+        Parameters
+        ----------
+        dest_tar_name : str
+            e.g., 'default_archive.tar.gz'
+
+        Example
+        -------
+        Shows :py:meth:`tcrdist.repertoire.archive` and :py:meth:`tcrdist.repertoire.rebuild` 
+        used together.
+
+        .. code-block:: python
+        
+            tr = TCRrep(cell_df = pd.DataFrame(), organism = "mouse")
+            tr.archive(dest = "default_archive", dest_tar_name = "default_archive.tar.gz")
+            tr_new = TCRrep(cell_df = pd.DataFrame(), organism = "mouse")
+            tr_new.rebuild(dest_tar_name = "default_archive.tar.gz")
+        
+        Notes
+        -----
+        See :py:meth:`tcrdist.repertoire.archive` for creating TCRrep archive file.
+        """
+        #tr = TCRrep(cell_df=df.iloc[0:0,:], chains=chains, organism='mouse')
+        z = Zipdist2(name = "default_archive", target = self)
+        z._build(dest_tar = dest_tar_name , target = self, verbose = verbose)
+        
+        # VALIDATION OF INPUTS
+        # check that chains are valid.
+        self._validate_organism()
+        self._validate_chains()
+        # check that  is a pd.DataFrame
+        self._validate_cell_df()
+
+        # RE INIT the REFERENCE DB see repertoire_db.py
+        self.generate_ref_genes_from_db(self.db_file)
+       
+
+
+    def tcrdist2(self, 
+                 metric = "nw",
+                 processes = None,
+                 weights = None,
+                 dump = False,
+                 reduce = True,
+                 save = False,
+                 dest = "default_archive",
+                 dest_tar_name = "default_archive.tar.gz",
+                 verbose = True):
+        """
+        Automated calculation of single chain and paired chain tcr-distances
+
+        Parameters
+        ----------
+        metric : str
+            specified metric, currently only "nw" and "hamming" are supported 
+            (see notes for legacy methods)
+        processes : int
+            number of cpus to use; the default is greedy and will use half of available
+        weights : dict
+            override cdr weightings
+        dump : bool
+            if True, dump intermediate cdr1, cdr2, and pmhc pairwise matrices
+        reduce : bool
+            if True, converts distance matrices to a smaller data type.
+        save : bool
+            if True, saves intermediate files to dest
+        dest : str
+            path to save components
+        verbose : bool
+            If True, provide sys.stdout reports.
+
+        
+        Notes
+        -----
+        tcrdist2 is a method to help new-users run tcrdist2 with sensible defaults.
+
+        Distance metrics are highly customizable. 
+        Consult the `docs <https://tcrdist2.readthedocs.io>`_ for more information.
+        
+        To compute Dash et al. 2017 style tcrdistance, instead of tcrdist2,
+        use commands:
+        TCRrep._tcrdist_legacy_method_alpha_beta()
+        TCRrep._tcrdist_legacy_method_beta()
+        TCRrep._tcrdist_legacy_method_alpha()
+        TCRrep._tcrdist_legacy_method_gamma_delta()
+        TCRrep._tcrdist_legacy_method_gamma()
+        TCRrep._tcrdist_legacy_method_delta()
+        """
+
+        # Default to use all available processes
+        if processes is None:
+            max_threads = multiprocessing.cpu_count() 
+            processes = max_threads // 2
+            sys.stdout.write(f"trcdist2 detected {max_threads } available cpus/threads.\n")
+            sys.stdout.write(f"\tTCRrep use parallel processing, setting default to use {processes} cpus/threads.\n")
+            sys.stdout.write(f"\tThe `processes` arg of TCRrep.tcrdist2() can be set manually\n")
+
+        for chain in self.chains:
+            self.infer_cdrs_from_v_gene(chain=chain,  imgt_aligned=True)
+        
+        if weights is None:
+            weights = {'cdr1_a_aa':1,
+                        'cdr2_a_aa':1,
+                        'cdr3_a_aa':3,
+                        'pmhc_a_aa':1,
+                        'cdr1_b_aa':1,
+                        'cdr2_b_aa':1,
+                        'cdr3_b_aa':3,
+                        'pmhc_b_aa':1,
+                        'cdr1_g_aa':1,
+                        'cdr2_g_aa':1,
+                        'cdr3_g_aa':3,
+                        'pmhc_g_aa':1,
+                        'cdr1_d_aa':1,
+                        'cdr2_d_aa':1,
+                        'cdr3_d_aa':3,
+                        'pmhc_d_aa':1,
+                        'v_a_gene':0, 
+                        'j_a_gene':0,
+                        'v_b_gene':0, 
+                        'j_b_gene':0,
+                        'v_g_gene':0, 
+                        'j_g_gene':0,
+                        'v_d_gene':0, 
+                        'j_d_gene':0,
+                        'cdr3_a_nucseq':0,
+                        'cdr3_b_nucseq':0,
+                        'cdr3_g_nucseq':0,
+                        'cdr3_d_nucseq':0}
+
+        index_cdrs = [k for k in weights.keys() if k in self.cell_df.columns]
+
+        for x in ['clone_id', 'subject', 'epitope']:
+            assert 'clone_id' in self.cell_df.columns, f"{x} must be in TCRrep.cell_df"
+
+        self.index_cols = ['clone_id', 'subject', 'epitope'] + index_cdrs
+        sys.stdout.write("Deduplicating your TCRrep.cell_df to make TCRrep.clone_df.\n")
+
+        self.deduplicate()
+        sys.stdout.write(f"Computing pairwise matrices for multiple Complementarity Determining Regions (CDRs):.\n")
+        for chain in self.chains:
+            if verbose: sys.stdout.write(f"\tComputing pairwise matrices for cdrs within the {chain}-chain using the {metric} metric.\n")
+            self.compute_pairwise_all(chain = chain, metric = metric, processes = processes)
+        sys.stdout.write("Calculating composite tcrdistance measures:\n")
+        self.compute_paired_tcrdist( chains=self.chains, store_result=False)
+        for chain in self.chains:
+            if verbose: sys.stdout.write(f"\tSingle chain pairwise tcrdistances are in attribute : TCRrep.pw_{chain}\n")
+        if verbose: sys.stdout.write(f"\tCombined pairwise tcrdistances are in attribute     : TCRrep.pw_tcrdist\n")
+        if verbose: sys.stdout.write(f"\tCDR specific tcrdistances are in attributes, e.g.,  : TCRrep.cdr3_{chain[0]}_aa_pw\n")
+
+
+        # <dump> boolean controls whether we dump easy to recalculate cdr1, cdr2, pmhc 
+
+        # <shrink> boolean controls whether we convert distance matrices 
+        # to a smaller data type.
+        if reduce:
+            data_type = 'int16'
+            if verbose: sys.stdout.write(f"Reducing File Size: `reduce` argumment set to {reduce}:\n")
+            self.reduce_file_size( data_type = data_type, verbose = True)
+              
+        # pairwise matices, which most users will never again.
+        if dump:
+            if verbose: sys.stdout.write(f"Cleanup: `dump` argument set to {dump}. Dumping individual CDR specific distance matrices:\n")
+            for i in index_cdrs:
+                if i.startswith("cdr1") or i.startswith("cdr2") or i.startswith("pmhc"):
+                    if i.endswith("aa"):
+                        i = f"{i}_pw"
+                        sys.stdout.write(f"\tDumping : {i}\n")                    
+                        self.__dict__[i] = None
+        if save:
+            if verbose: sys.stdout.write(f"Archiving your TCRrep using Zipdist2 (save = {save})\n")
+            # To avoid = ValueError: feather does not support serializing a non-default index for the index; you can .reset_index() to make the index into column(s)
+            self.archive(dest = dest, dest_tar_name = dest_tar_name, verbose = True)
+            if verbose: sys.stdout.write(f"\tArchiving your TCRrep using Zipdist2 in [{dest_tar_name}]\n")
+
+
+        if verbose: sys.stdout.write(f"TCRrep.tcrdist2() COMPLETED SUCCESSFULLY, see the docs for Analysis steps!\n")
+
+        
+
+            
+
 
 
 
@@ -537,8 +758,6 @@ class TCRrep:
                 warnings.warn("{} not found, no distances computed for {}".format(index_col, index_col))
                 continue
 
-
-
             # COMPUTE PAIRWISE
             # If kwargs were passed use them, otherwise pass chain-sp. smat from above
             if ('matrix' in kwargs) or ("open" in kwargs):
@@ -562,7 +781,7 @@ class TCRrep:
     def compute_paired_tcrdist(self,
                                chains = ['alpha', 'beta'],
                                replacement_weights = {},
-                               store_result = True):
+                               store_result = False):
         """
         Computes tcrdistance metric combining distances metrics across multiple
         T Cell Receptor CDR regions.
@@ -643,6 +862,41 @@ class TCRrep:
         gamma_keys = [k for k in list(weights.keys()) if k.endswith("g_aa_pw")]
         delta_keys = [k for k in list(weights.keys()) if k.endswith("d_aa_pw")]
 
+        # for single chain computation, results in TCRrep.pw_alpha, TCRrep.pw_beta, TCRrep.pw_gamma, and or TCRrep.pw_delta, 
+        if 'alpha' in chains:
+            tcrdist = np.zeros(self.cdr3_a_aa_pw.shape)
+            for k in alpha_keys:
+                try:
+                    tcrdist = self.__dict__[k]*weights[k] + tcrdist
+                except KeyError:
+                    warnings.warn("tcrdist was calculated without: '{}' because pairwise distances haven't been computed for this region:".format(k))
+            self.pw_alpha = tcrdist
+        if 'beta' in chains:
+            tcrdist = np.zeros(self.cdr3_b_aa_pw.shape)
+            for k in beta_keys:
+                try:
+                    tcrdist = self.__dict__[k]*weights[k] + tcrdist
+                except KeyError:
+                    warnings.warn("tcrdist was calculated without: '{}' because pairwise distances haven't been computed for this region:".format(k))
+            self.pw_beta = tcrdist
+        if 'gamma' in chains:
+            tcrdist = np.zeros(self.cdr3_g_aa_pw.shape)
+            for k in gamma_keys:
+                try:
+                    tcrdist = self.__dict__[k]*weights[k] + tcrdist
+                except KeyError:
+                    warnings.warn("tcrdist was calculated without: '{}' because pairwise distances haven't been computed for this region:".format(k))
+            self.pw_gamma = tcrdist
+        if 'delta' in chains:
+            tcrdist = np.zeros(self.cdr3_d_aa_pw.shape)
+            for k in delta_keys:
+                try:
+                    tcrdist = self.__dict__[k]*weights[k] + tcrdist
+                except KeyError:
+                    warnings.warn("tcrdist was calculated without: '{}' because pairwise distances haven't been computed for this region:".format(k))
+            self.pw_delta = tcrdist
+        
+        # For combined chain tcrdist, restults in TCRrep.paired_tcrdist and TCRrep.pw_tcrdist
         full_keys = []
         if 'alpha' in chains:
             full_keys = full_keys + alpha_keys
@@ -667,10 +921,13 @@ class TCRrep:
             except KeyError:
                 warnings.warn("tcrdist was calculated without: '{}' because pairwise distances haven't been computed for this region:".format(k))
                 pass
-
-
+     
+        # keep 'paired_tcrdist' to avoid breaking tests
         self.paired_tcrdist = tcrdist
+        self.pw_tcrdist = tcrdist
         self.paired_tcrdist_weights = {k:weights[k] for k in full_keys}
+        
+        # Typically we don't want to store different tcrdistance in the same repertoire, but
         r = {'paired_tcrdist' : tcrdist,
             'paired_tcrdist_weights' : {k:weights[k] for k in full_keys}}
         if store_result:
@@ -732,6 +989,147 @@ class TCRrep:
             self.cdr3_g_aa_pw = pw
         elif chain == "delta":
             self.cdr3_d_aa_pw = pw
+    
+    def generate_cluster_index(self, t = 75, criterion = "distance", method =  "complete", append_counts = False):
+        """
+        Add 'cluster_index' column to TCRrep.clone_df 
+
+        Parameters
+        ----------
+
+        t : int
+            scipy.cluster.hierarchy.fcluster param t
+        criterion : str 
+            scipy.cluster.hierarchy.fcluster param criterion 
+        method : str 
+            scipy.cluster.linkage parma method 
+        
+        Notes
+        -----
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.fcluster.html
+        """
+        compressed_dmat = scipy.spatial.distance.squareform(self.paired_tcrdist, force = "vector")
+        Z = linkage(compressed_dmat, method = "complete")
+        cluster_index = fcluster(Z, t = t, criterion = criterion)
+        assert len(cluster_index) == self.clone_df.shape[0]
+        assert len(cluster_index) == self.paired_tcrdist.shape[0]
+        self.clone_df['cluster_index'] = cluster_index
+        if append_counts:
+            self._append_cluster_count()
+            self._append_seq_counts_per_cluster()
+
+    def _append_cluster_count(self):
+        """
+        Appends the number of clones in a cluster to each row of TCRrep.clone_df
+        """
+        cluster_count = self.clone_df.cluster_index.value_counts().\
+            reset_index().\
+            rename(columns = {'index':'cluster_index', "cluster_index": "cluster_count"}).\
+            copy()
+        self.clone_df = self.clone_df.merge(cluster_count, how= "left", left_on = "cluster_index", right_on = "cluster_index")
+
+    def _append_seq_counts_per_cluster(self):
+        """
+        Appends the sum of seq counts per cluster to each row of TCRrep.clone_df
+        """
+        seq_counts = self.clone_df.\
+            groupby(['cluster_index'])['count'].sum().\
+            reset_index().\
+            rename(columns = {'count':'seq_count'})
+
+        self.clone_df = self.clone_df.merge(seq_counts, how = "left", left_on = "cluster_index", right_on = "cluster_index")    
+
+    def ispublic(self, gr, var = "subject", n = 1):
+        """
+        Return True if a cluster public, defined as comprised of members from multiple individuals 
+        or cell subsets (e.g., CD4/CD8) 
+        
+        Parameters
+        ----------
+        gr : group
+            within pandas Data.Frame.groupby
+        var : str
+            variable name of class that group most transcend to be considered public
+        m : int
+            number of unique values of selected variable to be considered public
+        
+        Returns
+        -------
+        r : bool
+            True if a cluster public
+        
+        """
+        r = len(gr[var].value_counts()) > n
+        if r:
+            return 'public'
+        else:
+            return 'private'
+
+    def get_func_stat(self, gr, var, func = np.median, **kwargs):
+        """
+        get summary statistic by applying a func to a group
+        
+        Parameter
+        ---------
+        gr : group
+            within pandas Data.Frame.groupby
+        var : str
+            variable name of class that group most transcend to be considered public
+        func : function
+            function that can operate on a series or list of values specified by var
+            
+        Returns
+        -------
+        r : float or int
+        
+        """
+        r = func(gr[var], **kwargs)
+        return r
+
+    def get_cluster_summary(self, df=None, groupvar = 'cluster_index'):
+        """get_cluster_pgen_and_count_summary """
+        if df is None:
+            df = self.clone_df.copy()
+        cluster_summary = list()
+        assert groupvar in df.columns
+        assert "pgen" in df.columns
+        assert "count" in df.columns
+        for name, group in df.groupby([groupvar]):
+            public = self.ispublic(group, "subject")
+            cluster_summary.append({"cluster_index" : name, 
+                                "public"        : public,
+                                "min_pgen"      : self.get_func_stat(gr = group, var = "pgen", func = np.min),
+                                "median_pgen"   : self.get_func_stat(gr = group, var = "pgen", func = np.median),
+                                "max_pgen"      : self.get_func_stat(gr = group, var = "pgen", func = np.max), 
+                                "cluster_count"  : group.shape[0],
+                                "seq_count"     : self.get_func_stat(gr = group, var = "count", func = np.sum),
+                                "seq_min"       : self.get_func_stat(gr = group, var = "count", func = np.min),
+                                "seq_median"    : self.get_func_stat(gr = group, var = "count", func = np.median),
+                                "seq_max"       : self.get_func_stat(gr = group, var = "count", func = np.max)})
+
+        cluster_summary = pd.DataFrame(cluster_summary)
+        self.cluster_summary = cluster_summary
+        return cluster_summary
+
+    def tsne(self, X = None, n_components=2 , random_state = 310, axis_names = ["tSNE1","tSNE2"]):
+        warnings.warn("RUNNING sklearn.manifold.TSNE WHICH MAY TAKE A FEW MINUTES")
+        from sklearn.manifold import TSNE
+        if X is None:
+            X = self.paired_tcrdist        
+        X_embedded = TSNE(n_components=n_components, metric = 'precomputed', random_state = random_state).fit_transform(X)
+        tsne_df = pd.DataFrame(X_embedded, columns = axis_names )
+        assert(tsne_df.shape[0] == self.clone_df.shape[0])
+        self.clone_df = pd.concat([self.clone_df, tsne_df], axis = 1)
+    
+    def mds(self, X = None, n_components=2 , dissimilarity='precomputed', axis_names = ["MDS1","MDS2"]):
+        warnings.warn("RUNNING sklearn.manifold.MDS WHICH MAY TAKE A FEW MINUTES")
+        from sklearn.manifold import MDS
+        if X is None:
+            X = self.paired_tcrdist     
+        X_embedded_mds = MDS(n_components=n_components, dissimilarity=dissimilarity).fit_transform(X)
+        mds_df = pd.DataFrame(X_embedded_mds, columns = axis_names)
+        assert(mds_df.shape[0] == self.clone_df.shape[0])
+        self.clone_df = pd.concat([self.clone_df, mds_df], axis = 1)
 
     def _validate_organism(self):
         if self.organism not in ["human", "mouse"]:
@@ -770,31 +1168,31 @@ class TCRrep:
 
         """
         if "alpha" in self.chains:
-            self.cdr3_a_aa_smat = parasail.blosum62
-            self.cdr2_a_aa_smat = parasail.blosum62
-            self.cdr1_a_aa_smat = parasail.blosum62
-            self.pmhc_a_aa_smat = parasail.blosum62
+            self.cdr3_a_aa_smat = 'blosum62'
+            self.cdr2_a_aa_smat = 'blosum62'
+            self.cdr1_a_aa_smat = 'blosum62'
+            self.pmhc_a_aa_smat = 'blosum62'
             self.index_cols.append("cdr3_a_aa")
 
         if 'beta' in self.chains:
-            self.cdr3_b_aa_smat = parasail.blosum62
-            self.cdr2_b_aa_smat = parasail.blosum62
-            self.cdr1_b_aa_smat = parasail.blosum62
-            self.pmhc_b_aa_smat = parasail.blosum62
+            self.cdr3_b_aa_smat = 'blosum62'
+            self.cdr2_b_aa_smat = 'blosum62'
+            self.cdr1_b_aa_smat = 'blosum62'
+            self.pmhc_b_aa_smat = 'blosum62'
             self.index_cols.append("cdr3_b_aa")
 
         if 'gamma' in self.chains:
-            self.cdr3_g_aa_smat = parasail.blosum62
-            self.cdr2_g_aa_smat = parasail.blosum62
-            self.cdr1_g_aa_smat = parasail.blosum62
-            self.pmhc_g_aa_smat = parasail.blosum62
+            self.cdr3_g_aa_smat = 'blosum62'
+            self.cdr2_g_aa_smat = 'blosum62'
+            self.cdr1_g_aa_smat = 'blosum62'
+            self.pmhc_g_aa_smat = 'blosum62'
             self.index_cols.append("cdr3_g_aa")
 
         if 'delta' in self.chains:
-            self.cdr3_d_aa_smat = parasail.blosum62
-            self.cdr2_d_aa_smat = parasail.blosum62
-            self.cdr1_d_aa_smat = parasail.blosum62
-            self.pmhc_d_aa_smat = parasail.blosum62
+            self.cdr3_d_aa_smat = 'blosum62'
+            self.cdr2_d_aa_smat = 'blosum62'
+            self.cdr1_d_aa_smat = 'blosum62'
+            self.pmhc_d_aa_smat = 'blosum62'
             self.index_cols.append("cdr3_d_aa")
 
 
@@ -822,7 +1220,7 @@ class TCRrep:
             elif index_col.startswith("pmhc_a"):
                 smat = self.pmhc_a_aa_smat
             else:
-                smat = parasail.blosum62
+                smat = 'blosum62'
                 warnings.warn("Using default parasail.blosum62 because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
         if chain == "beta":
             if index_col.startswith("cdr3_b"):
@@ -834,7 +1232,7 @@ class TCRrep:
             elif index_col.startswith("pmhc_b"):
                 smat = self.pmhc_b_aa_smat
             else:
-                smat = parasail.blosum62
+                smat = 'blosum62'
                 warnings.warn("Using default parasail.blosum62 because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
         if chain == "gamma":
             if index_col.startswith("cdr3_g"):
@@ -846,7 +1244,7 @@ class TCRrep:
             elif index_col.startswith("pmhc_g"):
                 smat = self.pmhc_g_aa_smat
             else:
-                smat = parasail.blosum62
+                smat = 'blosum62'
                 warnings.warn("Using default parasail.blosum62 because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
         if chain == "delta":
             if index_col.startswith("cdr3_d"):
@@ -858,7 +1256,7 @@ class TCRrep:
             elif index_col.startswith("pmhc_d"):
                 smat = self.pmhc_d_aa_smat
             else:
-                smat = parasail.blosum62
+                smat = 'blosum62'
                 warnings.warn("Using default parasail.blosum62 because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
 
         return(smat)
@@ -959,6 +1357,9 @@ class TCRrep:
         """
 
 
+        if "gamma" in self.chains or "delta" in self.chains:
+            raise ValueError("TCRrep.chains contains `gamma`. You might want "\
+            "TCRrep._tcrdist_legacy_method_gamma_delta")
 
         self.compute_pairwise_all(chain = "alpha",                        # <11
                                  metric = 'tcrdist_cdr3',
@@ -1019,11 +1420,126 @@ class TCRrep:
         # tr.paired_tcrdist, which we confirm is simply the sum of distA and distB
         self.compute_paired_tcrdist()
         assert np.all(((distA + distB) - self.paired_tcrdist) == 0)
+        
+        self.pw_alpha = distA
+        self.pw_beta  = distB
 
         # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
         self.dist_a = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
         self.dist_b = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
-    
+    def _tcrdist_legacy_method_alpha(self, processes = 1):
+        """
+        Runs the legacy tcrdist pairwise comparison
+
+        Arguments
+        ---------
+        processes : int
+
+
+        Notes
+        -----
+        # CALCULATE tcrdist distance metric. Here we show all the manual steps to
+        # implement the original Dash et al. tcrdist approach.
+
+        # To do this we calculate distance for each CDR separately, and
+        # we use the metric "tcrdist_cdr3" for the cdr3 and "tcrdist_cdr1"
+        # everywhere else
+        """
+
+
+        if "gamma" in self.chains or "delta" in self.chains:
+            raise ValueError("TCRrep.chains contains `gamma`. You might want "\
+            "TCRrep._tcrdist_legacy_method_gamma_delta")
+
+        self.compute_pairwise_all(chain = "alpha",                        # <11
+                                    metric = 'tcrdist_cdr3',
+                                    compute_specific_region = 'cdr3_a_aa',
+                                    processes = processes)
+        self.compute_pairwise_all(chain = "alpha",                        # 11
+                                    metric = "tcrdist_cdr1",
+                                    compute_specific_region = 'cdr1_a_aa',
+                                    processes = processes)
+        self.compute_pairwise_all(chain = "alpha",                        # 11
+                                    metric = "tcrdist_cdr1",
+                                    compute_specific_region = 'cdr2_a_aa',
+                                    processes = processes)
+        self.compute_pairwise_all(chain = "alpha",                        # 11
+                                    metric = "tcrdist_cdr1",
+                                    compute_specific_region = 'pmhc_a_aa',
+                                    processes = processes)
+
+        distA = self.compute_paired_tcrdist(replacement_weights= {'cdr3_a_aa_pw': 1,
+                                                                'cdr2_a_aa_pw': 1,
+                                                                'cdr1_a_aa_pw': 1,
+                                                                'pmhc_a_aa_pw': 1},
+                                                                chains = ["alpha"])['paired_tcrdist'].copy()
+                                                                        # Calling tr.compute_paired_tcrdist() computs the
+        # the final paired chain TCR-distance which is stored as
+        # tr.paired_tcrdist, which we confirm is simply the sum of distA and distB
+        self.compute_paired_tcrdist()
+        assert np.all((distA - self.paired_tcrdist) == 0)
+
+        # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
+        self.dist_a = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
+        self.pw_alpha = distA
+        
+    def _tcrdist_legacy_method_beta(self, processes = 1):
+        """
+        Runs the legacy tcrdist pairwise comparison
+
+        Arguments
+        ---------
+        processes : int
+
+
+        Notes
+        -----
+        # CALCULATE tcrdist distance metric. Here we show all the manual steps to
+        # implement the original Dash et al. tcrdist approach.
+
+        # To do this we calculate distance for each CDR separately, and
+        # we use the metric "tcrdist_cdr3" for the cdr3 and "tcrdist_cdr1"
+        # everywhere else
+        """
+
+
+        if "gamma" in self.chains or "delta" in self.chains:
+            raise ValueError("TCRrep.chains contains `gamma`. You might want "\
+            "TCRrep._tcrdist_legacy_method_gamma_delta")
+
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = 'tcrdist_cdr3',
+                                 #user_function = tcrdist_metric_align_cdr3s_false,
+                                 compute_specific_region = 'cdr3_b_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'cdr1_b_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'cdr2_b_aa',
+                                 processes = processes)
+        self.compute_pairwise_all(chain = "beta",                         # 12
+                                 metric = "tcrdist_cdr1",
+                                 compute_specific_region = 'pmhc_b_aa',
+                                 processes = processes)
+
+        distB = self.compute_paired_tcrdist(replacement_weights= {
+                                                                'cdr3_b_aa_pw': 1,
+                                                                'cdr2_b_aa_pw': 1,
+                                                                'cdr1_b_aa_pw': 1,
+                                                                'pmhc_b_aa_pw': 1},
+                                                                chains = ["beta"])['paired_tcrdist'].copy()
+
+        self.compute_paired_tcrdist()
+        assert np.all(((distB) - self.paired_tcrdist) == 0)
+
+        # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
+        self.dist_b = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
+        self.pw_beta = distB
+
+
     def _tcrdist_legacy_method_gamma_delta(self, processes = 1):
         """
         Runs the legacy tcrdist pairwise comparison gamma/delta
@@ -1100,7 +1616,9 @@ class TCRrep:
         # tr.paired_tcrdist, which we confirm is simply the sum of distA and distB
         self.compute_paired_tcrdist(chains = ["gamma", "delta"])
         assert np.all(((distA + distB) - self.paired_tcrdist) == 0)
-
+        
+        self.pw_gamma = distA
+        self.pw_delta = distB
         # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
         self.dist_g = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
         self.dist_d = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)    
@@ -1114,7 +1632,7 @@ class TCRrep:
         """
         self.stored_tcrdist = None
 
-    def reduce_file_size(self, attributes = None, data_type = 'int16'):
+    def reduce_file_size(self, attributes = None, data_type = 'int16', verbose = True):
         """
         Parameters
         ----------
@@ -1155,7 +1673,7 @@ class TCRrep:
         # However, only np.arrays will be transformed to the new data type
         for k in attributes:
             if isinstance(getattr(self,k), np.ndarray):
-                print("REDUCING {} to {}.".format(k, data_type))
+                if verbose: sys.stdout.write("\tReducing : {} to {}.\n".format(k, data_type))
                 self._reduce_file_size_of_np_attribute(k, data_type)
 
 
@@ -1227,6 +1745,7 @@ class TCRrep:
         # Currently these are the only acceptable attributes that can be
         # read from the HDF5
         attr_to_type = {
+        'db_file' : str,
         'cell_df': pd.core.frame.DataFrame,
         'chains': list,
         'organism': str,
@@ -1264,7 +1783,7 @@ class TCRrep:
                 except KeyError:
                     print("YOU TRIED TO SET {} BUT IT IS NOT A RECOGNIZED ATTRRIBUTE OF TCRrep".format(attr))
                     continue
-                if not attr in store:
+                if not attr in store and not attr in metadata:
                     setattr(self, attr, None)
                     continue
 
@@ -1281,6 +1800,7 @@ class TCRrep:
                         setattr(self, attr, store[attr].values)
                 elif attr_to_type[attr] in [int, str, list, bool, dict]:
                     setattr(self, attr, metadata[attr])
+                
 
 def load_hdf5(filename):
     """
@@ -1338,27 +1858,75 @@ def _deduplicate(cell_df, index_cols):
     clones = cell_df.groupby(index_cols)['count'].agg(np.sum).reset_index()
     return clones
 
-def _compute_pairwise(sequences, metric = "nw", processes = 2, user_function = None, **kwargs):
-    """
-    Wrapper for pairwise.apply_pw_distance_metric_w_multiprocessing()
+def _compute_pairwise(sequences, metric='nw', processes=2, user_function=None, **kwargs):
+    """Wrapper for pairwise.apply_pw_distance_metric_w_multiprocessing()
 
     Parameters
     ----------
     sequences : list
-
     metric : string
-
     processes : int
-
     user_function : function
+    **kwargs : keyword arguments passed to metric function
 
     Returns
     -------
-
     pw_full_np : np.ndarray
-        matrix of pairwise comparisons
+        matrix of pairwise comparisons"""
+    # processes = 1
+    
+    if metric == 'nw':
+        metric_func = pwseqdist.metrics.nw_metric
+    elif metric == 'hamming':
+        metric_func = pwseqdist.metrics.nw_hamming_metric
+    elif metric == 'tcrdist_cdr3':
+        metric_func = pairwise.tcrdist_cdr3_metric
+    elif metric in ['tcrdist_cdr1', 'tcrdist_cdr2', 'tcrdist_cdr2.5', 'tcrdist_pmhc']:
+        metric_func = pairwise.tcrdist_cdr1_metric
+    elif metric == 'hamming_aligned':
+        metric_func = pwseqdist.metrics.hamming_distance
+    elif not user_function is None:
+        metric_func = user_function
+    else:
+        msg = 'repertoire._compute_pairwise: metric %s is not supported'
+        raise ValueError(msg % metric)
+    
+    if metric in ['nw', 'hamming']:
+        if not 'matrix' in kwargs:
+            kwargs['matrix'] = 'blosum62'
 
+    dvec = pwseqdist.apply_pairwise_sq(sequences.values, metric_func,
+                                  ncpus=processes, **kwargs)
+    """This may not be neccessary in all use cases of the distances.
+    Consider returning the vector form."""
+    pw_full_np = scipy.spatial.distance.squareform(dvec)
     """
+    pw = pairwise.apply_pw_distance_metric_w_multiprocessing(
+                    sequences = sequences, #! BUG FIX (sequences changed to unique_seqs)
+                    metric = metric,
+                    user_function = user_function,
+                    processes= 1,
+                    **kwargs)
+    pw = pairwise._pack_matrix(pw)
+    if not np.all(pw_full_np == pw):
+        print('dvec', dvec)
+        print(pw_full_np)
+        print(pw)
+        print(pw_full_np == pw)
+        print('pwsd_outer', pw_full_np[1, 2])
+        print('tcrdist_outer', pw[1, 2])
+        print(sequences)
+        print(sequences[1])
+        print(sequences[2])
+        print(kwargs['matrix'].name)
+        print(metric)
+    # pw_df = pd.DataFrame(pw, index=sequences, columns=sequences)
+
+    #print(sequences.shape)
+    #print(dvec.shape)
+    #print(pw_full_np.shape)
+    #print(dvec)
+    
     unique_seqs = pd.Series(sequences).unique()
 
     pw = pairwise.apply_pw_distance_metric_w_multiprocessing(
@@ -1371,9 +1939,9 @@ def _compute_pairwise(sequences, metric = "nw", processes = 2, user_function = N
     pw = pairwise._pack_matrix(pw)
     pw_df = pd.DataFrame(pw, index = unique_seqs, columns = unique_seqs)
     pw_full = pw_df.loc[sequences, sequences]
-    pw_full_np = pw_full.values
-    return(pw_full_np)
-
+    pw_full_np = pw_full.values"""
+    return pw_full_np
+    
 def _map_clone_df_to_TCRMotif_clone_df(df):
     """
     TODO: TEST REPLACEMENT WITH MUCH SIMPLER GENERIC
