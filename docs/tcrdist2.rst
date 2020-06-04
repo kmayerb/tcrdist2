@@ -6,9 +6,8 @@ tcrdist2
    :caption: Contents:
 
 
-This page introduces some quick ways to get started with tcrdist2. You can calculate 
-tcrdistances with only a few lines of code. For some test epitope specifice, paired-chain T cell recptor data, 
-download `dash.csv <https://github.com/kmayerb/tcrdist2/raw/API2/tcrdist/datasets/dash.csv>`_. 
+This page introduces two quick ways to get started with tcrdist2. You can calculate 
+tcr-distances using the wrapper function :py:meth:`tcrdist.repertoire.TCRrep.tcrdist2` with only a few lines of code. This example uses epitope-specific, paired-chain T cell receptor data from Dash et al. 2017. Download `dash.csv <https://github.com/kmayerb/tcrdist2/raw/API2/tcrdist/datasets/dash.csv>`_. 
 
 tcrdist2 Distance
 -----------------
@@ -68,7 +67,7 @@ tcrdist2 Basic Options
 * **dest_tar_name** - Name of archive for saving results as a .tar.gz
 * **verbose** - If True, provide information to sys.stdout on each step.
 
-.. code-block::
+.. code-block:: none
 
     Deduplicating your TCRrep.cell_df to make TCRrep.clone_df.
     Computing pairwise matrices for multiple Complementarity Determining Regions (CDRs):.
