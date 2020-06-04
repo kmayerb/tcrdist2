@@ -44,7 +44,7 @@ def install_nextgen_data_to_db_ab(download_file = "new_nextgen_chains_mouse_A.ts
     return(curl_url_cmd)
 
 
-def install_nextgen_data_to_db_gb(download_file = "new_nextgen_chains_mouse_A.tsv", download_from = "dropbox"):
+def install_nextgen_data_to_db_gd(download_file = "new_nextgen_chains_mouse_A.tsv", download_from = "dropbox"):
     """
 
     Function installs next-gen files GAMMA DELTA 
