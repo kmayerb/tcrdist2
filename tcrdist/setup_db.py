@@ -95,6 +95,6 @@ def install_all_next_gen():
                 "new_nextgen_chains_human_B.tsv" ]:
         install_nextgen_data_to_db_ab(fn)
     
-    for fn in ["new_nextgen_chains_mouse_A.tsv",
-                "new_nextgen_chains_mouse_B.tsv"]:
+    for fn in ["new_nextgen_chains_human_A.tsv",
+               "new_nextgen_chains_human_B.tsv"]:
         install_nextgen_data_to_db_gd(fn)
