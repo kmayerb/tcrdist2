@@ -1418,7 +1418,7 @@ class TCRrep:
         # Calling tr.compute_paired_tcrdist() computs the
         # the final paired chain TCR-distance which is stored as
         # tr.paired_tcrdist, which we confirm is simply the sum of distA and distB
-        self.compute_paired_tcrdist()
+        self.compute_paired_tcrdist(chains = self.chains)
         assert np.all(((distA + distB) - self.paired_tcrdist) == 0)
         
         self.pw_alpha = distA
@@ -1427,6 +1427,8 @@ class TCRrep:
         # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
         self.dist_a = pd.DataFrame(distA, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
         self.dist_b = pd.DataFrame(distB, index = self.clone_df.clone_id, columns = self.clone_df.clone_id)
+    
+    
     def _tcrdist_legacy_method_alpha(self, processes = 1):
         """
         Runs the legacy tcrdist pairwise comparison
@@ -1476,7 +1478,7 @@ class TCRrep:
                                                                         # Calling tr.compute_paired_tcrdist() computs the
         # the final paired chain TCR-distance which is stored as
         # tr.paired_tcrdist, which we confirm is simply the sum of distA and distB
-        self.compute_paired_tcrdist()
+        self.compute_paired_tcrdist(chains = self.chains)
         assert np.all((distA - self.paired_tcrdist) == 0)
 
         # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames
@@ -1532,7 +1534,7 @@ class TCRrep:
                                                                 'pmhc_b_aa_pw': 1},
                                                                 chains = ["beta"])['paired_tcrdist'].copy()
 
-        self.compute_paired_tcrdist()
+        self.compute_paired_tcrdist(chains = self.chains)
         assert np.all(((distB) - self.paired_tcrdist) == 0)
 
         # tr.paired_tcrdist and distA, distB are np arrays, but we will want to work with as a pandas DataFrames

@@ -6,7 +6,7 @@ import pandas as pd
 from tcrdist.repertoire import TCRrep
 from tcrdist import mixcr
 
-time_sensitive = True
+time_sensitive = False
 @pytest.mark.skipif(time_sensitive, reason="DONT RUN THIS TIME SENSTIVE TEST")
 def test_load():
     assert os.path.isfile('tcrdist/test_files/contracting_clones_M_alpha.tsv')
