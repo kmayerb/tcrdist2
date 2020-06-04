@@ -145,6 +145,8 @@ class TCRGene:
         self.alseq    = l['aligned_protseq']
         self.cdr_columns_str = l['cdr_columns']
         self.frame    = l['frame']
+        self.rep      = l['id'] # THIS IS PROBABLY NOT ACCUTATE SEE LINE 170 of all genes
+        self.mm1_rep  = l['id'] # THIS IS PROBABLY NOT ACCURATE SEE LINES 171 of all genes
         self.nucseq_offset = self.frame - 1 ## 0, 1 or 2 (0-indexed for python)
         self.protseq = translation.get_translation( self.nucseq, self.frame )[0]
 

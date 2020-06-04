@@ -86,6 +86,57 @@ tcrdist_clone_df_to_tcrdist2_mapping = OrderedDict([ ('clone_id'  , 'clone_id' )
                                                      ('vb_gene'     , 'vb_gene'),
                                                      ('jb_gene'     , 'jb_gene')])
 
+tcrdist2_to_tcrdist_clone_df_mapping_gd_red = OrderedDict([('clone_id', 'clone_id'),
+                                                        ('subject', 'subject'),
+                                                        ('cdr3_g_aa', 'cdr3a'),
+                                                        ('cdr3_d_aa', 'cdr3b'),
+                                                        ('count', 'clone_size'),
+                                                        ('epitope', 'epitope'),
+                                                        ('j_g_gene', 'ja_rep'),
+                                                        ('j_d_gene', 'jb_rep'),
+                                                        ('v_g_gene', 'va_rep'),
+                                                        ('v_d_gene', 'vb_rep'),
+                                                        ('cdr3_g_nucseq', 'cdr3a_nucseq'),
+                                                        ('cdr3_d_nucseq', 'cdr3b_nucseq'),
+                                                        ('vg_countreps', 'va_countreps'),
+                                                        ('jg_countreps', 'ja_countreps'),
+                                                        ('vd_countreps', 'vb_countreps'),
+                                                        ('jd_countreps', 'jb_countreps'),
+                                                        ('vg_gene'     , 'va_gene'),
+                                                        ('jg_gene'     , 'ja_gene'),
+                                                        ('vd_gene'     , 'vb_gene'),
+                                                        ('jd_gene'     , 'jb_gene'),
+                                                        ('va_countreps', 'va_countreps'),
+                                                        ('ja_countreps', 'ja_countreps'),
+                                                        ('vb_countreps', 'vb_countreps'),
+                                                        ('jb_countreps', 'jb_countreps'),
+                                                        ('va_gene'     , 'va_gene'),
+                                                        ('ja_gene'     , 'ja_gene'),
+                                                        ('vb_gene'     , 'vb_gene'),
+                                                        ('jb_gene'     , 'jb_gene')])
+
+tcrdist2_to_tcrdist_clone_df_mapping_gd = OrderedDict([('clone_id', 'clone_id'),
+                                                        ('subject', 'subject'),
+                                                        ('cdr3_g_aa', 'cdr3a'),
+                                                        ('cdr3_d_aa', 'cdr3b'),
+                                                        ('count', 'clone_size'),
+                                                        ('epitope', 'epitope'),
+                                                        ('j_g_gene', 'ja_rep'),
+                                                        ('j_d_gene', 'jb_rep'),
+                                                        ('v_g_gene', 'va_rep'),
+                                                        ('v_d_gene', 'vb_rep'),
+                                                        ('cdr3_g_nucseq', 'cdr3a_nucseq'),
+                                                        ('cdr3_d_nucseq', 'cdr3b_nucseq'),
+                                                        ('va_countreps', 'va_countreps'),
+                                                        ('ja_countreps', 'ja_countreps'),
+                                                        ('vb_countreps', 'vb_countreps'),
+                                                        ('jb_countreps', 'jb_countreps'),
+                                                        ('va_gene'     , 'va_gene'),
+                                                        ('ja_gene'     , 'ja_gene'),
+                                                        ('vb_gene'     , 'vb_gene'),
+                                                        ('jb_gene'     , 'jb_gene')])
+
+
 
 tcrdist2_to_tcrdist_clone_df_mapping = OrderedDict([('clone_id', 'clone_id'),
                                                      ('subject', 'subject'),
@@ -108,6 +159,70 @@ tcrdist2_to_tcrdist_clone_df_mapping = OrderedDict([('clone_id', 'clone_id'),
                                                      ('vb_gene'     , 'vb_gene'),
                                                      ('jb_gene'     , 'jb_gene')])
 
+
+
+
+
+
+tcrdist2_to_tcrdist_clone_df_mapping_a = OrderedDict([('clone_id', 'clone_id'),
+                                                     ('subject', 'subject'),
+                                                     ('cdr3_a_aa', 'cdr3a'),
+                                                     ('count', 'clone_size'),
+                                                     ('epitope', 'epitope'),
+                                                     ('j_a_gene', 'ja_rep'),
+                                                     ('v_a_gene', 'va_rep'),
+                                                     ('cdr3_a_nucseq', 'cdr3a_nucseq'),
+                                                     ('cdr3_b_nucseq', 'cdr3b_nucseq'),
+                                                     ('va_countreps', 'va_countreps'),
+                                                     ('ja_countreps', 'ja_countreps'),
+                                                     ('va_gene'     , 'va_gene'),
+                                                     ('ja_gene'     , 'ja_gene')])
+
+
+tcrdist2_to_tcrdist_clone_df_mapping_b = OrderedDict([('clone_id', 'clone_id'),
+                                                     ('subject', 'subject'),
+                                                     ('cdr3_b_aa', 'cdr3b'),
+                                                     ('count', 'clone_size'),
+                                                     ('epitope', 'epitope'),
+                                                     ('j_b_gene', 'jb_rep'),
+                                                     ('v_b_gene', 'vb_rep'),
+                                                     ('cdr3_b_nucseq', 'cdr3b_nucseq'),
+                                                     ('vb_countreps', 'vb_countreps'),
+                                                     ('jb_countreps', 'jb_countreps'),
+                                                     ('vb_gene'     , 'vb_gene'),
+                                                     ('jb_gene'     , 'jb_gene')])
+
+
+
+# Note that original tcrdist had no concept of gamma and delta syntax g->a , d->b 
+
+
+tcrdist2_to_tcrdist_clone_df_mapping_g = OrderedDict([('clone_id', 'clone_id'),
+                                                        ('subject', 'subject'),
+                                                        ('cdr3_g_aa', 'cdr3a'),
+                                                        ('count', 'clone_size'),
+                                                        ('epitope', 'epitope'),
+                                                        ('j_g_gene', 'ja_rep'),
+                                                        ('v_g_gene', 'va_rep'),
+                                                        ('cdr3_g_nucseq', 'cdr3a_nucseq'),
+                                                        ('va_countreps', 'va_countreps'),
+                                                        ('ja_countreps', 'ja_countreps'),
+                                                        ('va_gene'     , 'va_gene'),
+                                                        ('ja_gene'     , 'ja_gene')])
+
+tcrdist2_to_tcrdist_clone_df_mapping_d = OrderedDict([('clone_id', 'clone_id'),
+                                                        ('subject', 'subject'),
+                                                        ('cdr3_d_aa', 'cdr3b'),
+                                                        ('count', 'clone_size'),
+                                                        ('epitope', 'epitope'),
+                                                        ('j_d_gene', 'jb_rep'),
+                                                        ('v_d_gene', 'vb_rep'),
+                                                        ('cdr3_d_nucseq', 'cdr3b_nucseq'),
+                                                        ('vb_countreps', 'vb_countreps'),
+                                                        ('jb_countreps', 'jb_countreps'),
+                                                        ('vb_gene'     , 'vb_gene'),
+                                                        ('jb_gene'     , 'jb_gene')])
+
 TCRrep_clone_df_to_TCRMotif_clone_df =OrderedDict([ ('subject'   , 'subject'),
                                                     ('epitope'  , 'epitope'),
                                                     ('v_a_gene' , 'va_rep'),
@@ -125,9 +240,24 @@ TCRsubset_clone_df_to_TCRMotif_clone_df  = OrderedDict([('subject', 'subject'),
                                                         ('j_b_gene', 'jb_rep'),
                                                         ('cdr3_a_aa', 'cdr3a'),
                                                         ('cdr3_b_aa', 'cdr3b')])
+"""gd_redundand stands for gamma delta redundant mapper"""
+TCRsubset_clone_df_to_TCRMotif_clone_df_gd_red  = OrderedDict([('subject', 'subject'),
+                                                                ('epitope', 'epitope'),
+                                                                ('v_a_gene', 'va_rep'),
+                                                                ('v_g_gene', 'va_rep'),
+                                                                ('j_a_gene', 'ja_rep'),
+                                                                ('j_g_gene', 'ja_rep'),
+                                                                ('v_b_gene', 'vb_rep'),
+                                                                ('v_d_gene', 'vb_rep'),
+                                                                ('j_b_gene', 'jb_rep'),
+                                                                ('j_d_gene', 'jb_rep'),
+                                                                ('cdr3_a_aa', 'cdr3a'),
+                                                                ('cdr3_g_aa', 'cdr3a'),
+                                                                ('cdr3_b_aa', 'cdr3b'),
+                                                                ('cdr3_d_aa', 'cdr3b')])
 
 
-def generic_pandas_mapper(df,mapping):
+def generic_pandas_mapper(df,mapping, allow_missing = False):
     """
     Parameters
     ----------
@@ -157,7 +287,10 @@ def generic_pandas_mapper(df,mapping):
     if not isinstance(mapping, OrderedDict):
         raise TypeError('mapping must be and OrderedDict')
     if not all([elem in df.keys() for elem in list(mapping.keys())]):
-        raise KeyError('all mapping keys must be columns of input df')
+        if allow_missing:
+            mapping = {k:v for k,v in mapping.items() if k in df.keys()}
+        else:
+            raise KeyError('all mapping keys must be columns of input df')
 
     df2 = df[mapping.keys()].rename(columns = mapping).copy()
     return(df2)
@@ -347,7 +480,7 @@ def map_genes_to_first_alleles(genes, organism):
     genes : lists
         list of gene names using IMGT Nomenclature
     organism : string
-        'human' or 'mouse'
+        'human' or 'mouse'9
 
     Returns
     -------
@@ -405,13 +538,13 @@ def populate_legacy_fields(df, chains =['alpha', 'beta']):
         df['vb_gene'] = df['v_b_gene'].copy()
         df['jb_gene'] = df['j_b_gene'].copy()
     if 'gamma' in chains:
-        df['vg_countreps'] = df['v_g_gene'].copy()
-        df['jg_countreps'] = df['j_g_gene'].copy()
-        df['vg_gene'] = df['v_g_gene'].copy()
-        df['jg_gene'] = df['j_g_gene'].copy()
+        df['va_countreps'] = df['v_g_gene'].copy()
+        df['ja_countreps'] = df['j_g_gene'].copy()
+        df['va_gene'] = df['v_g_gene'].copy()
+        df['ja_gene'] = df['j_g_gene'].copy()
     if 'delta' in chains:
-        df['vd_countreps'] = df['v_d_gene'].copy()
-        df['jd_countreps'] = df['j_d_gene'].copy()
-        df['vd_gene'] = df['v_d_gene'].copy()
-        df['jd_gene'] = df['j_d_gene'].copy()
+        df['vb_countreps'] = df['v_d_gene'].copy()
+        df['jb_countreps'] = df['j_d_gene'].copy()
+        df['vb_gene'] = df['v_d_gene'].copy()
+        df['jb_gene'] = df['j_d_gene'].copy()
     return(df)

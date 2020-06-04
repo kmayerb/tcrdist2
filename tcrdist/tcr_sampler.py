@@ -4,7 +4,9 @@ import random
 
 from . import translation
 from . import cdr3s_human #debug
-from .all_genes import all_genes, gap_character
+#from .all_genes import gap_character, all_genes
+from .all_genes import gap_character
+from .all_genes import all_genes as all_genes_default
 from .genetic_code import genetic_code, reverse_genetic_code
 from . import logo_tools
 from . import tcr_rearrangement
@@ -32,7 +34,7 @@ def count_matches(a, b, mismatch_score=-3):
             num_matches = i+1
     return num_matches
 
-def get_v_cdr3_nucseq( organism, v_gene, paranoid = False ):
+def get_v_cdr3_nucseq( organism, v_gene, paranoid = False, all_genes=all_genes_default ):
     vg = all_genes[organism][v_gene]
     ab = vg.chain
 
@@ -47,7 +49,11 @@ def get_v_cdr3_nucseq( organism, v_gene, paranoid = False ):
     #print organism, v_gene, old_v_alseq
     #print organism, v_gene, v_alseq
     assert old_v_alseq[:alseq_cpos] == v_alseq[:alseq_cpos]
-    assert old_alseq_cpos == alseq_cpos
+    
+    try:
+        assert old_alseq_cpos == alseq_cpos
+    except:
+        raise AssertionError(f"{v_gene}\n")
     numgaps = v_alseq[:alseq_cpos].count('.')
     v_cpos = alseq_cpos - numgaps
     v_nucseq = v_nucseq[3*v_cpos:] ## now v_nucseq starts with the 'C' codon
@@ -72,7 +78,7 @@ def get_v_cdr3_nucseq( organism, v_gene, paranoid = False ):
     return v_nucseq
 
 
-def get_j_cdr3_nucseq( organism, j_gene, paranoid = False ):
+def get_j_cdr3_nucseq( organism, j_gene, paranoid = False,all_genes=all_genes_default ):
     jg = all_genes[organism][j_gene]
     ab = jg.chain
 
@@ -80,9 +86,9 @@ def get_j_cdr3_nucseq( organism, j_gene, paranoid = False ):
     j_nucseq_offset = jg.nucseq_offset
 
     ## goes up to (but not including) GXG
-    old_num_genome_j_positions_in_loop = cdr3s_human.all_num_genome_j_positions_in_loop[organism][ab][j_gene] + 2
+    # old_num_genome_j_positions_in_loop = cdr3s_human.all_num_genome_j_positions_in_loop[organism][ab][j_gene] + 2
     num_genome_j_positions_in_loop = len( jg.cdrs[0].replace(gap_character, ''))
-    assert old_num_genome_j_positions_in_loop == num_genome_j_positions_in_loop
+    # assert old_num_genome_j_positions_in_loop == num_genome_j_positions_in_loop
 
     ## trim j_nucseq so that it extends up to the F/W position
     j_nucseq = j_nucseq[:3*num_genome_j_positions_in_loop + j_nucseq_offset]
@@ -138,12 +144,14 @@ def get_j_cdr3_nucseq( organism, j_gene, paranoid = False ):
 
     return j_nucseq
 
-def analyze_junction( organism, v_gene, j_gene, cdr3_protseq, cdr3_nucseq, force_d_id=0, return_cdr3_nucseq_src=False ):
+def analyze_junction( organism, v_gene, j_gene, cdr3_protseq, 
+                        cdr3_nucseq, force_d_id=0, return_cdr3_nucseq_src=False, 
+                        all_genes=all_genes_default):
     #print organism, v_gene, j_gene, cdr3_protseq, cdr3_nucseq
     assert v_gene.startswith('TR') #and v_gene[2] == j_gene[2]
     ab = all_genes[organism][v_gene].chain
-    v_nucseq = get_v_cdr3_nucseq( organism, v_gene )
-    j_nucseq = get_j_cdr3_nucseq( organism, j_gene )
+    v_nucseq = get_v_cdr3_nucseq( organism, v_gene, all_genes=all_genes)
+    j_nucseq = get_j_cdr3_nucseq( organism, j_gene, all_genes=all_genes)
     ## how far out do we match
     num_matched_v = count_matches( v_nucseq, cdr3_nucseq, default_mismatch_score_for_junction_analysis )
 
@@ -311,7 +319,8 @@ def get_coding_probability( nucseq, protseq ):
 def alpha_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protseq,
                                     cdr3_nucseq = '', error_threshold = 0.05,
                                     allow_early_nucseq_mismatches = True,
-                                    return_final_cdr3_nucseq = False ):
+                                    return_final_cdr3_nucseq = False, 
+                                    all_genes=all_genes_default, ):
     #assert organism == 'mouse' ## need new stats for human
 
     nucleotide_match = ( cdr3_nucseq != '' )
@@ -323,8 +332,8 @@ def alpha_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protse
     ab = 'A'
     assert all_genes[organism][v_gene].chain == ab
 
-    v_nucseq = get_v_cdr3_nucseq( organism, v_gene )
-    j_nucseq = get_j_cdr3_nucseq( organism, j_gene )
+    v_nucseq = get_v_cdr3_nucseq( organism, v_gene, all_genes = all_genes )
+    j_nucseq = get_j_cdr3_nucseq( organism, j_gene, all_genes = all_genes )
 
     ## what is the largest amount of these nucseqs we could preserve and still get cdr3_protseq
 
@@ -454,7 +463,8 @@ def alpha_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protse
 def beta_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protseq,
                                    cdr3_nucseq = '', error_threshold = 0.05,
                                    allow_early_nucseq_mismatches = True,
-                                   return_final_cdr3_nucseq = False ):
+                                   return_final_cdr3_nucseq = False,
+                                   all_genes = all_genes_default ):
     nucleotide_match = ( cdr3_nucseq != '' )
     if nucleotide_match:
         assert not cdr3_protseq
@@ -464,8 +474,8 @@ def beta_cdr3_protseq_probability( theid, organism, v_gene, j_gene, cdr3_protseq
     ab = 'B'
     assert all_genes[organism][v_gene].chain == ab
 
-    v_nucseq = get_v_cdr3_nucseq( organism, v_gene )
-    j_nucseq = get_j_cdr3_nucseq( organism, j_gene )
+    v_nucseq = get_v_cdr3_nucseq( organism, v_gene ,all_genes = all_genes)
+    j_nucseq = get_j_cdr3_nucseq( organism, j_gene ,all_genes = all_genes)
 
     ## what is the largest amount of these nucseqs we could preserve and still get cdr3_protseq
     max_v_germline = 0
@@ -666,15 +676,15 @@ def sample_from_random_sampling_list( l ):
 def sample_alpha_sequences( organism, nsamples, v_gene, j_gene, force_aa_length = 0,
                             in_frame_only = True, no_stop_codons = True,
                             max_tries = 100000000,
-                            include_annotation= False ):
+                            include_annotation= False, all_genes = all_genes_default):
     ab = 'A'
     #organism = 'mouse'
     bases = 'acgt'
 
     trim_probs = tcr_rearrangement.all_trim_probs[ organism ]
 
-    v_nucseq = get_v_cdr3_nucseq( organism, v_gene )
-    j_nucseq = get_j_cdr3_nucseq( organism, j_gene )
+    v_nucseq = get_v_cdr3_nucseq( organism, v_gene , all_genes = all_genes)
+    j_nucseq = get_j_cdr3_nucseq( organism, j_gene , all_genes = all_genes)
 
     v_nucseq_len = len( v_nucseq )
     j_nucseq_len = len( j_nucseq )
@@ -743,14 +753,15 @@ def sample_beta_sequences( organism, nsamples, v_gene, j_gene, force_aa_length =
                            no_stop_codons = True,
                            max_dj_insert = 10,
                            max_tries = 100000000,
-                           include_annotation = False ):
+                           include_annotation = False,
+                           all_genes = all_genes_default):
     trim_probs = tcr_rearrangement.all_trim_probs[ organism ]
 
     #organism = 'mouse'
     bases = 'acgt'
 
-    v_nucseq = get_v_cdr3_nucseq( organism, v_gene )
-    j_nucseq = get_j_cdr3_nucseq( organism, j_gene )
+    v_nucseq = get_v_cdr3_nucseq( organism, v_gene, all_genes = all_genes)
+    j_nucseq = get_j_cdr3_nucseq( organism, j_gene, all_genes = all_genes)
     v_nucseq_len = len( v_nucseq )
     j_nucseq_len = len( j_nucseq )
 
@@ -848,14 +859,15 @@ def sample_tcr_sequences( organism, nsamples, v_gene, j_gene,
                           in_frame_only = True,
                           no_stop_codons = True,
                           max_tries = 100000000,
-                          include_annotation = False ):
+                          include_annotation = False,
+                          all_genes=all_genes_default ):
     ab = all_genes[organism][v_gene].chain
     assert ab in 'AB'
     if ab == 'A':
         return sample_alpha_sequences( organism, nsamples, v_gene, j_gene, force_aa_length = force_aa_length,
                                        in_frame_only = in_frame_only, no_stop_codons = no_stop_codons,
-                                       max_tries = max_tries, include_annotation = include_annotation )
+                                       max_tries = max_tries, include_annotation = include_annotation, all_genes = all_genes )
     else:
         return sample_beta_sequences( organism, nsamples, v_gene, j_gene, force_aa_length = force_aa_length,
                                       in_frame_only = in_frame_only, no_stop_codons = no_stop_codons,
-                                      max_tries = max_tries, include_annotation = include_annotation )
+                                      max_tries = max_tries, include_annotation = include_annotation, all_genes = all_genes)

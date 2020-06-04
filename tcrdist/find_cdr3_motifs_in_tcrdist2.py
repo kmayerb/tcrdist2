@@ -3,14 +3,17 @@ import sys
 import re
 import random
 import pandas as pd
-
-from .paths import path_to_current_db_files
-from . import util
-from .all_genes import all_genes
-
-from . import tcr_sampler
 from .amino_acids import amino_acids
-from .all_genes import all_genes
+from . import tcr_sampler
+from .all_genes import all_genes as all_genes_default
+from . import all_genes_db
+
+#from .paths import path_to_current_db_files
+#from . import util
+#from .all_genes import all_genes
+
+
+#from .all_genes import all_genes
 
 def find_cdr3_motif(
             clones_file             = "/Users/kmayerbl/PycharmProjects/tcrdist2/tcrdist2to3/mouse_pairseqs_v1_parsed_seqs_probs_mq20_clones.tsv",
@@ -45,13 +48,22 @@ def find_cdr3_motif(
             end                      = '$',
             X                        = '[A-Z]',
             dot                      = '.',
-            pseudocount              = 0.0):
+            pseudocount              = 0.0,
+            db_file                  = None,
+            all_genes                = None):
     """
     find_cdr3_motif preserves the behavior of the motif finder in TCRdist v1.
 
     It is computationally expensive and may take up to 10 minutes to an hour to complete.
 
     """
+
+    #if db_file is None:
+    if all_genes is None:
+        all_genes = all_genes_default
+    if all_genes is None and db_file is not None:
+        all_genes = all_genes_db.all_genes_db(db_file =db_file)
+
 
     if constant_seed:
         random.seed(1)
@@ -79,7 +91,7 @@ def find_cdr3_motif(
 
 
     def extend_motif( oldmotif, oldshowmotif, old_chi_squared, seqs, seq_indices, random_seqs, random_seq_indices,
-                      ng_segs, ng_seq_indices, all_good_motifs, all_seen, my_max_motif_len, best_motifs ):
+                      ng_seqs, ng_seq_indices, all_good_motifs, all_seen, my_max_motif_len, best_motifs ):
         """
         Recursive function invoked by find_cdr3_motif(). It update variable lists in place.
 
@@ -152,7 +164,7 @@ def find_cdr3_motif(
 
                     if motif_len in all_seen and ''.join(showmotif) in all_seen[motif_len]:
                         if very_verbose:
-                            print('repeat',motif_len,''.join(showmotif))
+                            sys.stdout.write('repeat',motif_len,''.join(showmotif))
                         continue
 
                     if motif_len not in all_seen: all_seen[motif_len] = set()
@@ -182,14 +194,14 @@ def find_cdr3_motif(
 
             if chi_squared<best_chi_squared:
                 if very_verbose:
-                    print( 'worse motif:',chi_squared,best_chi_squared,''.join(showmotif))
+                    sys.stdout.write( 'worse motif:',chi_squared,best_chi_squared,''.join(showmotif))
                 continue
 
             best_motifs[count][new_seq_indices] = chi_squared
 
 
             if very_verbose:
-                print( 'NEW {:3d} {:5.2f} {:5.2f} {:8.1f} {:15s} {:6d} {:4s} {}'\
+                sys.stdout.write( 'NEW {:3d} {:5.2f} {:5.2f} {:8.1f} {:15s} {:6d} {:4s} {}\n'\
                     .format( count, -1*negexpected, -1*neg_ng_expected,
                              chi_squared, ''.join(showmotif), len(all_seen[motif_len]),
                              epitope, ab ))
@@ -245,11 +257,12 @@ def find_cdr3_motif(
                     force_aa_length = len(cdr3_masked)
                 else:
                     force_aa_length = 0
-
                 samples = tcr_sampler.sample_tcr_sequences( organism, nsamples+use_fake_seqs, v_gene, j_gene,
                                                             force_aa_length = force_aa_length,
                                                             in_frame_only = True, no_stop_codons = True,
-                                                            max_tries = 10000000, include_annotation = True )
+                                                            max_tries = 10000000, include_annotation = True,
+                                                            all_genes = all_genes )
+                
 
                 assert unmask ## deleted the relevant code
                 for nucseq,protseq,anno in samples:
@@ -260,11 +273,6 @@ def find_cdr3_motif(
                     ngl = ng_tcrs[ab][v_rep][j_rep]
                     for (cdr3,cdr3_nucseq) in random.sample( ngl, min(nsamples,len(ngl)) ):
                         ng_seqs.append( cdr3 )
-
-            if verbose:
-                pass
-                #Log( '{} {} nseqs {} nrand {} nnextgen {}'\
-                     #.format( epitope,ab,len(seqs),len(random_seqs),len(ng_seqs)))
 
             assert len(random_seqs) == nsamples * len(seqs)
 
@@ -280,7 +288,7 @@ def find_cdr3_motif(
 
             #print ('\n'+ab+'seq: ').join(seqs)
             if very_verbose:
-                print ( 'numseqs:',len(seqs),'numrandseqs:',len(random_seqs))
+                sys.stdout.write( 'numseqs:',len(seqs),'numrandseqs:',len(random_seqs))
 
             for a in groups:
                 if a== end: continue
@@ -310,6 +318,7 @@ def find_cdr3_motif(
                             if prog.search(seq):
                                 ng_count += 1
                         expected = float(random_count)/random_ratio
+                        #print(f"NG_RATIO {ng_ratio}")
                         ng_expected = float(ng_count)/ng_ratio
 
                         expected_for_chi_squared = max( max( min_expected, expected ), ng_expected )
@@ -319,7 +328,7 @@ def find_cdr3_motif(
 
                             if chi_squared > chi_squared_threshold_for_seeds:
                                 if very_verbose:
-                                    print( 'newseed:',''.join(showmotif),chi_squared,expected,ng_expected)
+                                    sys.stdout.write( 'newseed:',''.join(showmotif),chi_squared,expected,ng_expected)
                                     sys.stdout.flush()
                                 motif_len = 2
                                 info_tuple = ( chi_squared, motif_len, count, -1*expected, -1*ng_expected, motif, showmotif )
@@ -427,14 +436,14 @@ def find_cdr3_motif(
                 jtags = ','.join( ['{}:{}'.format(y,x) for x,y in jl ][:3] )
 
 
-                print('MOTIF\t{:4d}\t{:9.4f}\t{:9.4f}\t{:8.1f}\t{:2d}\t{:15s}\t{:4d}\t{:4d}\t{:3d}\t{:4s}\t{}\t{}\t{}\t{}'\
+                sys.stdout.write('MOTIF\t{:4d}\t{:9.4f}\t{:9.4f}\t{:8.1f}\t{:2d}\t{:15s}\t{:4d}\t{:4d}\t{:3d}\t{:4s}\t{}\t{}\t{}\t{}\n'\
                     .format( count, expected, ng_expected, chi_squared, nfixed, ''.join(showmotif), len(seen),
                              max_cover+1, int(100*max_coverage),
                              epitope, ab, len(seqs), vtags, jtags ))
 
                 sys.stdout.flush()
 
-                string_to_output = 'MOTIF\t{:4d}\t{:9.4f}\t{:9.4f}\t{:8.1f}\t{:2d}\t{:15s}\t{:4d}\t{:4d}\t{:3d}\t{:4s}\t{}\t{}\t{}\t{}'\
+                string_to_output = 'MOTIF\t{:4d}\t{:9.4f}\t{:9.4f}\t{:8.1f}\t{:2d}\t{:15s}\t{:4d}\t{:4d}\t{:3d}\t{:4s}\t{}\t{}\t{}\t{}\n'\
                     .format( count, expected, ng_expected, chi_squared, nfixed, ''.join(showmotif), len(seen),
                              max_cover+1, int(100*max_coverage),
                              epitope, ab, len(seqs), vtags, jtags)
