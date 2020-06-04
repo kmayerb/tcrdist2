@@ -3,6 +3,7 @@ import os.path as op
 import inspect
 import pandas as pd
 import numpy as np
+import warnings
 
 import tcrdist as td
 from tcrdist.repertoire import TCRrep
@@ -188,7 +189,9 @@ class test_proximity(unittest.TestCase):
         tr.infer_cdrs_from_v_gene(chain='beta')
         tr.index_cols =['subject', 'cdr3_b_aa', 'epitope']
         tr.deduplicate()
-        tr.compute_pairwise_all(chain='beta', metric='nw', proceses=1)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            tr.compute_pairwise_all(chain='beta', metric='nw', proceses=1)
 
         prox_M1 = TCRproximity(tr, 'M1', ['BMLF'], 10, chain='beta', cdrs='cdr3')
         prox_M1.plot_NN_score_distribution()

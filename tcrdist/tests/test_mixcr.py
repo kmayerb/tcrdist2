@@ -56,7 +56,9 @@ def test_mixcr_to_tcrdist_on_seqs():
                     'cdr3_d_nucseq', 'cdr3_d_aa','cdr1_d_aa', 
                     'cdr2_d_aa', 'pmhc_d_aa']
     tr.deduplicate()
-    #assert tr.clone_df.shape[1] == 10
+
+    assert tr.clone_df.shape[1] == 10
+
 
 
 def test_mixcr_integration_with_correct_chain():
