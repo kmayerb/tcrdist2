@@ -301,6 +301,11 @@ def hm_metric(s1, s2, matrix = 'blosum62', open = 3, extend = 3):
     D = len(xy_t.traceback.comp)-xy.matches
     return D
 
+def hm_matches(s1, s2, matrix = parasail.blosum62, open = 3, extend = 3):
+    xy = parasail.nw_stats(s1, s2, open=open, extend=extend, matrix=matrix)
+    xy_t = parasail.nw_trace(s1, s2, open=open, extend=extend, matrix=matrix)
+    return xy.matches
+
 def tcrdist_cdr3_metric(s1,s2, **kwargs):
     """
     Metric close to the original metric in the Dash et al. 2017

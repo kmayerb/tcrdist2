@@ -50,6 +50,7 @@ testfiles = [   ('contracting_clones_M_alpha.tsv', 'alpha'),
                 ('expanding_clones_M_beta.tsv',  'beta'),
                 ('expanding_clones_W_alpha.tsv',  'alpha'),
                 ('expanding_clones_W_beta.tsv', 'beta')]
+
 @pytest.mark.parametrize("f, my_chain", testfiles)
 @pytest.mark.skipif(time_sensitive, reason="DONT RUN THIS TIME SENSTIVE TEST")
 def test_convert_minervina_to_mixcr_run_tcrdist(f,my_chain):
@@ -231,6 +232,7 @@ def test_combine_betas_and_alphas():
             assert isinstance(tr.paired_tcrdist, np.ndarray)
         
         tcr_rep_results[my_chain] = tr
+    return tcr_rep_results
         #import pickle
         #with open("minervina_dynamic_clones.p", 'wb') as p:
         #     pickle.dump(tcr_rep_results, p)

@@ -2,7 +2,8 @@
 # from scipy.spatial import distance
 import logging
 
-from .all_genes import all_genes
+#from .all_genes import all_genes
+from .all_genes import all_genes as all_genes_default
 from . import cdr3s_human
 from . import basic
 from . import html_colors
@@ -57,7 +58,7 @@ def get_top_genes( blast_hits_string ):
     top_score = max( hits.values() )
     return { x for x, y in hits.items() if y >= top_score }
 
-def get_top_reps( blast_hits_string, organism ):
+def get_top_reps( blast_hits_string, organism, all_genes = all_genes_default ):
     hits = dict( [ ( x.split(':')[0], int( x.split(':')[1] ) ) for x in blast_hits_string.split(';') ] )
     top_score = max( hits.values() )
     # vj = hits.keys()[0][3]
@@ -69,7 +70,7 @@ def get_top_reps( blast_hits_string, organism ):
     return { all_genes[organism][x].rep for x, y in hits.items() if y >= top_score }
 
 
-def reps_from_genes( genes, organism, mm1=False, trim_allele=False ):
+def reps_from_genes( genes, organism, mm1=False, trim_allele=False, all_genes = all_genes_default ):
     ## if genes is a set we can't index into it
     # vj = [ x[3] for x in genes ][0]
 
@@ -94,7 +95,8 @@ def get_mm1_rep_ignoring_allele( gene, organism ): # helper fxn
     rep = get_mm1_rep( gene, organism )
     rep = rep[:rep.index('*')]
     return rep
-def get_allele2mm1_rep_gene_for_counting(all_genes):
+
+def get_allele2mm1_rep_gene_for_counting(all_genes = all_genes_default):
     allele2mm1_rep_gene_for_counting = {}
     for organism in ['human', 'mouse']:
         allele2mm1_rep_gene_for_counting[ organism ] = {}
@@ -154,7 +156,7 @@ def get_allele2mm1_rep_gene_for_counting(all_genes):
                     logger.debug('allele2mm1_rep_gene_for_counting: %s, %s, %s', organism, allele, count_rep)
     return allele2mm1_rep_gene_for_counting
 
-allele2mm1_rep_gene_for_counting = get_allele2mm1_rep_gene_for_counting(all_genes)
+allele2mm1_rep_gene_for_counting = get_allele2mm1_rep_gene_for_counting(all_genes = all_genes_default)
 
 def get_mm1_rep_gene_for_counting( allele, organism ):
     return allele2mm1_rep_gene_for_counting[ organism ][ allele ]
@@ -175,21 +177,30 @@ def assign_label_reps_and_colors_based_on_most_common_genes_in_repertoire( tcr_i
 
         counts = {}
         for tcr_info in tcr_infos:
-            reps = tcr_info[countreps_tag].split(';')
-            for rep in reps:
-                counts[rep] = counts.get(rep, 0)+1
+            try:
+                reps = tcr_info[countreps_tag].split(';')
+                for rep in reps:
+                    counts[rep] = counts.get(rep, 0)+1
+            except KeyError:
+                pass # KMB added 5/13/2020 - this to try to permit beta only analysis
 
         newcounts = {}
         for tcr_info in tcr_infos:
-            reps = tcr_info[countreps_tag].split(';')
-            toprep = max( [ ( counts[x], x) for x in reps ] )[1]
-            tcr_info[rep_tag] = toprep ## doesnt have allele info anymore
-            newcounts[toprep] = newcounts.get(toprep, 0)+1
+            try:
+                reps = tcr_info[countreps_tag].split(';')
+                toprep = max( [ ( counts[x], x) for x in reps ] )[1]
+                tcr_info[rep_tag] = toprep ## doesnt have allele info anymore
+                newcounts[toprep] = newcounts.get(toprep, 0)+1
+            except KeyError:
+                pass # KMB added 5/13/2020 - this to try to permit beta only analysis
 
         l = sorted([(y, x) for x, y in newcounts.items()])
         l.reverse()
         rep_colors = dict( list(zip( [x[1] for x in l], html_colors.get_rank_colors_no_lights(len(l)) )) )
         for tcr_info in tcr_infos:
-            tcr_info[ color_tag ] = rep_colors[ tcr_info[ rep_tag ] ]
+            try:
+                tcr_info[ color_tag ] = rep_colors[ tcr_info[ rep_tag ] ]
+            except KeyError:
+                pass # KMB added 5/13/2020 - this to try to permit beta only analysis
 
     return ## we modified the elements of the tcr_infos list in place

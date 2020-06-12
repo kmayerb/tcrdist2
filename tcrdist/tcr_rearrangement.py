@@ -5,7 +5,7 @@ from operator import add
 import logging
 from glob import glob
 
-from .all_genes import all_genes
+from .all_genes import all_genes as all_genes_default
 from .paths import path_to_current_db_files
 from functools import reduce
 
@@ -18,7 +18,7 @@ __all__ = ['get_alpha_trim_probs',
            'all_countrep_pseudoprobs',
            'all_trbd_nucseq']
 
-def _process_probs_from_files():
+def _process_probs_from_files(all_genes = all_genes_default):
     all_trim_probs = {}
     all_countrep_pseudoprobs = {} ## pseudoprobs because they do not sum to 1.0, due to ambiguity of gene assignments
     all_trbd_nucseq = {}

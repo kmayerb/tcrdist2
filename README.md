@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.com/kmayerb/tcrdist2.svg?branch=API2)](https://travis-ci.com/kmayerb/tcrdist2)
 [![Build Docs Status](https://readthedocs.org/projects/tcrdist2/badge/?version=latest)](https://tcrdist2.readthedocs.io/en/latest/)
+[![Coverage Status](https://coveralls.io/repos/github/kmayerb/tcrdist2/badge.svg?branch=API2)](https://coveralls.io/github/kmayerb/tcrdist2?branch=API2)
 
 # tcrdist2
 

@@ -1,16 +1,19 @@
 language: python
 python:
-  #- "2.7.14"
   - "3.6"
   - "3.7"
 # command to install dependencies
 install:
-  #- if [[ $TRAVIS_PYTHON_VERSION == '2.7.14' ]]; then travis_retry pip install -r requirements.txt; fi
   - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then travis_retry pip install -r requirements36.txt; fi
   - if [[ $TRAVIS_PYTHON_VERSION == '3.7' ]]; then travis_retry pip install -r requirements37.txt; fi
+  - pip install pytest-cov
+  - pip install coveralls
+
 # command to run tests
 script:
   - python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'ncbi_linux');"
   - python -c "import tcrdist as td; td.setup_db.install_all_next_gen()"
   - python -c "import tcrdist as td; td.install_test_files.install_test_files()"
-  - pytest
+  - pytest --cov=tcrdist/
+after_success:
+  - coveralls

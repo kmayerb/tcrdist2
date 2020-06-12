@@ -27,7 +27,9 @@ def install_test_files():
 
 def install_dropbox_file(filename,
                          download_link,
-                         install_dir = "test_files"):#
+                         install_dir = "test_files",
+                         overwrite = False,
+                         verbose = True):#
     """
     Function installs from a download link using curl
 
@@ -55,8 +57,16 @@ def install_dropbox_file(filename,
 
     def generate_curl(fn, link):
         return('curl -o {} {} -L'.format(fn, link))
-
+    
     curl_url_cmd = generate_curl(install_path, download_link)
-    print("RUNNING: {}\n".format(curl_url_cmd) )
-    os.system(curl_url_cmd)
-    return(curl_url_cmd)
+    
+    if not os.path.isfile(install_path) or overwrite:
+        if verbose : 
+            sys.stdout.write("RUNNING: {}\n".format(curl_url_cmd) )
+        os.system(curl_url_cmd)
+    else:
+        if verbose:
+            sys.stdout.write("FILE EXISTS: {}\n".format( install_path ) )
+            sys.stdout.write("TO OVERWITE SET: overwrite = True\n")
+
+    return True

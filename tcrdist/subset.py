@@ -1,13 +1,16 @@
 # base python imports
 import re
+import os
 import random
-
+import sys 
 # python env imports
 import numpy as np
 import pandas as pd
+import warnings
 
 # tcrdist2 imports
-from .all_genes import all_genes
+from .all_genes import all_genes as all_genes_default
+from . import all_genes_db
 from . import amino_acids
 from . import basic
 from . import logo_tools
@@ -24,12 +27,65 @@ from .storage import StoreIOMotif
 from .storage import StoreIOEntropy
 from .cdr3_motif import TCRMotif
 
+
 #from tcrdist import parse_tsv
 
 class TCRsubset():
     """
     A class dedictated to repertoire subset analysis,
     particularly relative entropy motifs
+    
+    Methods
+    -------
+    find_motif : function
+        wrapper function that intializes a TCRMotif instance.
+        TCRsubet.subset, TCRsubet.organism, TCRsubet.chains, and TCRsubet.epitopes.
+        Runs TCRMotif.find_cdr3_motifs.
+
+    eval_motif : function
+
+    analyze_matches : function
+
+    Attributes
+    ----------
+    clone_df : pd.DataFrame
+    organism : str
+        'mouse' or 'human'
+    epitopes : list
+        list of unique epitopes. Use ['X'] if unknown or multiple.
+    epitope : string 
+        use 'X'
+    chains : list 
+        list comprised of 1 or 2 of the following: ['alpha', 'beta', 'gamma', 'delta', 'A', 'B', 'D', 'G', 'a', 'b', 'd', 'g']
+    nbr_dist : float
+        defaults to 100.0, used for finding neighboring clones 
+    dist_a : pd.DataFrame
+        distances between alpha chains clones (can be used for gamma as well)
+    dist_b   = None,
+        distances between beta chains clones (can be used for delta as well)
+    dist_g   = None,
+        distances between gamma chains clones; gets coerces to dist_a
+    dist_d   = None,
+        distances between delta chains clones; gets coerces to dist_a
+    max_ng_lines : int
+        maximum number of nextgen sequences to consider
+    default_mode : bool
+        if True, automatic lookups of background set based on chain supplied
+        set to False, for custom background sets.
+
+    Notes 
+    -----
+    This class access lots of legacy code where 
+    all chains are refered to as 'A' or 'B'. So 
+    we need to patch in gamma/delta information. 
+
+    There is TCRsubset.default_mode boolean argument. 
+    This will eventually be removed, but it preserves the expected behavior
+    where next-gen sequence are automatically loaded for use as background 
+    using the path.py module. 
+
+    There is a attribute TCRsubset.gamma_delta_mode, triggered by chains argument.
+    If it become true, different behaivor is triggered in method via the gdmode toggle.
 
     """
     def __init__(self,
@@ -42,64 +98,201 @@ class TCRsubset():
                  dist_a   = None,
                  dist_b   = None,
                  dist_g   = None,
-                 dist_d   = None):
+                 dist_d   = None,
+                 max_ng_lines = 5000000,
+                 default_mode = True):
+        
+        self.default_mode = default_mode 
 
-        # init param attributes
+        # TCRsubest first must detect whether we are doing alpha/beta or gamma/delta
+        if np.any([x in chains for x in ["d","D","delta","g","G", "gamma"]]):
+            self.gamma_delta_mode = True
+            self.db_file = "gammadelta_db.tsv"
+            # if user supplied dist_g, set it to self.dist_a
+            if dist_g is not None:
+                self.dist_a = dist_g
+            else:
+                self.dist_a = dist_a
+            # if user supplied dist_d, set it to self.dist_b
+            if dist_d is not None:
+                self.dist_b = dist_d
+            else:
+                self.dist_b = dist_b 
+        else:
+            # Alpha/Beta Case
+            self.gamma_delta_mode = False
+            self.db_file = "alphabeta_db.tsv"
+            self.dist_b = dist_b
+            self.dist_a = dist_a
+
+        self.all_genes = all_genes_db.all_genes_db(self.db_file)
+
+        chain_recognition = \
+        {"alpha":"A", "beta":"B", "gamma":"A", "delta":"B", 
+        "A":"A","B":"B","D":"B","G":"A",
+        "a":"A","b":"B","d":"B","g":"A"} 
+        # shared class resources for validation
+        self.chain_to_dist = {"A": "dist_a",
+                              "B": "dist_b",
+                              "G": "dist_a",
+                              "D" :"dist_b"}
+  
+        
+        # Initialize attributes from initial arguments
         self.epitopes = epitopes
         self.epitope  = epitope
         self.clone_df = clone_df
         self.organism = organism
         self.chains   = chains
-        self.dist_a   = dist_a
-        self.dist_b   = dist_b
-        self.dist_g   = dist_g
-        self.dist_d   = dist_d
-        self.nbr_dist = nbr_dist # !!!!!
+        self.max_ng_lines = max_ng_lines 
 
+        # From this point all chain choices are converted to
+        # all choices are converted to capital 'A' or 'B' 
+        # User's chain argument is converted
+        self.chains   = [chain_recognition[x] for x in chains]     
+
+        # KMB 2020-05-13: This is an unfortunate hack, but if only beta chain is provided, make a copy for the dist_a       
+        if self.chains == ['B'] and self.dist_a is None:
+            self.dist_a   = self.dist_b.copy()
+            self._add_dummy_columns(missing_chain = 'A', gdmode = self.gamma_delta_mode )
+        elif self.chains == ['A'] and self.dist_b is None:
+            self.dist_b = dist_a.copy()
+            self._add_dummy_columns(missing_chain = 'B', gdmode = self.gamma_delta_mode)
+        else:
+            self.dist_a = dist_a
+            self.dist_b = dist_b
+       
+        self.nbr_dist = nbr_dist 
         # apply defaults, when None are supplied at initiation
         if self.nbr_dist is None:
             self.nbr_dist = 100.0
 
         # placeholders for internally generated attributes
-        self.all_tcrs      = None
-        self.ng_tcrs       = None
+        self.all_tcrs = None
+        self.ng_tcrs = None
         self.all_rep2label_rep = None
         self.all_rep2label_rep_color = None
         self.motif_df = None
 
         # Epitope Specific
-        self.tcrs          = None
+        self.tcrs = None
         self.rep2label_rep = None
         self.rep2label_rep_color = None
-        self.motifs        = None
+        self.motifs = None
 
         # Motif Specific
         self.all_neighbors = None
-        self.vl     = None
-        self.jl     = None
+        self.vl = None
+        self.jl = None
         self.vl_nbr = None
         self.jl_nbr = None
-
-
-        # shared class resources for validation
-        self.chain_to_dist = {"A": "dist_a",
-                              "B": "dist_b",
-                              "G": "dist_g",
-                              "D" :"dist_d"}
-
+        
         # Validation
         self._validate_chains()
         self._validate_organism()
 
         # Generation
-        self._generate_tcrs(self.epitope)
+        self._generate_tcrs(self.epitope, gdmode = self.gamma_delta_mode)
         self._generate_all_neighbors()
-        self._generate_ng_tcrs()
+        
+        # 2020-05-20 MAJOR CHANGE
+        # self._generate_ng_tcrs() - replaced w/ the following:
+        if self.default_mode is True:
+            # Default Behavior - use of the paths.py file to automatically lookup the background set.
+            # This is rigid and requires the user to have installed the packages correctly. I suggests we
+            # depreciate this method as soon a possible.
+            ng_tcrs = dict()
+            for chain in self.chains: 
+                next_gen_ref = self.generate_background_set(chain = chain,
+                                    ng_log_path = paths.path_to_current_db_files(db_file = self.db_file),
+                                    ng_log_file = 'new_nextgen_chains_{}_{}.tsv'.format(self.organism, chain) )
+                ng_tcrs[chain] = next_gen_ref
+            self.ng_tcrs = ng_tcrs
+        else:
+            self.ng_tcrs = dict()
 
+        if self.default_mode is False:
+            # DESCRIBE WHAT TO DO IN THE EVENT THAT default_mode is set to FALSE
+            warnings.warn("\nTCRSubset(default_mode = False) WAS INTITIALIZED IN NON-DEFAULT MODE\n"\
+            "THIS IS ALLOWS THE USER TO PROVIDE THEIR OWN NEXT-GENERATION SEQUENCES AS A BACKGROUND SET\n"\
+            "THESE FILES MUCH MATCH FORMAT (SEE: tcrdist/db/alphabeta_db.tsv_files/new_nextgen_chains_human_A.tsv)\n"\
+            "v_reps          j_reps          cdr3            cdr3_nucseq\n"\
+            "TRAV1-2*01      TRAJ33*01       CAVRDSNYQLIW    tgtgctgtgagggatagcaactatcagttaatctgg\n"\
+            "TRAV2*01        TRAJ9*01        CAVEDLDTGGFKTIF tgtgctgtggaggatctggatactggaggcttcaaaactatcttt\n"\
+            "TRAV1-2*01      TRAJ33*01       CAASDSNYQLIW    tgtgctgcgtcggatagcaactatcagttaatctgg\n"\
+            "ts = TCRsubset(default_mode = False)"\
+            "ts.ng_tcrs = dict()\n"\
+            "ts.ng_tcrs['B'] = ts.generate_background_set(chain = ['B'], ng_log_path = YOUR_PATH, ng_log_file = YOUR_NEXTGEN_FILE)\n"\
+            "ts.ng_tcrs['A'] = ts.generate_background_set(chain = ['A'], ng_log_path = YOUR_PATH, ng_log_file = YOUR_NEXTGEN_FILE)\n"\
+            "FOR EXAMPLE:\n"\
+            "ts.ng_tcrs['B'] = ts.generate_background_set(chain = ['B'],"\
+            "ng_log_path = 'tcrdist/db/gammadelta_db.tsv_files',"\
+            "ng_log_file = 'new_nextgen_chains_human_B.tsv')\n" \
+            "ts.ng_tcrs['A'] = ts.generate_background_set(chain = ['A'],"\
+            "ng_log_path = 'tcrdist/db/gammadelta_db.tsv_files',"\
+            "ng_log_file = 'new_nextgen_chains_human_A.tsv')\n" )
+        
         # Validation
-        self._validate_all_dists_and_tcrs_match()
+        #self._validate_all_dists_and_tcrs_match() # need to confirm that this is doing somethings
+    
+    def _add_dummy_columns(self, missing_chain = 'A', gdmode = False):
+        """
+        It was to difficult to refactor code completely for single chain so we instead just make 
+        dummy values for the missing chain.
+        
+        Parameters
+        ----------
+        missing_chain : str
+            'A' or 'B' 
+        gdmode : bool
+            if True, G and D genes are used to populate dummy columns of the clone_df
+        """
+ 
+        if gdmode == True:
+             # GAMMA/DELTA DUMMIES (TODO: betterPUT IN MORE REP a and nucseq representative)
+            if missing_chain == 'A': # in gdmode gammma --> A 
+                self.clone_df = self.clone_df.assign(va_gene = "TRGV1*01") # gene is is both human and mouse
+                self.clone_df = self.clone_df.assign(ja_gene = "TRGJ1*01") # gene is is both human and mouse
+                self.clone_df = self.clone_df.assign(va_countreps="TRGV1*01")
+                self.clone_df = self.clone_df.assign(ja_countreps="TRGJ1*01")
+                self.clone_df = self.clone_df.assign(v_g_gene="TRGV1*01")
+                self.clone_df = self.clone_df.assign(j_g_gene="TRGJ1*01")
+                self.clone_df = self.clone_df.assign(cdr3_g_aa="CATWAKNYYKKLF")
+                self.clone_df = self.clone_df.assign(cdr3_g_nucseq="TGTGCCACCTGGGCTAAGAATTATTATAAGAAACTCTTT")
+            elif missing_chain == 'B': # in gdmode delta --> B 
+                self.clone_df = self.clone_df.assign(vb_gene = "TRDV1*01") # gene is is both human and mouse
+                self.clone_df = self.clone_df.assign(jb_gene = "TRDJ1*01") # gene is is both human and mouse
+                self.clone_df = self.clone_df.assign(vb_countreps = "TRDV1*01")
+                self.clone_df = self.clone_df.assign(jb_countreps =  "TRDJ1*01")
+                self.clone_df = self.clone_df.assign(v_d_gene="TRDV1*01")
+                self.clone_df = self.clone_df.assign(j_d_gene="TRDJ1*01")
+                self.clone_df = self.clone_df.assign(cdr3_d_aa="CASSEGEAPLF")
+                self.clone_df = self.clone_df.assign(cdr3_d_nucseq="tgtgctagctccgagggggaggctccgcttttt")
+        # ALPHA/BETA DUMMIES
+        else:
+            if missing_chain == 'A':
+                self.clone_df = self.clone_df.assign(va_gene = "TRAV10*01") # gene is is both human and mouse
+                self.clone_df = self.clone_df.assign(ja_gene = "TRAJ11*01") # gene is is both human and mouse
+                self.clone_df = self.clone_df.assign(va_countreps="TRAV10*01")
+                self.clone_df = self.clone_df.assign(ja_countreps="TRAJ11*01")
+                self.clone_df = self.clone_df.assign(v_a_gene="TRAV10*01")
+                self.clone_df = self.clone_df.assign(j_a_gene="TRAJ11*01")
+                self.clone_df = self.clone_df.assign(cdr3_a_aa="CALGSGGNYKPTF")
+                self.clone_df = self.clone_df.assign(cdr3_a_nucseq="tgtgctctgggttcaggaggaaactacaaacctacgttt")
+            elif missing_chain == 'B':
+                self.clone_df = self.clone_df.assign(vb_gene = "TRBV1*01") # gene is is both human and mouse
+                self.clone_df = self.clone_df.assign(jb_gene = "TRBJ1-1*01") # gene is is both human and mouse
+                self.clone_df = self.clone_df.assign(vb_countreps = "TRBV1*01")
+                self.clone_df = self.clone_df.assign(jb_countreps =  "TRBJ1-1*01")
+                self.clone_df = self.clone_df.assign(v_b_gene="TRBV1*01")
+                self.clone_df = self.clone_df.assign(j_b_gene="TRBJ1-1*01")
+                self.clone_df = self.clone_df.assign(cdr3_b_aa="CASSEGEAPLF")
+                self.clone_df = self.clone_df.assign(cdr3_b_nucseq="tgtgctagctccgagggggaggctccgcttttt")
+            else:
+                raise ValueError("'missing_chain' arg must be 'A','B'")    
+    
 
-    def tcr_motif_clones_df(self):
+    def tcr_motif_clones_df(self, gdmode = False):
         """
         Use this function to create a clones_df input appropriate to TCRMotif.
 
@@ -109,27 +302,57 @@ class TCRsubset():
         -------
         TCRMotif(clones_df = TCRSubset.tcr_motif_clones_df())
         """
-        return mappers.generic_pandas_mapper(self.clone_df,
-                                             mappers.TCRsubset_clone_df_to_TCRMotif_clone_df)
+        if gdmode == True:
+            return mappers.generic_pandas_mapper(self.clone_df,
+                                             mappers.TCRsubset_clone_df_to_TCRMotif_clone_df_gd_red, allow_missing = True)
+        else:
+            return mappers.generic_pandas_mapper(self.clone_df,
+                                             mappers.TCRsubset_clone_df_to_TCRMotif_clone_df, allow_missing = True)
+   
+
 
     def find_motif(self):
         """
         Create a TCRMotif_instance using subset organism, chains, and epitopes.
-        runs TCRMotif.find_motif. Warning this can take 5-10 minutes per chain.
+        runs TCRMotif.find_cdr3_motifs. Warning this can take 5-10 minutes per chain.
 
         Returns
         -------
         motif_df : DataFrame
         """
-        TCRMotif_instance = TCRMotif( self.tcr_motif_clones_df(),
-                                      organism = self.organism,
-                                      chains = self.chains,
-                                      epitopes = self.epitopes)
-        print("SEARCHING FOR MOTIFS, THIS CAN TAKE 5-10 minutes")
-        TCRMotif_instance.find_cdr3_motifs()
-        motif_df = TCRMotif_instance.motif_df.copy()
-        self.motif_df = motif_df
-        return motif_df
+        if self.default_mode:
+            TCRMotif_instance = TCRMotif( clones_df = self.tcr_motif_clones_df(gdmode = self.gamma_delta_mode),
+                                        organism = self.organism,
+                                        chains = self.chains,
+                                        epitopes = self.epitopes,
+                                        db_file = self.db_file, default_mode = True)#"gammadelta_db.tsv")
+                
+            #print(TCRMotif_instance.clones_df)
+            warnings.warn("SEARCHING FOR MOTIFS, THIS CAN TAKE 5-10 minutes")
+            TCRMotif_instance.find_cdr3_motifs()
+            motif_df = TCRMotif_instance.motif_df.copy()
+            self.motif_df = motif_df
+            return motif_df
+        
+        else:
+            TCRMotif_instance = TCRMotif( clones_df = self.tcr_motif_clones_df(gdmode = self.gamma_delta_mode),
+                            organism = self.organism,
+                            chains = self.chains,
+                            epitopes = self.epitopes,
+                            db_file = self.db_file, 
+                            default_mode = False)
+            warnings.warn("PASSING TCRsubset.ng_tcrs to TCRMotif.ng_tcrs")         
+            TCRMotif_instance.ng_tcrs = self.ng_tcrs
+            for chain in self.chains:
+                ks = ",".join(list(self.ng_tcrs[chain].keys()))
+                warnings.warn(f'\nLoading CUSTOM Next-Gen Background chain {chain} Examples with .ng_tcrs: {ks}\n\n')
+            warnings.warn("SEARCHING FOR MOTIFS, THIS CAN TAKE 5-10 minutes")
+            TCRMotif_instance.find_cdr3_motifs()
+            motif_df = TCRMotif_instance.motif_df.copy()
+            self.motif_df = motif_df
+            return motif_df
+                    
+
 
     def loop_through_motifs(self):
         """
@@ -377,7 +600,7 @@ class TCRsubset():
         return(s)
 
 
-    def _generate_all_tcrs(self):
+    def _generate_all_tcrs(self, gdmode = False):
         """
         generates self.all_tcrs attribute
 
@@ -389,22 +612,46 @@ class TCRsubset():
         rmf._generate_tcrs_dict_from_clones_dataframe()
 
         """
+        if gdmode == True:
+            clone_df = mappers.generic_pandas_mapper(self.clone_df, mappers.tcrdist2_to_tcrdist_clone_df_mapping_gd, allow_missing=True)
+        else:
+            clone_df = mappers.generic_pandas_mapper(self.clone_df, mappers.tcrdist2_to_tcrdist_clone_df_mapping, allow_missing=True)
+
+
         # implement backwards mapping to names recognized by tcrdist motif routine
-        clone_df = mappers.generic_pandas_mapper(self.clone_df, mappers.tcrdist2_to_tcrdist_clone_df_mapping)
+        
+
+        # if "A" in self.chains and "B" in self.chains:
+        #     clone_df = mappers.generic_pandas_mapper(self.clone_df, mappers.tcrdist2_to_tcrdist_clone_df_mapping)
+
+        # if "A" in self.chains and "B" not in self.chains:
+        #     clone_df = mappers.generic_pandas_mapper(self.clone_df, mappers.tcrdist2_to_tcrdist_clone_df_mapping_a)
+        
+        # if "B" in self.chains and "A" not in self.chains:
+        #     clone_df = mappers.generic_pandas_mapper(self.clone_df, mappers.tcrdist2_to_tcrdist_clone_df_mapping_b)
+
+        # if "G" in self.chains and "D" in self.chains:
+        #     clone_df = mappers.generic_pandas_mapper(self.clone_df, mappers.tcrdist2_to_tcrdist_clone_df_mapping_gd)
+
+        # if "G" in self.chains and "D" not in self.chains:
+        #     clone_df = mappers.generic_pandas_mapper(self.clone_df, mappers.tcrdist2_to_tcrdist_clone_df_mapping_g)
+        # if "D" in self.chains and "G" not in self.chains:
+        #     clone_df = mappers.generic_pandas_mapper(self.clone_df, mappers.tcrdist2_to_tcrdist_clone_df_mapping_d)
 
         # *_ dumps the 2nd and 3rd parts of the tuple,
         all_tcrs, all_rep2label_rep, all_rep2label_rep_color =\
             rmf._generate_tcrs_dict_from_clones_dataframe(clone_df,
                                                      epitopes = self.epitopes,
-                                                     organism = "mouse",
-                                                     return_as_tuple= True)
+                                                     organism = self.organism,
+                                                     return_as_tuple = True,
+                                                     all_genes = self.all_genes )
         self.all_tcrs                = all_tcrs
         self.all_rep2label_rep       = all_rep2label_rep
         self.all_rep2label_rep_color = all_rep2label_rep_color
 
         return all_tcrs
 
-    def _generate_tcrs(self, epitope):
+    def _generate_tcrs(self, epitope, gdmode = False):
         """
         generates self.tcrs attribute
 
@@ -416,7 +663,8 @@ class TCRsubset():
         rmf._generate_tcrs_dict_from_clones_dataframe()
 
         """
-        tcrs = self._generate_all_tcrs()[epitope]
+
+        tcrs = self._generate_all_tcrs(gdmode = gdmode)[epitope]
 
         self.tcrs = tcrs
         # these were stored_when running _generate_all_tcrs
@@ -483,9 +731,14 @@ class TCRsubset():
 
         self.all_neighbors = all_neighbors
         return all_neighbors
-
+    
+    # def _generate_custom_ng_tcrs(self, path, db_file):
+    #     self.ng_tcrs = rmf._generate_read_motif_ng_tcrs_dict(chains = self.chains, organism = self.organism)
+    
     def _generate_ng_tcrs(self):
-        self.ng_tcrs = rmf._generate_read_motif_ng_tcrs_dict(chains = self.chains)
+        warnings.warn(f"GENERATING READ MOTIF NG TCRS DICT WITH {self.db_file}\n")
+        warnings.warn(f"USING SELF.ALL_GENES\n")
+        self.ng_tcrs = rmf._generate_read_motif_ng_tcrs_dict(chains = self.chains, organism = self.organism, db_file = self.db_file, all_genes = self.all_genes)
 
     def _validate_chains(self):
         """
@@ -845,3 +1098,62 @@ class TCRsubset():
             rc = ( rep2label_rep[ tag ][4:], rep2label_rep_color[ tag ] )
             counts[rc] = counts.get(rc,0)+float(count)
         return [ (y,x[0],x[1]) for x,y in counts.items() ]
+    
+    def generate_background_set(self,
+                                chain         = None,
+                                organism      = None,
+                                max_ng_lines  = None,
+                                db_file       = None,
+                                ng_log_path   = None,
+                                ng_log_file   = None):
+        """ALLOW FULL CONTROL OVER NEXTGENE LOG FILES
+            THIS IS A DUPLICATE OF CODE IN TCRMotif"""
+        if chain is None:
+            raise ValueError("chain must be specified as 'A' or 'B'")
+        if ng_log_path is None:
+            raise ValueError("ng_log_path, for legacy behaivor try  paths.path_to_current_db_files(db_file = 'alphabeta_db.tsv')")
+        if ng_log_file is None:
+            raise ValueError("ng_log_file must be specified, for legacy try:  'new_nextgen_chains_{}_{}.tsv'.format(organism,ab)'")
+                
+        if organism is None:
+            organism = self.organism
+        if max_ng_lines is None:
+            max_ng_lines = self.max_ng_lines
+
+        # initialize a ng_tcrs disctionary based on chains present
+        #ng_tcrs      = {k:{} for k in chain}
+        
+        ng_logfile = os.path.join(ng_log_path, ng_log_file)
+        if not os.path.isfile(ng_logfile):
+            raise OSError('find_cdr3_motifs.py: missing next-gen chains file {}'.format(ng_logfile))
+
+        counter=0
+        num_chains=0
+        ab_chains = {}
+        
+        ab = chain 
+        for line in open(ng_logfile,'r'):
+            counter+=1
+            l = line[:-1].split('\t')
+            if counter==1:
+                assert l==['v_reps','j_reps','cdr3','cdr3_nucseq']
+                continue
+            #if not counter%1000000:#Log(`counter`+' '+`num_chains`+' '+ng_logfile)
+            if max_ng_lines and counter > max_ng_lines:
+                break
+            #v_reps = set( ( util.get_mm1_rep(x,organism) for x in l[0].split(',') ) )
+            v_reps = set( ( self.all_genes[self.organism][x].mm1_rep for x in l[0].split(',') ) )
+            j_reps = l[1].split(',')
+            cdr3, cdr3_nucseq = l[2:4]
+
+            ## now add to the different places
+            for v_rep in v_reps:
+                for j_rep in j_reps:
+                    if v_rep not in ab_chains: ab_chains[v_rep] = {}
+                    if j_rep not in ab_chains[v_rep]: ab_chains[v_rep][j_rep] = []
+                    ab_chains[v_rep][j_rep].append( (cdr3, cdr3_nucseq ))
+
+            num_chains += 1
+            ab_chains
+        return ab_chains
+
