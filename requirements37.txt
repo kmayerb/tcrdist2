@@ -15,4 +15,4 @@ numba
 fishersapi
 pwseqdist
 hierdiff
-trcsampler>=0.1.5
+trcsampler
