@@ -449,7 +449,11 @@ class TCRrep:
 
         return(pd.Series(olga_pgens))
     
-    def archive(self, dest = "default_archive", dest_tar_name = "default_archive.tar.gz", verbose = True):
+    def archive(self, 
+                dest = "default_archive", 
+                dest_tar_name = "default_archive.tar.gz", 
+                verbose = True, 
+                use_csv = True):
         """ 
         
         Use Zipdist2 to Make an Archive.tar.gz 
@@ -460,6 +464,10 @@ class TCRrep:
             e.g., 'default_archive'
         dest_tar_name : str
             e.g., 'default_archive.tar.gz'
+        verbose : bool
+            if True, report steps in archive process
+        use_csv : bool
+            if True, archive will include .csv file. Useful for porting files to other applications, but creates large files.
 
         Example
         -------
@@ -476,17 +484,19 @@ class TCRrep:
         self.cell_df_index = self.cell_df.index.copy()
         self.cell_df = self.cell_df.reset_index()
         z = Zipdist2(name = dest_tar_name , target = self)
-        z._save(dest = dest, dest_tar = dest_tar_name )
+        z._save(dest = dest, dest_tar = dest_tar_name, verbose = verbose, use_csv = use_csv )
         sys.stdout.write(f"\tArchiving your TCRrep using Zipdist2 in [{dest_tar_name}]\n")
     
     def rebuild(self,  dest_tar_name = "default_archive.tar.gz", verbose = True ):
         """ 
-        Use Zipdist2 to Make an Archive.tar.gz
+        Use Zipdist2 to reubild a TCRrep instance from an Archive.tar.gz
 
         Parameters
         ----------
         dest_tar_name : str
             e.g., 'default_archive.tar.gz'
+        verbose : bool
+            If True, report rebuilding process steps.
 
         Example
         -------

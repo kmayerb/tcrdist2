@@ -23,6 +23,9 @@ def install_test_files():
     install_dropbox_file("M_F1_2019_alpha_tcrdist2.csv",
                         "https://www.dropbox.com/s/p0g6izun8qqw0m6/M_F1_2019_alpha_tcrdist2.csv?dl=1",
                         "test_files")
+    install_dropbox_file("britanova_chord_blood_sample_5000.csv",
+                        "https://www.dropbox.com/s/o3afho77rh0d3pk/britanova_chord_blood_sample_5000.csv?dl=1",
+                        "test_files")
 
 
 def install_dropbox_file(filename,

@@ -25,8 +25,8 @@ def install_nextgen_data_to_db_ab(download_file = "new_nextgen_chains_mouse_A.ts
     if download_from is "dropbox":
         address = { "new_nextgen_chains_mouse_A.tsv" : 'https://www.dropbox.com/s/pkpr6p97eworn3q/new_nextgen_chains_mouse_A.tsv?dl=1',
                     "new_nextgen_chains_mouse_B.tsv" : 'https://www.dropbox.com/s/sxgvrj25mnzr20s/new_nextgen_chains_mouse_B.tsv?dl=1',
-                    "new_nextgen_chains_human_A.tsv" : 'https://www.dropbox.com/s/41w8yl38nr4ey32/new_nextgen_chains_human_A.tsv?dl=1',
-                    "new_nextgen_chains_human_B.tsv" : 'https://www.dropbox.com/s/8ysciqrcywdsryp/new_nextgen_chains_human_B.tsv?dl=1'}
+                    "new_nextgen_chains_human_A.tsv" : 'https://www.dropbox.com/s/9p43c7tscf46dat/new_nextgen_chains_human_A.tsv?dl=1',
+                    "new_nextgen_chains_human_B.tsv" : 'https://www.dropbox.com/s/83xbk7jp4xd3pr0/new_nextgen_chains_human_B.tsv?dl=1'}
         if download_file not in address.keys():
             raise ValueError("download_file must be in {}".format(" ".join(map(str,address.keys))))
 
