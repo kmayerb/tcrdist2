@@ -6,12 +6,14 @@
 
 2019-07-12
 
-#### tcrdist2 produces flexible distance measures for comparing T cell receptors.
+#### tcrdist2 provides flexible distance measures for comparing T cell receptors
 
-tcrdist2 is a python API-enabled toolkit expanding on the T cell receptor analysis pipeline
-developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and
-colleagues as part of a T cell receptor epitope specificity analysis
-in Dash et al. [Nature (2017) doi:10.1038/nature22383](https://doi.org/10.1038/nature22383).
+tcrdist2 is a python API-enabled toolkit for analyzing T-cell receptor repertoires.
+Some of the functionality and code is adapted from the original tcr-dist
+package which was released with the publication of  Dash et al.
+Nature (2017) [doi:10.1038/nature22383](https://doi.org/10.1038/nature22383). This package contains a new API
+for accessing the features of tcr-dist, as well as many new features that expand 
+the T cell receptor analysis pipeline.
 
 The original code for replicating analysis performed in the manuscript can be found [here](https://github.com/phbradley/tcr-dist).
 
@@ -31,7 +33,7 @@ can be cloned or installed directly.
   pip install git+https://github.com/kmayerb/tcrdist2.git@API2
 ```
 
-To test out code used in the documented examples. Create a venv. Install tcrdist2. Install [fishersapi](https://github.com/agartland/fishersapi). 
+To test out code used in the documented examples. Create a venv. Install tcrdist2 with all dependencies. 
 
 ```bash
 python3 -m venv ./tenv
@@ -43,11 +45,6 @@ pip install git+https://github.com/agartland/fishersapi.git#egg=fishersapi
 Quickly test installation
 ```
 python -c "import tcrdist"
-```
-
-You should see, the message:
-```
-Using Cython-powered Fisher's exact test
 ```
 
 ## Development Files
