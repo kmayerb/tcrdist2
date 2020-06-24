@@ -26,27 +26,31 @@ CLASSIFIERS = ["Development Status :: 3 - Alpha",
                "Topic :: Scientific/Engineering"]
 
 # Description should be a one-liner:
-description = "shablona: a template for small scientific Python projects"
+description = "tcrdist2: a package for analyzing TCR repertoire datasets"
 # Long description will go up on the pypi page
 long_description = """
 tcrdist2
 ========
-tcrdist2 is new API version of TCRdist original developed by 
-Phil Bradley, Jeremy Crawford, and colleagues as part of analysis 
-of T-cell receptor specificity in Dash et al. Nature (2017) doi:10.1038/nature22383. 
+tcrdist2 is a package for analyzing T-cell receptor repertoire datasets.
+Some of the functionality and code is adapted from the original tcr-dist
+package which was released with the publication of  Dash et al.
+Nature (2017) doi:10.1038/nature22383. This package contains a new API
+for accessing the features of tcr-dist, as well as many new features.
+
 The original code replicating analysis in the manuscript can be found at
 https://github.com/phbradley/tcr-dist
 
 To get started using these components in your own software, please go to the
 repository README.
 .. _README: https://github.com/kmayerb/tcrdist2/blob/API2/README.md
+
 License
 =======
 ``tcrdist2`` is licensed under the terms of the MIT license. See the file
 "LICENSE" for information on the history of this software, terms & conditions
 for usage, and a DISCLAIMER OF ALL WARRANTIES.
 All trademarks referenced herein are property of their respective holders.
-Copyright (c) 2019--, Phillip Harlan Bradley, Jeremy Chase Crawford, Andrew Fiore-Gartland, and Koshlan Mayer-Blackwell.
+Copyright (c) 2020, Phillip Harlan Bradley, Jeremy Chase Crawford, Andrew Fiore-Gartland, and Koshlan Mayer-Blackwell.
 Fred Hutchinson Cancer Research Center.
 """
 
@@ -59,7 +63,7 @@ URL = "http://github.com/kmayerb/tcrdist2"
 DOWNLOAD_URL = ""
 LICENSE = "MIT"
 AUTHOR = "Phillip Harlan Bradley, Jeremy Chase Crawford, Andrew Fiore-Gartland, Koshlan Mayer-Blackwell"
-AUTHOR_EMAIL = "pbradley@fredhutch.org"
+AUTHOR_EMAIL = "kmayerbl@fredhutch.org"
 PLATFORMS = "OS Independent"
 MAJOR = _version_major
 MINOR = _version_minor
