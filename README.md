@@ -4,8 +4,6 @@
 
 # tcrdist2
 
-2019-07-12
-
 #### tcrdist2 provides flexible distance measures for comparing T cell receptors
 
 tcrdist2 is a python API-enabled toolkit for analyzing T-cell receptor repertoires.
