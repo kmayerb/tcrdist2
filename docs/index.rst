@@ -1,21 +1,20 @@
 tcrdist2
 ========
 
-`tcrdist2 <https://github.com/kmayerb/tcrdist2>`_ is a python
-API-enabled toolkit expanding on the T cell receptor analysis pipeline
-developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and
-colleagues as part of a T-cell receptor epitope specificity analysis
-in Dash et al. Nature (2017). The manuscript
-(`doi:10.1038/nature22383 <https://www.nature.com/articles/nature22383>`_)
-outlines a basis for T cell receptor comparison by
-incorporating dissimilarity across multiple complementarity determining regions.
-Extended Data `Figure 3 <https://www.nature.com/articles/nature22383/figures/7>`_
-is particularly illustrative.
+2020-06-27
+
+tcrdist2 provides flexible distance measures for comparing T cell receptors
+
+`tcrdist2 <https://github.com/kmayerb/tcrdist2>`_ is a python API-enabled toolkit for analyzing T-cell receptor repertoires. Some of the functionality and code is adapted from the original tcr-dist package which was released with the publication of Dash et al. Nature (2017). The manuscript
+(`doi:10.1038/nature22383 <https://www.nature.com/articles/nature22383>`_). This package contains a new API for accessing the features of tcr-dist, as well as many new features that expand the T cell receptor analysis pipeline.
+
 
 .. image:: E3.jpg
 
 **Extended Data Figure 3 : Schematic overview of the TCRdist calculation.**
 
+Extended Data `Figure 3 <https://www.nature.com/articles/nature22383/figures/7>`_
+is particularly illustrative.
 
 "Each TCR is mapped to the amino acid sequences of the loops within the
 receptor that are known to provide contacts to the pMHC (commonly referred
