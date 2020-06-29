@@ -922,62 +922,7 @@ class TCRrep:
             self.stored_tcrdist.append(r)
         return(r)
 
-    def compute_pairwise(self,
-                         chain,
-                         metric = "nw",
-                         processes = 2,
-                         user_function = None,
-                         to_matrix = True,
-                         **kwargs):
-        """
-        Early Function to be replaced with compute_pairwise_all.
-        TODO: Rewrite test and remove.
-        """
-
-        # validate chain argument passed
-        self._validate_chain(chain)
-        # another option would be to loop through the a list of chains
-        index_col_from_chain = {'alpha' : 'cdr3_a_aa',
-                                'beta'  : 'cdr3_b_aa',
-                                'gamma' : 'crd3_g_aa',
-                                'delta' : 'cdr3_d_aa'}
-
-        sequences = self.clone_df[index_col_from_chain[chain]]
-
-        # Pull the default substitution matrix
-        if chain == "alpha":
-            smat = self.cdr3_a_aa_smat
-        elif chain == "beta":
-            smat = self.cdr3_b_aa_smat
-        elif chain == 'gamma':
-            smat = self.cdr3_g_aa_smat
-        elif chain == "delta":
-            smat = self.cdr3_d_aa_smat
-
-        # If kwargs were passed use them, otherwise pass chain-sp. smat from above
-        if ('matrix' in kwargs) or ("open" in kwargs):
-            pw = _compute_pairwise(sequences = sequences,
-                                   metric = metric,
-                                   processes = processes,
-                                   user_function = user_function,
-                                   **kwargs)
-        else:
-            pw = _compute_pairwise(sequences = sequences,
-                                   metric = metric,
-                                   processes = processes,
-                                   user_function = user_function,
-                                   **{'matrix' : smat})
-
-
-        if chain == "alpha":
-            self.cdr3_a_aa_pw = pw
-        elif chain == "beta":
-            self.cdr3_b_aa_pw = pw
-        elif chain == 'gamma':
-            self.cdr3_g_aa_pw = pw
-        elif chain == "delta":
-            self.cdr3_d_aa_pw = pw
-    
+  
     def generate_cluster_index(self, t = 75, criterion = "distance", method =  "complete", append_counts = False):
         """
         Add 'cluster_index' column to TCRrep.clone_df 
