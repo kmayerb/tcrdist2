@@ -5,7 +5,7 @@
 Clustering
 ==========
 
-tcrdist2 recognizes to general cluster attributes:
+tcrdist2 recognizes two general cluster attributes:
 
 1. :py:attr:`TCRrep.clone_index` 
 
