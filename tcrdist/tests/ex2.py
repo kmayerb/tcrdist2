@@ -7,7 +7,7 @@ def test_ex2():
 	df = pd.read_csv('dash.csv')
 	df = df[df.epitope.isin(['PA'])]
 	tr = TCRrep(cell_df=df, chains=['alpha','beta'], organism='mouse')
-	tr.tcrdist2(processes = 2,
+	tr.tcrdist2(processes = 1,
 				metric = 'nw',
 				reduce = True,
 				dump = False,

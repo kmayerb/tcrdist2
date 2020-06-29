@@ -98,8 +98,8 @@ class test_repertoire(unittest.TestCase):
         testrep.deduplicate()                                    # (3)
         testrep.cdr3_a_aa_smat = 'blosum62'               # (4)
         testrep.cdr3_b_aa_smat = 'blosum62'
-        testrep.compute_pairwise(chain = "alpha")                # (5)
-        testrep.compute_pairwise(chain = "beta")                 # (6)
+        testrep.compute_pairwise_all(chain = "alpha", metric = "nw")                # (5)
+        testrep.compute_pairwise_all(chain = "beta",  metric = "nw")                 # (6)
         tcrdist = testrep.cdr3_a_aa_pw + testrep.cdr3_b_aa_pw    # (7)
 
         expected_tcrdist = np.array([[   0.,  222.,  210.,  223.,  231.,  239.,  219.,  231.,  175.],
@@ -126,8 +126,8 @@ class test_repertoire(unittest.TestCase):
         testrep.deduplicate()                                    # (3)
         testrep.cdr3_a_aa_smat = 'blosum62'               # (4)
         testrep.cdr3_b_aa_smat = 'blosum62'
-        testrep.compute_pairwise(chain = "alpha", metric = "hamming")                # (5)
-        testrep.compute_pairwise(chain = "beta", metric = "hamming")                 # (6)
+        testrep.compute_pairwise_all(chain = "alpha", metric = "hamming")                # (5)
+        testrep.compute_pairwise_all(chain = "beta", metric = "hamming")                 # (6)
         tcrdist = testrep.cdr3_a_aa_pw + testrep.cdr3_b_aa_pw    # (7)
 
         expected_tcrdist = np.array([[  0.,  18.,  17.,  18.,  19.,  22.,  19.,  18.,  16.],

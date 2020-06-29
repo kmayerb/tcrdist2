@@ -922,62 +922,72 @@ class TCRrep:
             self.stored_tcrdist.append(r)
         return(r)
 
-    def compute_pairwise(self,
-                         chain,
-                         metric = "nw",
-                         processes = 2,
-                         user_function = None,
-                         to_matrix = True,
-                         **kwargs):
+    def simple_cluster_index(   self,
+                                pw_distances = None,
+                                method = 'complete',
+                                criterion = "distance",
+                                t = 75):
         """
-        Early Function to be replaced with compute_pairwise_all.
-        TODO: Rewrite test and remove.
+        Add 'cluster_index' column to TCRrep.clone_df 
+
+        Parameters
+        ----------
+
+        t : int
+            scipy.cluster.hierarchy.fcluster param t
+        criterion : str 
+            scipy.cluster.hierarchy.fcluster param criterion 
+        method : str 
+            scipy.cluster.linkage param method 
+        t : int
+            scipy.cluster.hierarcy.fcluster param t
+
+        Notes
+        -----
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.fcluster.html
         """
 
-        # validate chain argument passed
-        self._validate_chain(chain)
-        # another option would be to loop through the a list of chains
-        index_col_from_chain = {'alpha' : 'cdr3_a_aa',
-                                'beta'  : 'cdr3_b_aa',
-                                'gamma' : 'crd3_g_aa',
-                                'delta' : 'cdr3_d_aa'}
-
-        sequences = self.clone_df[index_col_from_chain[chain]]
-
-        # Pull the default substitution matrix
-        if chain == "alpha":
-            smat = self.cdr3_a_aa_smat
-        elif chain == "beta":
-            smat = self.cdr3_b_aa_smat
-        elif chain == 'gamma':
-            smat = self.cdr3_g_aa_smat
-        elif chain == "delta":
-            smat = self.cdr3_d_aa_smat
-
-        # If kwargs were passed use them, otherwise pass chain-sp. smat from above
-        if ('matrix' in kwargs) or ("open" in kwargs):
-            pw = _compute_pairwise(sequences = sequences,
-                                   metric = metric,
-                                   processes = processes,
-                                   user_function = user_function,
-                                   **kwargs)
-        else:
-            pw = _compute_pairwise(sequences = sequences,
-                                   metric = metric,
-                                   processes = processes,
-                                   user_function = user_function,
-                                   **{'matrix' : smat})
+        if pw_distances is None:
+            pw_distances = self.pw_tcrdist
+        
+        compressed_dmat = scipy.spatial.distance.squareform(self.paired_tcrdist, force = "vector")
+        Z = linkage(compressed_dmat, method = method)
+        cluster_index = fcluster(Z, t = t, criterion = criterion)
+        return cluster_index
 
 
-        if chain == "alpha":
-            self.cdr3_a_aa_pw = pw
-        elif chain == "beta":
-            self.cdr3_b_aa_pw = pw
-        elif chain == 'gamma':
-            self.cdr3_g_aa_pw = pw
-        elif chain == "delta":
-            self.cdr3_d_aa_pw = pw
-    
+    def cluster_index_to_df(self, cluster_index):
+        """
+        Parameters
+        ----------
+        cluster_index : np.ndarray 
+
+        Returns
+        -------
+        cluster_df : pd.DataFrame
+
+        Notes
+        -----
+        
+        cluster_df format:
+        
+        cluster_id                                          neighbors  K_neighbors
+          4  [16, 25, 26, 29, 32, 50, 61, 68, 69, 94, 103, ...           24
+         92  [35, 38, 41, 105, 131, 146, 181, 186, 189, 206...           18
+
+        """
+        dl = dict()
+        for k,v in enumerate(cluster_index):
+            dl.setdefault(v, [])
+            dl[v].append(k)
+
+        cluster_df = pd.DataFrame({'neighbors' : pd.Series(dl)}).sort_index().reset_index().rename(columns = {'index':'cluster_id'})
+        cluster_df['K_neighbors'] = cluster_df.neighbors.str.len()
+        cluster_df = cluster_df.sort_values(by = 'K_neighbors', ascending = False)
+        
+        return cluster_df
+
+
     def generate_cluster_index(self, t = 75, criterion = "distance", method =  "complete", append_counts = False):
         """
         Add 'cluster_index' column to TCRrep.clone_df 

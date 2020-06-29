@@ -333,4 +333,3 @@ All attributes can be accessed as before.
 	       [37, 47, 28, ..., 28,  0, 39],
 	       [26, 45, 45, ..., 27, 39,  0]], dtype=int16)
 
-
