@@ -1,3 +1,4 @@
+# tidy 
 import numpy as np
 import pandas as pd
 import tarfile
@@ -5,6 +6,7 @@ import sys
 import os
 import scipy.spatial
 from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
+from scipy.spatial.distance import squareform
 import collections
 import json
 import warnings
@@ -14,15 +16,15 @@ import parasail
 import pwseqdist
 from zipdist.zip2 import Zipdist2 
 
+
 from . import repertoire_db
 from . import pgen
 from . import mappers
 from . import pairwise
 
-# includes tools for use with explore.py
-#from paths import path_to_matrices
-#This replaces: from tcrdist.cdr3s_human import pb_cdrs
-pb_cdrs = repertoire_db.generate_pbr_cdr()
+
+pb_cdrs = repertoire_db.generate_pbr_cdr() # This replaces: from tcrdist.cdr3s_human import pb_cdrs
+
 
 class TCRrep:
     """
@@ -45,9 +47,6 @@ class TCRrep:
         list of strings, indicating metadata columns (e.g. hla_type)
     chains : list
         list of strings containing one or more of 'alpha', 'beta', 'gamma' or 'delta'
-    stored_tcrdist : list
-        list containing all previously generated outputs of
-        `TCRrep.compute_paired_tcrdist`
     paired_tcrdist : ndarray
         most recent output of :py:meth:`tcrdist.repertoire.TCRrep.compute_paired_tcrdist`
     paired_tcrdist_weights : dictionary
@@ -83,8 +82,7 @@ class TCRrep:
         self.organism = organism
         self.pwdist_df = None
         self.clone_df = None
-        self.index_cols = []
-        self.stored_tcrdist = []
+        self.index_cols = list()
         self.paired_tcrdist = None
         self.paired_tcrdist_weights = None
         self.meta_cols = None
@@ -104,24 +102,11 @@ class TCRrep:
         # INIT the REFERENCE DB see repertoire_db.py
         self.generate_ref_genes_from_db(db_file)
 
-
-
     def __repr__(self):
         return 'tcrdist.repertoire.TCRrep for {}\n with index_cols: {}\n with model organism: {}'.format(self.project_id, self.index_cols, self.organism)
 
-    def __getitem__(self, position):
-        # It should be decided whether get item should refer to the  or to the clone_df or it could be for iterating over pw dist matrices
-        if self.clone_df is None:
-            return self.cell_df.loc[position]
-        if self.clone_df is not None:
-            return self.clone_df.loc[position]
-
-    def __len__(self):
-        return self.cell_df.shape[0]
-
     def generate_ref_genes_from_db(self, db_file = "alphabeta_db.tsv"):
         """
-
         Responsible for generating the all_genes attribute containing all
         the reference TCR data.
 
@@ -140,7 +125,7 @@ class TCRrep:
                                     cdr,
                                     attr ='cdrs_no_gaps'):
         """
-        internal function that looks up the cdr sequence (gapped or ungapped)
+        Internal function that looks up the cdr sequence (gapped or ungapped)
         from the self.all_genes library
 
         Parameter
@@ -187,31 +172,6 @@ class TCRrep:
         ind = self.cell_df[self.index_cols].isnull().any(axis = 1)   
         incomplete_clones = self.cell_df.loc[ind,self.index_cols].copy()
         return incomplete_clones  
-
-    # def tcr_motif_clones_df(self):
-    #     """
-    #     Use this function to create a clones_df input appropriate to TCRMotif.
-    #
-    #     It make use of a mapper to ensure proper columns and column names
-    #
-    #     Example
-    #     -------
-    #     TCRMotif(clones_df = TCRRep.tcr_motif_clones_df())
-    #     """
-    #     return _map_clone_df_to_TCRMotif_clone_df(self.clone_df)
-
-    def tcr_motif_clones_df(self):
-        """
-        Use this function to create a clones_df input appropriate to TCRMotif.
-
-        It make use of a mapper to ensure proper columns and column names
-
-        Example
-        -------
-        TCRMotif(clones_df = TCRrep.tcr_motif_clones_df())
-        """
-        return mappers.generic_pandas_mapper(self.clone_df,
-                                             mappers.TCRrep_clone_df_to_TCRMotif_clone_df)
 
 
     def infer_cdrs_from_v_gene(self, chain, imgt_aligned = False):
@@ -312,6 +272,15 @@ class TCRrep:
             self.cell_df['cdr2_d_aa'] = list(map(f1, self.cell_df.v_d_gene))
             self.cell_df['pmhc_d_aa'] = list(map(f2, self.cell_df.v_d_gene))
 
+    def custom_dmat(self, cdr, metric, processes=1):
+        dvec = pwseqdist.apply_pairwise_sq(seqs = self.clone_df[cdr], metric = metric, ncpus = processes)
+        dmat = squareform(dvec)
+        return dmat
+
+    def add_custom_dmat(self, cdr, metric, processes=1):
+        dmat = self.custom_dmat(cdr=cdr, metric=metric, processes=processes)
+        attr_name = f'custom_{cdr}_pw'
+        self.__setattr__(attr_name, dmat)
 
     def infer_olga_aa_cdr3_pgens(self,
                                  chain,
@@ -453,9 +422,8 @@ class TCRrep:
                 dest = "default_archive", 
                 dest_tar_name = "default_archive.tar.gz", 
                 verbose = True, 
-                use_csv = True):
+                use_csv = False):
         """ 
-        
         Use Zipdist2 to Make an Archive.tar.gz 
 
         Parameters
@@ -533,12 +501,13 @@ class TCRrep:
     def tcrdist2(self, 
                  metric = "nw",
                  processes = None,
-                 weights = None,
+                 replacement_weights  = None,
                  dump = False,
                  reduce = True,
                  save = False,
                  dest = "default_archive",
                  dest_tar_name = "default_archive.tar.gz",
+                 use_csv = False,
                  verbose = True):
         """
         Automated calculation of single chain and paired chain tcr-distances
@@ -550,7 +519,7 @@ class TCRrep:
             (see notes for legacy methods)
         processes : int
             number of cpus to use; the default is greedy and will use half of available
-        weights : dict
+        replacement_weights  : dict
             override cdr weightings
         dump : bool
             if True, dump intermediate cdr1, cdr2, and pmhc pairwise matrices
@@ -560,6 +529,8 @@ class TCRrep:
             if True, saves intermediate files to dest
         dest : str
             path to save components
+        use_csv : bool
+            save archive files as .csv as well as serialized
         verbose : bool
             If True, provide sys.stdout reports.
 
@@ -592,35 +563,39 @@ class TCRrep:
         for chain in self.chains:
             self.infer_cdrs_from_v_gene(chain=chain,  imgt_aligned=True)
         
-        if weights is None:
-            weights = {'cdr1_a_aa':1,
-                        'cdr2_a_aa':1,
-                        'cdr3_a_aa':3,
-                        'pmhc_a_aa':1,
-                        'cdr1_b_aa':1,
-                        'cdr2_b_aa':1,
-                        'cdr3_b_aa':3,
-                        'pmhc_b_aa':1,
-                        'cdr1_g_aa':1,
-                        'cdr2_g_aa':1,
-                        'cdr3_g_aa':3,
-                        'pmhc_g_aa':1,
-                        'cdr1_d_aa':1,
-                        'cdr2_d_aa':1,
-                        'cdr3_d_aa':3,
-                        'pmhc_d_aa':1,
-                        'v_a_gene':0, 
-                        'j_a_gene':0,
-                        'v_b_gene':0, 
-                        'j_b_gene':0,
-                        'v_g_gene':0, 
-                        'j_g_gene':0,
-                        'v_d_gene':0, 
-                        'j_d_gene':0,
-                        'cdr3_a_nucseq':0,
-                        'cdr3_b_nucseq':0,
-                        'cdr3_g_nucseq':0,
-                        'cdr3_d_nucseq':0}
+        
+        weights = {'cdr1_a_aa':1,
+                    'cdr2_a_aa':1,
+                    'cdr3_a_aa':1,
+                    'pmhc_a_aa':1,
+                    'cdr1_b_aa':1,
+                    'cdr2_b_aa':1,
+                    'cdr3_b_aa':1,
+                    'pmhc_b_aa':1,
+                    'cdr1_g_aa':1,
+                    'cdr2_g_aa':1,
+                    'cdr3_g_aa':3,
+                    'pmhc_g_aa':1,
+                    'cdr1_d_aa':1,
+                    'cdr2_d_aa':1,
+                    'cdr3_d_aa':3,
+                    'pmhc_d_aa':1,
+                    'v_a_gene':0, 
+                    'j_a_gene':0,
+                    'v_b_gene':0, 
+                    'j_b_gene':0,
+                    'v_g_gene':0, 
+                    'j_g_gene':0,
+                    'v_d_gene':0, 
+                    'j_d_gene':0,
+                    'cdr3_a_nucseq':0,
+                    'cdr3_b_nucseq':0,
+                    'cdr3_g_nucseq':0,
+                    'cdr3_d_nucseq':0}
+        
+        if replacement_weights is not None:
+            for k in replacement_weights:
+                weights[k] = replacement_weights[k]
 
         index_cdrs = [k for k in weights.keys() if k in self.cell_df.columns]
 
@@ -636,7 +611,9 @@ class TCRrep:
             if verbose: sys.stdout.write(f"\tComputing pairwise matrices for cdrs within the {chain}-chain using the {metric} metric.\n")
             self.compute_pairwise_all(chain = chain, metric = metric, processes = processes)
         sys.stdout.write("Calculating composite tcrdistance measures:\n")
-        self.compute_paired_tcrdist( chains=self.chains, store_result=False)
+        rep_weights = {f"{k}_pw":w for k,w in weights.items() if k in self.cell_df.columns and k.endswith('_aa')}
+
+        self.compute_paired_tcrdist( chains=self.chains, store_result=False, replacement_weights = rep_weights)
         for chain in self.chains:
             if verbose: sys.stdout.write(f"\tSingle chain pairwise tcrdistances are in attribute : TCRrep.pw_{chain}\n")
         if verbose: sys.stdout.write(f"\tCombined pairwise tcrdistances are in attribute     : TCRrep.pw_tcrdist\n")
@@ -664,7 +641,7 @@ class TCRrep:
         if save:
             if verbose: sys.stdout.write(f"Archiving your TCRrep using Zipdist2 (save = {save})\n")
             # To avoid = ValueError: feather does not support serializing a non-default index for the index; you can .reset_index() to make the index into column(s)
-            self.archive(dest = dest, dest_tar_name = dest_tar_name, verbose = True)
+            self.archive(dest = dest, dest_tar_name = dest_tar_name, verbose = True, use_csv = use_csv)
             if verbose: sys.stdout.write(f"\tArchiving your TCRrep using Zipdist2 in [{dest_tar_name}]\n")
 
 
@@ -790,7 +767,7 @@ class TCRrep:
 
     def compute_paired_tcrdist(self,
                                chains = ['alpha', 'beta'],
-                               replacement_weights = {},
+                               replacement_weights = None,
                                store_result = False):
         """
         Computes tcrdistance metric combining distances metrics across multiple
@@ -864,8 +841,9 @@ class TCRrep:
                    'cdr3_d_aa_pw':1,
                    'pmhc_d_aa_pw':1}
 
-        for k in replacement_weights:
-            weights[k] = replacement_weights[k]
+        if replacement_weights is not None:
+            for k in replacement_weights:
+                weights[k] = replacement_weights[k]
 
         alpha_keys = [k for k in list(weights.keys()) if k.endswith("a_aa_pw")]
         beta_keys  = [k for k in list(weights.keys()) if k.endswith("b_aa_pw")]
@@ -1334,18 +1312,7 @@ class TCRrep:
             else:
                 warnings.warn("No assignment for {} because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
 
-    def _drop_smats(self):
-        """
-        Need to drop ctypes if you are to pickle or copy this instance
-        """
-        smats = [ k for k in self.__dir__() if k.endswith("aa_smat") ]
-        for k in smats:
-            self.__dict__[k] = None
 
-    def _pickle(self, filename):
-        self._drop_smats()
-        pickle.dump(self,  open(filename , "wb") )
-        warnings.warn("all smats dropped because they are C objects that can't be pickled. reassign with _initialize_chain_specific_attributes()")
 
     def _tcrdist_legacy_method_alpha_beta(self, processes = 1):
         """
@@ -1430,7 +1397,7 @@ class TCRrep:
         # tr.paired_tcrdist, which we confirm is simply the sum of distA and distB
         self.compute_paired_tcrdist(chains = self.chains)
         assert np.all(((distA + distB) - self.paired_tcrdist) == 0)
-        
+        self.pw_tcrdist = self.paired_tcrdist
         self.pw_alpha = distA
         self.pw_beta  = distB
 
@@ -1700,138 +1667,20 @@ class TCRrep:
         """
         x = getattr(self, attribute).astype(data_type)
         setattr(self, attribute, x)
-
-    def save_as_hdf5(self, hdf5_file):
+    
+    def tcr_motif_clones_df(self):
         """
-        Save class attributes as a hdf5 file
+        Use this function to create a clones_df input appropriate to TCRMotif.
 
-        Parameters
-        ----------
-        hdf5_file : string
-            specifies the hdf5 file to used to save TCRrep attribute
+        It make use of a mapper to ensure proper columns and column names
+
+        Example
+        -------
+        TCRMotif(clones_df = TCRrep.tcr_motif_clones_df())
         """
-        hdf = pd.HDFStore(hdf5_file)
-        all_attrs = self.__dict__.keys()
-        all_types = [type(getattr(self,x)) for x in all_attrs]
+        return mappers.generic_pandas_mapper(self.clone_df,
+                                             mappers.TCRrep_clone_df_to_TCRMotif_clone_df)
 
-        attributes_dict = {k : getattr(self,k) for k,t in zip(all_attrs, all_types) if t in [bool, str, int, list, dict]}
-        attributes_dict['attributes'] = list(all_attrs)
-
-        for attr, ty in zip(all_attrs, all_types):
-            x = getattr(self, attr)
-            if not isinstance(x, parasail.bindings_v2.Matrix):
-                if isinstance(x, pd.core.frame.DataFrame):
-                    with warnings.catch_warnings():
-                        warnings.simplefilter("ignore")
-                        hdf.put(attr, x, format='table', data_columns=True)
-                if isinstance(x, np.ndarray):
-                    if 'pw' in attr:
-                        out = scipy.spatial.distance.squareform(x, force='tovector', checks=False)
-                        out = pd.DataFrame(out)
-                    else:
-                        out = pd.DataFrame(x)
-                    with warnings.catch_warnings():
-                        warnings.simplefilter("ignore")
-                        hdf.put(attr, out, format='table')
-        hdf.get_storer('cell_df').attrs.metadata = json.dumps(attributes_dict)
-        hdf.close()
-
-    def rebuild_from_hdf5(self, hdf5_file, verbose=False):
-        """
-        Use hdf5 file to rebuild a TCRrep instance.
-
-        Parameters
-        ----------
-        hdf5_file : string
-            specifies the hdf5 file used to repopulate a TCRdist object
-
-        Notes
-        -----
-        pandas and numpy objects are stored as datasets within the hdf5 file.
-
-        str, list, bool, and float type attributes are stored in a json
-        file that is set as metadata for the archived cell_df dataset.
-        Within this metadata, the attributes contains a list of all class
-        attributes.
-        """
-        # Currently these are the only acceptable attributes that can be
-        # read from the HDF5
-        attr_to_type = {
-        'db_file' : str,
-        'cell_df': pd.core.frame.DataFrame,
-        'chains': list,
-        'organism': str,
-        'pwdist_df': None,
-        'clone_df': pd.core.frame.DataFrame,
-        'index_cols': list,
-        'stored_tcrdist': None,
-        'paired_tcrdist': np.ndarray,
-        'paired_tcrdist_weights': dict,
-        'meta_cols': None,
-        'project_id': str,
-        'all_genes': collections.OrderedDict,
-        'imgt_aligned_status': bool}
-        attr_to_type.update({'cdr3_%s_aa_smat' % loci: parasail.bindings_v2.Matrix for loci in 'abgd'})
-        attr_to_type.update({'cdr2_%s_aa_smat' % loci: parasail.bindings_v2.Matrix for loci in 'abgd'})
-        attr_to_type.update({'cdr1_%s_aa_smat' % loci: parasail.bindings_v2.Matrix for loci in 'abgd'})
-        attr_to_type.update({'pmhc_%s_aa_smat' % loci: parasail.bindings_v2.Matrix for loci in 'abgd'})
-        attr_to_type.update({'cdr3_%s_aa_pw' % loci: np.ndarray for loci in 'abgd'})
-        attr_to_type.update({'cdr2_%s_aa_pw' % loci: np.ndarray for loci in 'abgd'})
-        attr_to_type.update({'cdr1_%s_aa_pw' % loci: np.ndarray for loci in 'abgd'})
-        attr_to_type.update({'pmhc_%s_aa_pw' % loci: np.ndarray for loci in 'abgd'})
-        attr_to_type.update({'dist_%s' % loci: pd.core.frame.DataFrame for loci in 'abgd'})
-
-
-        with pd.HDFStore(hdf5_file) as store:
-
-            # pull the metadata from cell_df
-            metadata = store.get_storer('cell_df').attrs.metadata
-            metadata = json.loads(metadata)
-
-            for attr in metadata['attributes']:
-                try:
-                    if verbose:
-                        print("SETTING {} AS {}".format(attr, attr_to_type[attr] ))
-                except KeyError:
-                    print("YOU TRIED TO SET {} BUT IT IS NOT A RECOGNIZED ATTRRIBUTE OF TCRrep".format(attr))
-                    continue
-                if not attr in store and not attr in metadata:
-                    setattr(self, attr, None)
-                    continue
-
-                if attr_to_type[attr] is pd.core.frame.DataFrame:
-                    setattr(self, attr, store[attr])
-                elif attr_to_type[attr] is np.ndarray:
-                    if 'pw' in attr:
-                        tmp = store[attr].values
-                        incoming = scipy.spatial.distance.squareform(np.squeeze(tmp),
-                                                                     force='tomatrix',
-                                                                     checks=False)
-                        setattr(self, attr, incoming)
-                    else:
-                        setattr(self, attr, store[attr].values)
-                elif attr_to_type[attr] in [int, str, list, bool, dict]:
-                    setattr(self, attr, metadata[attr])
-                
-
-def load_hdf5(filename):
-    """
-    load a TCRrep saved to HDF5 using `save_as_hdf5`
-
-    Parameters
-    ----------
-    filename : string
-        Path to a HDF5 file containing a TCRrep
-
-    Returns
-    -------
-    incoming : TCRrep
-        a new TCRrep object"""
-
-    """Instantiate an empty TCRrep and rebuild from file"""
-    incoming = TCRrep(pd.DataFrame())
-    incoming.rebuild_from_hdf5(filename)
-    return incoming
 
 def _map_gene_to_reference_seq(organism = "human",
                                gene= 'TRAV1-1*02',
@@ -1870,23 +1719,32 @@ def _deduplicate(cell_df, index_cols):
     clones = cell_df.groupby(index_cols)['count'].agg(np.sum).reset_index()
     return clones
 
-def _compute_pairwise(sequences, metric='nw', processes=2, user_function=None, **kwargs):
-    """Wrapper for pairwise.apply_pw_distance_metric_w_multiprocessing()
-
+def _compute_pairwise(  sequences, 
+                        metric='nw', 
+                        processes=2, 
+                        user_function=None, 
+                        **kwargs):
+    """
+    Computes distances between pairs of sequences 
+   
     Parameters
     ----------
     sequences : list
+        list of valid character strings
     metric : string
+        Options include 'nw', hamming', 'hamming_aligned','tcrdist_cdr3', "tcrdist_cdr1", 'tcrdist_cdr2', 'tcrdist_cdr2.5', 'tcrdist_pmhc'
     processes : int
+        Number of parallel processes used to distribute computation.
     user_function : function
+        A user supplied distance function taking two strings. 
     **kwargs : keyword arguments passed to metric function
 
     Returns
     -------
     pw_full_np : np.ndarray
-        matrix of pairwise comparisons"""
-    # processes = 1
-    
+        matrix of pairwise comparisons
+    """
+  
     if metric == 'nw':
         metric_func = pwseqdist.metrics.nw_metric
     elif metric == 'hamming':
@@ -1912,99 +1770,9 @@ def _compute_pairwise(sequences, metric='nw', processes=2, user_function=None, *
     """This may not be neccessary in all use cases of the distances.
     Consider returning the vector form."""
     pw_full_np = scipy.spatial.distance.squareform(dvec)
-    """
-    pw = pairwise.apply_pw_distance_metric_w_multiprocessing(
-                    sequences = sequences, #! BUG FIX (sequences changed to unique_seqs)
-                    metric = metric,
-                    user_function = user_function,
-                    processes= 1,
-                    **kwargs)
-    pw = pairwise._pack_matrix(pw)
-    if not np.all(pw_full_np == pw):
-        print('dvec', dvec)
-        print(pw_full_np)
-        print(pw)
-        print(pw_full_np == pw)
-        print('pwsd_outer', pw_full_np[1, 2])
-        print('tcrdist_outer', pw[1, 2])
-        print(sequences)
-        print(sequences[1])
-        print(sequences[2])
-        print(kwargs['matrix'].name)
-        print(metric)
-    # pw_df = pd.DataFrame(pw, index=sequences, columns=sequences)
 
-    #print(sequences.shape)
-    #print(dvec.shape)
-    #print(pw_full_np.shape)
-    #print(dvec)
-    
-    unique_seqs = pd.Series(sequences).unique()
-
-    pw = pairwise.apply_pw_distance_metric_w_multiprocessing(
-        sequences = unique_seqs, #! BUG FIX (sequences changed to unique_seqs)
-        metric = metric,
-        user_function = user_function,
-        processes= processes,
-        **kwargs)
-
-    pw = pairwise._pack_matrix(pw)
-    pw_df = pd.DataFrame(pw, index = unique_seqs, columns = unique_seqs)
-    pw_full = pw_df.loc[sequences, sequences]
-    pw_full_np = pw_full.values"""
     return pw_full_np
     
-def _map_clone_df_to_TCRMotif_clone_df(df):
-    """
-    TODO: TEST REPLACEMENT WITH MUCH SIMPLER GENERIC
-    mappers.generic_pandas_mapper(tr.clone_df, mappers.TCRrep_clone_df_to_TCRMotif_clone_df)
-
-    THEN REMOVE AND REMOVE TESTS FROM test_repertoire_unit.py
-
-    Converts clone_df DataFrame used in tcrdist2 to the input clones_df
-    DataFrame required by TCRMotif().
-
-    Parameters
-    ----------
-    df : DataFrame
-        must contain columns ['subject','epitope', 'v_a_gene', 'j_a_gene',
-                              'v_b_gene', 'j_b_gene', 'cdr3_a_aa','cdr3_b_aa']
-
-    Returns
-    -------
-    df : DataFrame
-        modified DataFrame with subset and renamed columns
-
-    Example
-    -------
-    >>> df = pd.DataFrame([[1,2,3,4,5,6,7,8,9,10]],
-                        columns = [ 'subject','epitope',
-                                    'v_a_gene', 'j_a_gene',
-                                    'v_b_gene', 'j_b_gene',
-                                    'cdr3_a_aa','cdr3_b_aa',
-                                    'cdr2_a_aa', 'cdr2_b_aa'])
-    >>> print(_map_clone_df_to_TCRMotif_clone_df(df))
-        subject  epitope  va_rep  ja_rep  vb_rep  jb_rep  cdr3a  cdr3b
-    0        1        2       3       4       5       6      7      8
-    """
-
-    columns_conversion_dict =   {'subject'  : 'subject',
-                                 'epitope'  : 'epitope',
-                                 'v_a_gene' : 'va_rep',
-                                 'j_a_gene' : 'ja_rep',
-                                 'v_b_gene' : 'vb_rep',
-                                 'j_b_gene' : 'jb_rep',
-                                 'cdr3_a_aa': 'cdr3a',
-                                 'cdr3_b_aa': 'cdr3b' }
-
-    if not np.all([n in df.columns for n in columns_conversion_dict.keys()]):
-        missing = [n for n in columns_conversion_dict.keys() if n not in df.columns ]
-        raise KeyError("clone_df must have columns names: {}".format(" , ".join(missing)))
-
-    df = df[columns_conversion_dict.keys()]\
-        .rename(columns = columns_conversion_dict).copy()\
-
-    return(df)
 
 
 """

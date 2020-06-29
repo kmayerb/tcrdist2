@@ -3,7 +3,7 @@ tcrdist2
 
 2020-06-27
 
-tcrdist2 provides flexible distance measures for comparing T cell receptors
+**tcrdist2 provides flexible distance measures for comparing T cell receptors across complementarity determining regions (CDRs)**
 
 `tcrdist2 <https://github.com/kmayerb/tcrdist2>`_ is a python API-enabled toolkit for analyzing T-cell receptor repertoires. Some of the functionality and code is adapted from the original tcr-dist package which was released with the publication of Dash et al. Nature (2017). The manuscript
 (`doi:10.1038/nature22383 <https://www.nature.com/articles/nature22383>`_). This package contains a new API for accessing the features of tcr-dist, as well as many new features that expand the T cell receptor analysis pipeline.
@@ -36,11 +36,28 @@ role in epitope specificity (see Methods and Extended Data Fig. 3)."
    Installation
    Inputs
    tcrdist2
+
+.. _quick-examples:
+  
+.. toctree::
+   :caption: Quick Examples
+   :maxdepth: 2
+   
+   ex1
+
+
+.. _longk-examples:
+
+.. toctree::
+   :caption: Long Examples
+   :maxdepth: 2
+   
    HotStart
    CompleteExample
    Saving
    Plotting
-   
+
+.. _Pre-Processing:
 
 .. toctree::
    :caption: Pre-Processing
@@ -51,28 +68,6 @@ role in epitope specificity (see Methods and Extended Data Fig. 3)."
    Preprocess_Adaptive
    Preprocessing
    tcrdist1_to_tcrdist2
-
-.. _more-details:
-
-.. toctree::
-   :caption: More details
-   :maxdepth: 2
-   
-   Motifs
-   Mappers
-   Neighborhood
-   OlgaModel
-   Pairwise
-   PairwiseDistance
-   pGen
-   Processing
-   Proximity 
-   Repertoire
-   Storage
-   Subset
-   TCRMotif_Explained
-   WhatIsNew
-
 
 .. _in-depth-topics:
 

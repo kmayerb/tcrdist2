@@ -1,7 +1,7 @@
 import unittest
 from tcrdist import pairwise
 from tcrdist import repertoire
-from tcrdist.repertoire import TCRrep, load_hdf5
+from tcrdist.repertoire import TCRrep #load_hdf5
 import parasail
 import pandas as pd
 import numpy as np
@@ -178,7 +178,7 @@ class test_repertoire(unittest.TestCase):
 
         self.assertTrue((r['paired_tcrdist'] == expected['paired_tcrdist']).all())
 
-    def test_save_as_hdf5(self):
+    """def test_save_as_hdf5(self):
         testrep = TCRrep(cell_df=example_df, chains=["alpha", "beta"]) # (1)
         testrep.index_cols.append("epitope")                         # (2)
         testrep.index_cols.append("subject")
@@ -199,7 +199,7 @@ class test_repertoire(unittest.TestCase):
         incoming_tcrdist = incoming.cdr3_a_aa_pw + incoming.cdr3_b_aa_pw
 
         self.assertTrue((tcrdist == incoming_tcrdist).all())
-        self.assertTrue(testrep.chains == incoming.chains)
+        self.assertTrue(testrep.chains == incoming.chains)"""
 
 
 if __name__ == '__main__':

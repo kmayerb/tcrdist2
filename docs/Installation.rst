@@ -1,12 +1,6 @@
 Installation
 ============
 
-`tcrdist2 <https://github.com/kmayerb/tcrdist2>`_ is a
-python API-enabled toolkit expanding on the T cell receptor analysis pipeline
-developed by Phillip Harlan Bradley, Jeremy Chase Crawford, and
-colleagues as part of a T-cell receptor epitope specificity analysis
-in Dash et al. Nature (2017). `doi:10.1038/nature22383 <https://www.nature.com/articles/nature22383>`_
-
 tcrdist2 is designed to be run using Python 3. The latest version can
 be installed from GitHub using pip:
 
@@ -19,14 +13,14 @@ Before installing tcrdist2, check that you have the appropriate dependencies.
 Dependencies
 ++++++++++++
 
-Tcrdist2 requires wheel, numpy, scipy, matplotlib, scipy, scikit-learn, tables,
+tcrdist2 requires wheel, numpy, scipy, matplotlib, scipy, scikit-learn, tables,
 as well as the C-based sequence aligner parasail.
+
+Analysis tools require pip installable dependencies: zipdist, tcrsampler, hierdiff, fishersapi, and pwseqdist.
 
 Recommended python 3.6 dependencies are specified in the
 `requirements36.txt <https://raw.githubusercontent.com/kmayerb/tcrdist2/API2/requirements36.txt>`_ .
 It should be placed the directory where you launch the installation.
-The following will install tcrdist on a linux or macOSX within a virtual
-environment (Recommended).
 
 .. code-block:: none
   
