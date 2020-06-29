@@ -333,3 +333,14 @@ All attributes can be accessed as before.
 	       [26, 45, 45, ..., 27, 39,  0]], dtype=int16)
 
 
+Sampling
+========
+
+tcrdist2 uses the pip installable package `tcrsampler <https://pypi.org/project/tcrsampler/>`_, to sample CDR3s from user-specified background. 
+
+.. literalinclude:: ../tcrdist/tests/ex12.py
+    :linenos:
+    :dedent: 1
+    :language: python
+    :lines: 4-50
+
