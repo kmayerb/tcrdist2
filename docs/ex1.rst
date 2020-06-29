@@ -27,7 +27,7 @@ algorithm using BLOSUM62 scoring matrix.
 
 
 
-.. code-block::
+.. code-block:: python
 
 	In [2]: tr.pw_tcrdist
 	Out[2]:
@@ -61,7 +61,7 @@ algorithm using BLOSUM62 scoring matrix.
     :language: python
     :lines: 4-50
 
-.. code-block::
+.. code-block:: python
 
 	In [2]: tr.pw_tcrdist
 	Out[2]:
@@ -88,7 +88,7 @@ Chain specific distance attributes are provided as :py:attr:`TCRrep.pw_alpha` an
     :lines: 4-50
 
 
-.. code-block::
+.. code-block:: python
 
 	In [2]: tr.pw_tcrdist
 	Out[2]:
@@ -140,7 +140,7 @@ CDR-specific tcr-distances.
   and CDR3, are referred to in tcrdist2 as pmhc_a and phmc_b, respectively.
 
 
-.. code-block::
+.. code-block:: python
 
 	In [2]: tr.cdr3_b_aa_pw
 	Out[2]:
@@ -204,7 +204,8 @@ strings which has become a popular way of comparing large sets of CDR3s.
     :language: python
     :lines: 4-50
 
-.. code-block::
+
+.. code-block:: python
 
 	In [2]: dmat
 	Out[2]:
@@ -224,7 +225,7 @@ pwseqdist functionality can be applied to any string column in the TCRrep clone 
     :language: python
     :lines: 4-50
 
-.. code-block::
+.. code-block:: python
 
 	In [2]: tr.custom_dmat(cdr = 'cdr3_b_aa', metric =Levenshtein.distance, processes = 1)
 	Out[2]:
@@ -242,7 +243,7 @@ pwseqdist functionality can be applied to any string column in the TCRrep clone 
 	Using :py:meth:`.add_custom_dmat` will automatically create a new attribute with the name `custom_[selected_cdr]_pw`. For instance,
 
 
-.. code-block::
+.. code-block:: python
 
 	In [2]: tr.add_custom_dmat(cdr = 'cdr3_b_aa', metric =Levenshtein.distance, processes = 1)
 	
@@ -271,7 +272,7 @@ For instance,
     :lines: 4-50
 
 
-.. code-block::
+.. code-block:: python
 
 	In [2]: tr.pw_levenshtein_tcrdist_beta
 	Out[2]:
@@ -320,7 +321,7 @@ A :py:class:`TCRrep` instance can be rebuilt from the .tar.gz archive file. For 
 
 All attributes can be accessed as before.
 
-.. code-block::
+.. code-block:: python
 
 	In [2]: tr.pw_tcrdist
 	Out[2]:
