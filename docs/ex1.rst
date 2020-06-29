@@ -5,8 +5,8 @@
 **tcrdist2 provides flexible distance measures for comparing T cell receptors across complementarity determining regions (CDRs)**
 
 The following short examples use the :py:class:`TCRrep` class and :py:meth:`tcrdist2` method, which is appropriate for small and medium-sized datasets of 10-10,000 TCR clones. 
-The data used in these examples can be downloaded here: `dash.csv <https://raw.githubusercontent.com/kmayerb/tcrdist2/API2/tcrdist/test_files_compact/dash.csv>`_ (375KB). :py:meth:`tcrdist2`
-automates some step that can be seen in the longer examples.
+The data used in these examples can be downloaded here: `dash.csv <https://raw.githubusercontent.com/kmayerb/tcrdist2/API2/tcrdist/test_files_compact/dash.csv>`_ (375KB). The :py:meth:`tcrdist2`
+method automates some steps that can be seen in the longer examples.
 
 
 TCR Distances
