@@ -922,7 +922,72 @@ class TCRrep:
             self.stored_tcrdist.append(r)
         return(r)
 
-  
+    def simple_cluster_index(   self,
+                                pw_distances = None,
+                                method = 'complete',
+                                criterion = "distance",
+                                t = 75):
+        """
+        Add 'cluster_index' column to TCRrep.clone_df 
+
+        Parameters
+        ----------
+
+        t : int
+            scipy.cluster.hierarchy.fcluster param t
+        criterion : str 
+            scipy.cluster.hierarchy.fcluster param criterion 
+        method : str 
+            scipy.cluster.linkage param method 
+        t : int
+            scipy.cluster.hierarcy.fcluster param t
+
+        Notes
+        -----
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.fcluster.html
+        """
+
+        if pw_distances is None:
+            pw_distances = self.pw_tcrdist
+        
+        compressed_dmat = scipy.spatial.distance.squareform(self.paired_tcrdist, force = "vector")
+        Z = linkage(compressed_dmat, method = method)
+        cluster_index = fcluster(Z, t = t, criterion = criterion)
+        return cluster_index
+
+
+    def cluster_index_to_df(self, cluster_index):
+        """
+        Parameters
+        ----------
+        cluster_index : np.ndarray 
+
+        Returns
+        -------
+        cluster_df : pd.DataFrame
+
+        Notes
+        -----
+        
+        cluster_df format:
+        
+        cluster_id                                          neighbors  K_neighbors
+          4  [16, 25, 26, 29, 32, 50, 61, 68, 69, 94, 103, ...           24
+         92  [35, 38, 41, 105, 131, 146, 181, 186, 189, 206...           18
+
+        """
+        dl = dict()
+        for k,v in enumerate(cluster_index):
+            dl.setdefault(v, [])
+            dl[v].append(k)
+
+        cluster_df = pd.DataFrame({'neighbors' : pd.Series(dl)}).sort_index().reset_index().rename(columns = {'index':'cluster_id'})
+        cluster_df['K_neighbors'] = cluster_df.neighbors.str.len()
+        cluster_df = cluster_df.sort_values(by = 'K_neighbors', ascending = False)
+        
+        return cluster_df
+
+
     def generate_cluster_index(self, t = 75, criterion = "distance", method =  "complete", append_counts = False):
         """
         Add 'cluster_index' column to TCRrep.clone_df 
