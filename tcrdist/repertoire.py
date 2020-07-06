@@ -21,6 +21,7 @@ from . import repertoire_db
 from . import pgen
 from . import mappers
 from . import pairwise
+from . import cluster
 
 
 pb_cdrs = repertoire_db.generate_pbr_cdr() # This replaces: from tcrdist.cdr3s_human import pb_cdrs
@@ -928,7 +929,7 @@ class TCRrep:
                                 criterion = "distance",
                                 t = 75):
         """
-        Add 'cluster_index' column to TCRrep.clone_df 
+        Get 'cluster_index' 
 
         Parameters
         ----------
@@ -950,7 +951,7 @@ class TCRrep:
         if pw_distances is None:
             pw_distances = self.pw_tcrdist
         
-        compressed_dmat = scipy.spatial.distance.squareform(self.paired_tcrdist, force = "vector")
+        compressed_dmat = scipy.spatial.distance.squareform(pw_distances, force = "vector")
         Z = linkage(compressed_dmat, method = method)
         cluster_index = fcluster(Z, t = t, criterion = criterion)
         return cluster_index
@@ -987,6 +988,42 @@ class TCRrep:
         
         return cluster_df
 
+    def generate_cluster_summary(self, sampler=None, n = 20, dest = 'static'):
+        
+        if sampler is None:
+            raise RuntimeError("Specify a chain and species specific sampler using the program tcrsampler")
+
+        motifs_list = dict()
+        c = 0
+        for i,row in self.cluster_df.head(n).iterrows():
+            c = c + 1
+            cl_attrs = cluster._get_cluster_attributes(row = row, df= self.clone_df)
+
+            motifs = cluster._get_palmotifs(cluster_attributes = cl_attrs, 
+                            sampler = sampler, 
+                            write = True, 
+                            dest =  dest)
+            sys.stdout.write(f"CLUSTER {cl_attrs.cluster_id} ({c} of max:{n}) CONTAINS {len(cl_attrs.neighbors)} CLONES\n")
+            sys.stdout.write(f"\tWRITING CLUSTER SPECIFIC MOTIF SVG TO HTML: IN /{dest}/{cl_attrs.cluster_id}.cluster_id.svg\n")
+            motifs_list[cl_attrs.cluster_id] = motifs 
+            sys.stdout.write(f"\tWRITING CLUSTER SPECIFIC TABLE TO HTML: IN /{dest}/{cl_attrs.cluster_id}.cluster_id.html\n")
+            cluster.cluster_dataframe_to_cluster_html(df = cl_attrs.ns_df, 
+                                                    cluster_id = cl_attrs.cluster_id,
+                                                    cols = ["cdr3_b_aa", 'v_b_gene', 'j_b_gene', 'subject','epitope'],
+                                                    dest = dest)
+      
+
+        # Write the table of contents
+        df = pd.DataFrame({'cluster_id' : [x.cluster_attributes.cluster_id for k,x in motifs_list.items()],
+                            'centroid' : [x.cluster_attributes.centroid for k,x in motifs_list.items()],
+                            'loglik': [-1*np.sum(x.pal_stat.loglik) for k,x in motifs_list.items()] })
+        
+        dfx = self.cluster_df.merge(df, how = 'left', on = 'cluster_id').copy()
+
+        cluster.dataframe_to_toc_html(df = dfx, cols=['cluster_id','neighbors','K_neighbors','centroid','loglik'] )
+        sys.stdout.write(f"\tWRITING CLUSTER TABLE OF CONTENTS TO HTML /{dest}/toc.html\n")
+        #cluster.dataframe_to_toc_html(df = self.cluster_df, dest = dest )
+        return motifs_list
 
     def generate_cluster_index(self, t = 75, criterion = "distance", method =  "complete", append_counts = False):
         """
