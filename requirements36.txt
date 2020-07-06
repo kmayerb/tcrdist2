@@ -16,3 +16,4 @@ hierdiff
 numba
 tcrsampler
 Jinja2
+palmotif
