@@ -1,0 +1,212 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Logos</title>
+  
+</head>
+<style type="text/css">
+#toc_container {
+background: #f9f9f9 none repeat scroll 0 0;
+border: 1px solid #aaa;
+display: table;
+font-size: 25px;
+font-family: sans-serif;
+margin-bottom: 1em;
+padding: 20px;
+width: auto;
+}
+
+
+.toc_title {
+    font-weight: 700;
+    text-align: center;
+}
+
+.caption {
+    font-weight: 200;
+    text-align: left;
+    font-size: 12px;
+}
+
+
+
+
+#toc_container li, #toc_container ul, #toc_container ul li{
+    list-style: outside none none !important;
+}
+#myInput {
+background-image: url('/css/searchicon.png');
+background-position: 10px 10px;
+background-repeat: no-repeat;
+width: 90%;
+font-size: 12px;
+padding: 2px 2px 2px 2px;
+border: 1px solid #ddd;
+margin-bottom: 12px;
+font-family:  "Courier New";
+}
+
+#myTable {
+border-collapse: collapse;
+width: 90%;
+padding: 2px 2px 2px 2px;
+border: 5px solid #aaa;
+font-size: 12px;
+font-family: monospace;
+/* font-family: sans-serif; */
+/* font-family:  "Courier New"; */
+}
+
+#myTable th, #myTable td {
+text-align: center;
+padding: 2px;
+}
+
+#myTable tr {
+border-bottom: 1px solid #ddd;
+}
+
+#myTable tr.header, #myTable tr:hover {
+background-color: #f1f1f1;
+}
+</style>
+
+<body>
+    <div id="toc_container">
+    <p class="toc_title">Cluster {{ cluster_id }}</p>
+    <p class="caption"> Top: Selection Motif<br>Middle: Cluster Motif<br>Bottom: Background Sample Motif</p>
+
+<object data={{ cluster_id }}_cluster_id.svg width="800" height="550"></object>
+
+<p class="toc_title">Clones Comprising Cluster {{ cluster_id }}</p>
+<input type="text" id="myInput" onkeyup="myFunction(0)" placeholder="search first column ..." title="CDR">
+
+    <table id="myTable" class=”searchable sortable”>
+        <thead>
+        <tr style="text-align: right;">
+        {{ tbl_head }}
+        </tr>
+        </thead>
+        {{ tbl_body }}
+    </table>
+
+    </div>
+</body>
+</html>
+
+<object data={{ rank }}.gene_usage.svg width="800" height="800"></object>
+
+
+<script>
+function myFunction(n) {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[n];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }       
+  }
+}
+
+function sortTable(n) {
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = document.getElementById("myTable");
+  switching = true;
+  //Set the sorting direction to ascending:
+  dir = "asc"; 
+  /*Make a loop that will continue until
+  no switching has been done:*/
+  while (switching) {
+    //start by saying: no switching is done:
+    switching = false;
+    rows = table.rows;
+    /*Loop through all table rows (except the
+    first, which contains table headers):*/
+    for (i = 1; i < (rows.length - 1); i++) {
+      //start by saying there should be no switching:
+      shouldSwitch = false;
+      /*Get the two elements you want to compare,
+      one from current row and one from the next:*/
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      /*check if the two rows should switch place,
+      based on the direction, asc or desc:*/
+      if (dir == "asc") {
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch= true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      /*If a switch has been marked, make the switch
+      and mark that a switch has been done:*/
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      //Each time a switch is done, increase this count by 1:
+      switchcount ++;      
+    } else {
+      /*If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again.*/
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
+}
+
+function sortTableNumeric(n) {
+  var table, rows, switching, i, x, y, shouldSwitch;
+  table = document.getElementById("myTable");
+  switching = true;
+  /*Make a loop that will continue until
+  no switching has been done:*/
+  while (switching) {
+    //start by saying: no switching is done:
+    switching = false;
+    rows = table.rows;
+    /*Loop through all table rows (except the
+    first, which contains table headers):*/
+    for (i = 1; i < (rows.length - 1); i++) {
+      //start by saying there should be no switching:
+      shouldSwitch = false;
+      /*Get the two elements you want to compare,
+      one from current row and one from the next:*/
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      //check if the two rows should switch place:
+      if (Number(x.innerHTML) < Number(y.innerHTML)) {
+        //if so, mark as a switch and break the loop:
+        shouldSwitch = true;
+        break;
+      }
+    }
+    if (shouldSwitch) {
+      /*If a switch has been marked, make the switch
+      and mark that a switch has been done:*/
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+    }
+  }
+}
+</script>

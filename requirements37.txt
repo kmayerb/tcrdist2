@@ -16,3 +16,4 @@ fishersapi
 pwseqdist
 hierdiff
 tcrsampler
+Jinja2
