@@ -13,6 +13,7 @@ install:
 script:
   - cp tcrdist/datasets/dash.csv dash.csv
   - mkdir static
+  - mkdir static3
   - python -c "from tcrsampler.setup_db import install_all_next_gen; install_all_next_gen(dry_run = False)"
   - python -c "import tcrdist as td; td.setup_blast.install_blast_to_externals(download_from = 'ncbi_linux');"
   - python -c "import tcrdist as td; td.setup_db.install_all_next_gen()"
