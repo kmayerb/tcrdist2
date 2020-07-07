@@ -44,7 +44,7 @@ def test_get_cl_attributes_get_palmotif():
     assert isinstance(cl_motif.pal_motif[0], pd.DataFrame)
     assert isinstance(cl_motif.pal_motif[1], pd.DataFrame)
     assert isinstance(cl_motif.bkgd_motif, tuple)
-    assert isinstance(cl_motif.bkgd_motif[0], pd.DataFrame)
+    assert isinstance(cl_motif.bkgd_motifd[0], pd.DataFrame)
     assert isinstance(cl_motif.bkgd_motif[1], pd.DataFrame)
 
 def test_get_cl_attributes_get_palmotif_and_write():
@@ -58,11 +58,11 @@ def test_iterate_over_cluster_df_write_palmotifs():
         cl_attrs = cluster._get_cluster_attributes(row = row, df= test_clone_df)
         cl_motif = cluster._get_palmotifs(cluster_attributes = cl_attrs, sampler = ts, write = True, dest = 'static')
 
-    contents = os.listdir('static3')
+    contents = os.listdir('static')
     for i in test_cluster_df.head(10)['cluster_id']:
-        assert os.path.isfile(os.path.join('static3', f"{i}.pal_svg.svg"))
-        assert os.path.isfile(os.path.join('static3', f"{i}.raw_svg.svg"))
-        assert os.path.isfile(os.path.join('static3', f"{i}.bkgd_svg.svg"))
+        assert os.path.isfile(os.path.join('static', f"{i}.pal_svg.svg"))
+        assert os.path.isfile(os.path.join('static', f"{i}.raw_svg.svg"))
+        assert os.path.isfile(os.path.join('static', f"{i}.bkgd_svg.svg"))
 
 
 # def test_write_cluster_table():
