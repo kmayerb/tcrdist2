@@ -1,0 +1,47 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Tree</title>
+  
+</head>
+<style type="text/css">
+#tree_container {
+background: #f9f9f9 none repeat scroll 0 0;
+border: 1px solid #aaa;
+display: table;
+font-size: 25px;
+font-family: sans-serif;
+margin-bottom: 1em;
+padding: 20px;
+width: auto;
+}
+
+
+.toc_title {
+    font-weight: 300;
+    text-align: center;
+    font-family: sans-serif;
+}
+
+.caption {
+    font-weight: 200;
+    text-align: left;
+    font-size: 12px;
+    font-family: sans-serif;
+}
+
+</style>
+
+<body>
+    <div id="tree_container">
+    <p class="toc_title">Motif Cluster Tree</p>
+    <p class="caption">Motif Clusters in Hierarchical Dendogram Order</p>
+    </div>
+    <div>
+    {{ tree_order_svgs }}
+    </div>
+</body>
+</html>
