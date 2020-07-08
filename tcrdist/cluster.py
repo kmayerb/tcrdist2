@@ -190,14 +190,14 @@ def _get_cluster_attributes(df,
                  centroid      = centroid)
     return cl
 
-def _get_palmotifs(cluster_attributes, sampler, write = True, dest = 'static3'):
+def _get_palmotifs(cluster_attributes, sampler, depth = 1000, write = True, dest = 'static'):
     """
     Use cluster attributes to generate palmotif matrices and svg
     """
     
     cl = cluster_attributes
     
-    refs, w = _sample(gene_usage = cl.gene_usage, ts = sampler)
+    refs, w = _sample(gene_usage = cl.gene_usage, ts = sampler, depth = depth)
     
     bkgd = list(refs) + [cl.centroid] 
 
@@ -633,10 +633,10 @@ def get_centroid_seq(seqs, metric = pw.metrics.nw_hamming_metric):
     #from scipy.spatial.distance import squareform
     if len(seqs) < 3:
         return seqs[0]
-    dvec = pw.apply_pairwise_sq(seqs = seqs, 
+    dmat = pw.apply_pairwise_sq(seqs = seqs, 
                 metric = metric , 
                 ncpus  = 1 )
-    dmat = squareform(dvec).astype(int)
+    dmat = dmat.astype(int)
     index_pos_of_min = dmat.sum(axis = 0).argmin()
     centroid_seq  = seqs[index_pos_of_min]
     return centroid_seq
