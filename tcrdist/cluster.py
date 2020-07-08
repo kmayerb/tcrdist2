@@ -602,7 +602,7 @@ def _add_allele(gene_string, allele = "*01"):
     return f"{gene_string}{allele}"
 
 
-def get_centroid_seq(seqs, metric = pw.metrics.nw_metric:
+def get_centroid_seq(seqs, metric = pw.metrics.nw_metric):
     """
     Given a list of sequences, returns the sequence with the minimum 
     sum of distances to all other seqs in the list.
