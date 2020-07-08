@@ -11,7 +11,7 @@ statsmodels==0.10.1
 tables
 parmap
 fishersapi
-pwseqdist
+git+https://github.com/agartland/pwseqdist.git
 hierdiff
 numba
 tcrsampler

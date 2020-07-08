@@ -105,6 +105,40 @@ class TCRrep:
 
     def __repr__(self):
         return 'tcrdist.repertoire.TCRrep for {}\n with index_cols: {}\n with model organism: {}'.format(self.project_id, self.index_cols, self.organism)
+    
+    def _pw(self, seqs, metric_func, cpu, **kwargs):
+        pw_mat = pwseqdist.apply_pairwise_sq(seqs, metric_func, ncpus=cpu, **kwargs)
+        if len(pw_mat.shape) == 1:
+            pw_mat = squareform(pw_mat)
+        return pw_mat
+
+    def _pws(self, 
+            df = None, 
+            chain = None, 
+            metrics = None, 
+            weights = None,
+            cpu = 1,
+            assign = True, 
+            **kwargs):
+        
+        metric_keys = list(metrics.keys())
+        weight_keys = list(weights.keys())    
+        assert metric_keys == weight_keys, "metrics and weights keys must be identical"
+        
+        tcrdist = None
+        for k in metric_keys:
+            pw_mat = self._pw(seqs = df[k].values, metric_func = metrics[k], cpu = cpu) 
+            if tcrdist is None:
+                tcrdist = np.zeros(pw_mat.shape)          
+            tcrdist = tcrdist + (weights[k] * pw_mat)
+            if assign:
+                self._assign_pw_cdr_result(pw = pw_mat, chain=chain, index_col=k)
+    
+        if assign:
+            self._assign_pw_chain_result(pw = tcrdist, chain=chain)
+        
+        return tcrdist
+
 
     def generate_ref_genes_from_db(self, db_file = "alphabeta_db.tsv"):
         """
@@ -275,8 +309,9 @@ class TCRrep:
 
     def custom_dmat(self, cdr, metric, processes=1):
         dvec = pwseqdist.apply_pairwise_sq(seqs = self.clone_df[cdr], metric = metric, ncpus = processes)
-        dmat = squareform(dvec)
-        return dmat
+        if len(dvec.shape) == 1:
+            dvec = squareform(dvec)
+        return dvec
 
     def add_custom_dmat(self, cdr, metric, processes=1):
         dmat = self.custom_dmat(cdr=cdr, metric=metric, processes=processes)
@@ -497,7 +532,7 @@ class TCRrep:
         # RE INIT the REFERENCE DB see repertoire_db.py
         self.generate_ref_genes_from_db(self.db_file)
        
-
+      
 
     def tcrdist2(self, 
                  metric = "nw",
@@ -1359,6 +1394,79 @@ class TCRrep:
             else:
                 warnings.warn("No assignment for {} because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
 
+    def _assign_pw_cdr_result(self, pw, chain, index_col):
+        """
+        Assigns pairwise result to TCRrep attribute based on chain and index_col
+
+        Parameters
+        ----------
+        chain : string
+            'alpha', 'beta', 'gamma', or 'delta'
+        index_col : string
+            [cdr3|cdr2|cdr1|pmhc]_[a|b|g|d]_aa_pw
+
+        """
+        self._validate_chain(chain = chain)
+
+        if chain == "alpha":
+            if index_col.startswith("cdr3_a"):
+                self.pw_cdr3_a_aa = pw
+            elif index_col.startswith("cdr2_a"):
+                self.pw_cdr2_a_aa = pw
+            elif index_col.startswith("cdr1_a"):
+                self.pw_cdr1_a_aa = pw
+            elif index_col.startswith("pmhc_a"):
+                self.pw_pmhc_a_aa = pw
+            else:
+                warnings.warn("No assignment for {} because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
+
+        elif chain == "beta":
+            if index_col.startswith("cdr3_b"):
+                self.pw_cdr3_b_aa = pw
+            elif index_col.startswith("cdr2_b"):
+                self.pw_cdr2_b_aa = pw
+            elif index_col.startswith("cdr1_b"):
+                self.pw_cdr1_b_aa = pw
+            elif index_col.startswith("pmhc_b"):
+                self.pw_pmhc_b_aa = pw
+            else:
+                warnings.warn("No assignment for {} because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
+
+        elif chain == 'gamma':
+            if index_col.startswith("cdr3_g"):
+                self.pw_cdr3_g_aa = pw
+            elif index_col.startswith("cdr2_g"):
+                self.pw_cdr2_g_aa = pw
+            elif index_col.startswith("cdr1_g"):
+                self.pw_cdr1_g_aa = pw
+            elif index_col.startswith("pmhc_g"):
+                self.pw_pmhc_g_aa = pw
+            else:
+                warnings.warn("No assignment for {} because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
+
+        elif chain == "delta":
+            if index_col.startswith("cdr3_d"):
+                self.pw_cdr3_d_aa = pw
+            elif index_col.startswith("cdr2_d"):
+                self.pw_cdr2_d_aa = pw
+            elif index_col.startswith("cdr1_d"):
+                self.pw_cdr1_d_aa = pw
+            elif index_col.startswith("pmhc_d"):
+                self.pw_pmhc_d_aa = pw
+            else:
+                warnings.warn("No assignment for {} because chain: '{}' does not matches region: '{}'".format(index_col, chain, index_col))
+
+    def _assign_pw_chain_result(self, pw, chain):
+        self._validate_chain(chain = chain)
+
+        if chain == "alpha":
+            self.pw_alpha = pw
+        elif chain == "beta":
+            self.pw_beta = pw
+        elif chain == "gamma":
+            self.pw_gamma = pw
+        elif chain == "delta":
+            self.pw_delta = pw
 
 
     def _tcrdist_legacy_method_alpha_beta(self, processes = 1):
@@ -1816,10 +1924,17 @@ def _compute_pairwise(  sequences,
                                   ncpus=processes, **kwargs)
     """This may not be neccessary in all use cases of the distances.
     Consider returning the vector form."""
-    pw_full_np = scipy.spatial.distance.squareform(dvec)
+    if len(dvec.shape) == 1:
+        dvec = squareform(dvec)
+    pw_full_np = dvec
 
     return pw_full_np
-    
+
+
+
+
+
+
 
 
 """

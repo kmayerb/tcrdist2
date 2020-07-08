@@ -13,7 +13,7 @@ tables
 parmap
 numba
 fishersapi
-pwseqdist
+git+https://github.com/agartland/pwseqdist.git
 hierdiff
 tcrsampler
 Jinja2
