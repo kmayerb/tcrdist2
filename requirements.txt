@@ -13,7 +13,7 @@ parmap
 numba
 escapejson
 fishersapi==0.2
-pwseqdist==0.2
+pwseqdist==0.1
 hierdiff==0.2
 tcrsampler==0.1.7
 zipdist==0.1.5
