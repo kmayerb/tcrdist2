@@ -36,8 +36,7 @@ To test out code used in the documented examples. Create a venv. Install tcrdist
 ```bash
 python3 -m venv ./tenv
 source tenv/bin/activate
-pip install git+https://github.com/kmayerb/tcrdist2.git@0.0.4
-pip install git+https://github.com/agartland/fishersapi.git#egg=fishersapi
+pip install git+https://github.com/kmayerb/tcrdist2.git
 ```
 
 Quickly test installation
