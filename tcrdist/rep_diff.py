@@ -60,7 +60,7 @@ def neighborhood_diff(clone_df, pwmat, x_cols, count_col='count', knn_neighbors=
     knn_radius : float
         Radius for inclusion of neighbors within the neighborhood.
         Specify K or R but not both.
-    subset_ind : None or np.ndarray with partial index of df, optional
+    subset_ind : (Depcreciated) None or np.ndarray with partial index of df, optional
         Provides option to tally counts only within a subset of df, but to maintain the clustering
         of all individuals. Allows for one clustering of pooled TCRs,
         but tallying/testing within a subset (e.g. participants or conditions)
@@ -80,7 +80,6 @@ def neighborhood_diff(clone_df, pwmat, x_cols, count_col='count', knn_neighbors=
                                   count_col=count_col,
                                   knn_neighbors=knn_neighbors,
                                   knn_radius=knn_radius,
-                                  subset_ind=subset_ind,
                                   cluster_ind=cluster_ind)
     if not test_method is None:
         res = hd.cluster_association_test(res, y_col='cmember', method=test_method)
@@ -135,7 +134,7 @@ def hcluster_diff(clone_df, pwmat, x_cols, Z=None, count_col='count', subset_ind
     count_col : str
         Column in clone_df that specifies counts.
         Default none assumes count of 1 cell for each row.
-    subset_ind : None or np.ndarray with partial index of df, optional
+    subset_ind : (Depcreciated)  None or np.ndarray with partial index of df, optional
         Provides option to tally counts only within a subset of df, but to maintain the clustering
         of all individuals. Allows for one clustering of pooled TCRs,
         but tallying/testing within a subset (e.g. participants or conditions)
@@ -160,7 +159,6 @@ def hcluster_diff(clone_df, pwmat, x_cols, Z=None, count_col='count', subset_ind
                                   x_cols=x_cols,
                                   Z=Z,
                                   count_col=count_col,
-                                  subset_ind=subset_ind,
                                   method='complete',
                                   optimal_ordering=optimal_ordering)
     if not test_method is None:
