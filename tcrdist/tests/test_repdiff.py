@@ -44,7 +44,7 @@ class test_stats(unittest.TestCase):
                                   count_col='count',
                                   knn_neighbors=50,
                                   knn_radius=None,
-                                  subset_ind=None,
+                                  #subset_ind=None,
                                   cluster_ind=None)
 
         res = td.stats.neighborhood_diff(self.clone_df, self.pw, x_cols=['Visit', 'Stim'], test_method='chm')
@@ -60,6 +60,7 @@ class test_stats(unittest.TestCase):
 
     def test_fishers_HC(self):
         res = td.stats.hcluster_diff(self.clone_df, self.pw, x_cols=['Visit'], test_method='fishers')
+
 
     def test_member_summ(self):
         res, Z = td.stats.hcluster_diff(self.clone_df, self.pw, x_cols=['Visit'], test_method='fishers')
