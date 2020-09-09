@@ -205,7 +205,7 @@ def member_summ(res_df, clone_df, count_col='count', addl_cols=[], addl_n=1):
     
     split = []
     for resi, res_row in res_df.iterrows():
-        m = clone_df.iloc[res_row['members']]
+        m = clone_df.iloc[res_row['neighbors']]
 
         mode_i = m[count_col].idxmax()
         summ = {}
