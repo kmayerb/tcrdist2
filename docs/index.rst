@@ -1,3 +1,10 @@
+TCRDIST2 HAS BEEN DEPRECIATED SEE
+=================================
+
+See New Packages: `tcrdist3 <https://github.com/kmayerb/tcrdist3>`_ and `tcrregex <https://github.com/kmayerb/tcrregex>`_
+------------------------------------------------------------------------------------------------------------------------
+
+
 tcrdist2
 ========
 
