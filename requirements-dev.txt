@@ -31,7 +31,7 @@ jupyterlab==0.33.11
 jupyterlab-launcher==0.11.2
 MarkupSafe==1.1.1
 matplotlib==1.4.3
-mistune==0.8.4
+mistune==2.0.3
 more-itertools==5.0.0
 nbconvert==5.5.0
 nbformat==4.4.0
